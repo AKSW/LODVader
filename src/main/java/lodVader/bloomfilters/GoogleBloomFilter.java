@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashSet;
 
 import org.apache.log4j.Logger;
 
@@ -19,7 +20,7 @@ public class GoogleBloomFilter {
 
 	public BloomFilter<byte[]> filter = null;
 
-	private Funnel<byte[]> funnel = Funnels.byteArrayFunnel();
+	public Funnel<byte[]> funnel = Funnels.byteArrayFunnel();
 
 	public String fullFilePath;
 
@@ -86,19 +87,20 @@ public class GoogleBloomFilter {
 		
 		logger.info("Loading file to bloom filter: "+file);
 		
+		HashSet<String> uniqueResources = new HashSet<String>();
+		
 		try {
 			String sCurrentLine;
-			String sLastLine = "";
 			br = new BufferedReader(new FileReader(file));
 
 			while ((sCurrentLine = br.readLine()) != null) {
-				if(!sLastLine.equals(sCurrentLine)){
-					sCurrentLine = sCurrentLine.replace("<", "");
-					sCurrentLine = sCurrentLine.replace(">", "");
+				if(!uniqueResources.contains(sCurrentLine)){
 					add(sCurrentLine);
 					elementsLoadedIntoFilter++;
 				}
-				sLastLine = sCurrentLine;
+				if (uniqueResources.size()==5000000)
+					uniqueResources = new HashSet<String>();
+				uniqueResources.add(sCurrentLine);
 			}
 			
 			logger.info("Bloom filter loaded "+elementsLoadedIntoFilter + " elements.");

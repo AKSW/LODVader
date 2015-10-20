@@ -47,7 +47,7 @@ public class NTriplesLODVaderParser extends RDFParserBase{
 		                		bufferQueue.add(new String(data,0,nRead, StandardCharsets.UTF_8));
 		                		
 		                		
-		                		while(bufferQueue.size()>450){
+		                		while(bufferQueue.size()>50){
 		                			Thread.sleep(1);
 		                			sleeping++; 
 		                			if(sleeping%25000==0)
@@ -121,7 +121,7 @@ public class NTriplesLODVaderParser extends RDFParserBase{
 							String triple = triples[q];
 							
 							
-							if (!triple.startsWith("#")) {
+//							if (!triple.startsWith("#")) {
 								try {
 
 //									Pattern pattern = Pattern
@@ -151,7 +151,7 @@ public class NTriplesLODVaderParser extends RDFParserBase{
 								} catch (ArrayIndexOutOfBoundsException e) {
 									lastLine = triple;
 								}
-							}
+//							}
 						}
 
 					} catch (NoSuchElementException em) {

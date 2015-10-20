@@ -166,12 +166,14 @@ public class SplitAndStoreThread extends RDFHandlerBase {
 				// compare the current subject with the previous one
 				if(!stSubject.equals(lastSubject)){
 					
-					// get subject and save to file
-					subjectFile.write(stSubject+"\n");
-					subjectLines++;
-					lastSubject = stSubject;
-					if (isChain)
-						subjectQueue.add(stSubject);
+					if(stSubject.startsWith("htt")){
+						// get subject and save to file
+						subjectFile.write(stSubject+"\n");
+						subjectLines++;
+						lastSubject = stSubject;
+						if (isChain)
+							subjectQueue.add(stSubject);
+					}
 					
 				}
 
@@ -193,7 +195,7 @@ public class SplitAndStoreThread extends RDFHandlerBase {
 			}
 			while (subjectQueue.size() > bufferSize) {
 				Thread.sleep(1);
-				System.out.println(subjectQueue.size());
+//				System.out.println(subjectQueue.size());
 			}
 			
 			if (totalTriplesRead % 1000000 == 0) {
