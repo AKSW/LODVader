@@ -103,7 +103,7 @@ public class DistributionSubjectNSDB extends DBSuperClass {
 			return subjectNS;
 		}
 
-		public void setSubjectFQDN(String subjectFQDN) {
+		public void setSubjectNS(String subjectFQDN) {
 			this.subjectNS = subjectFQDN;
 		}
 

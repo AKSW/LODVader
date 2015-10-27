@@ -4,8 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.TreeSet;
 
 import com.google.common.hash.BloomFilter;
 import com.mongodb.BasicDBList;
@@ -14,44 +12,52 @@ import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSInputFile;
 
+import lodVader.LODVaderProperties;
 import lodVader.bloomfilters.GoogleBloomFilter;
 import lodVader.mongodb.DBSuperClass;
 
 public abstract class SuperBucket {
 
-	int chunkSize = 25000;
-//	int chunkSize = 54480;
+	int chunkSize = LODVaderProperties.MAX_CHUNK_SIZE;	
 	
-	double fpp = 0.00000001;
+	double fpp = 0.0000001;
+	
 	public String COLLECTION_NAME = null;
 
-	String FIRST_RESOURCE = "firstResource";
+	public static String FIRST_RESOURCE = "firstResource";
 	
-	String LAST_RESOURCE = "lastResource";
+	public static String LAST_RESOURCE = "lastResource";
 	
-	String DISTRIBUTION_ID = "distributionID";
+	public static String DISTRIBUTION_ID = "distributionID";
 	
-	String firstResource = null;
+	public String firstResource = "";
 
-	String lastResource = null;
+	public String lastResource = "";
 	
-	String resource = null;
+	public String resource;
 	
-	GoogleBloomFilter filter = null;
+	public GoogleBloomFilter filter = null;
 	
 	int distributionID;
 
-	TreeSet<String> resources;
+	ArrayList<String> resources;
 	
 	public SuperBucket() {
 	}
 	
-	public SuperBucket(TreeSet<String> resources, int distributionID) {
+	public SuperBucket(ArrayList<String> resources, int distributionID) {
 		this.resources = resources;
 		this.distributionID = distributionID;
 	}
 	
+	public SuperBucket(GoogleBloomFilter filter, String firstResource, String lastResource){
+		this.filter = filter;
+		this.firstResource = firstResource;
+		this.lastResource = lastResource;
+	}
 	
+	
+	@SuppressWarnings("unchecked")
 	public void makeBucket(){
 		
 		// first we have to remove the old BFs for this distribution
@@ -84,7 +90,6 @@ public abstract class SuperBucket {
 	
 	private void saveChunk(final ArrayList<String> chunk){	
 		final int distributionID = this.distributionID;
-		
 		Thread t = new Thread(){
 			public void run() {
 				makeBloomFilter(chunk, distributionID);						
@@ -106,7 +111,7 @@ public abstract class SuperBucket {
 		final String firstResource = chunk.get(0);
 		final String lastResource = chunk.get(chunk.size() -1);
 		
-		GoogleBloomFilter filter = new GoogleBloomFilter(chunkSize, fpp);
+		GoogleBloomFilter filter = new GoogleBloomFilter(chunk.size(), fpp);
 		for(String resource: chunk){
 			filter.add(resource);
 		}
@@ -121,19 +126,15 @@ public abstract class SuperBucket {
 		}
 		
 		
-		
-		
-		String newFileName = "nome";
-		GridFS gfsPhoto = new GridFS( DBSuperClass.getInstance(), COLLECTION_NAME);
+		GridFS gfs = new GridFS( DBSuperClass.getInstance(), COLLECTION_NAME);
 		GridFSInputFile gfsFile;
 		try {
-			gfsFile = gfsPhoto.createFile(new ByteArrayInputStream(out.toByteArray()));
-			gfsFile.setFilename(newFileName);
+			gfsFile = gfs.createFile(new ByteArrayInputStream(out.toByteArray()));
 			gfsFile.put(FIRST_RESOURCE, firstResource);
 			gfsFile.put(LAST_RESOURCE, lastResource);
 			gfsFile.put(DISTRIBUTION_ID, distributionID);
 			gfsFile.save();			
-			
+		
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -141,7 +142,7 @@ public abstract class SuperBucket {
 		
 	}
 	
-	public boolean query(String resource, int distributionID){
+	public boolean query(int distributionID){
 		
 		GridFS gfsPhoto = new GridFS(DBSuperClass.getInstance(), COLLECTION_NAME);
 		
@@ -159,6 +160,7 @@ public abstract class SuperBucket {
 		GridFSDBFile file = gfsPhoto.findOne(new BasicDBObject("$and",and));
 		
 		GoogleBloomFilter filter = new GoogleBloomFilter();
+		if(file!=null)
 		try {
 			filter.filter = BloomFilter.readFrom(file.getInputStream(), filter.funnel);
 		} catch (IOException e) {
@@ -172,7 +174,7 @@ public abstract class SuperBucket {
 	
 	public GoogleBloomFilter getFilter(){
 		
-		GridFS gfsPhoto = new GridFS(DBSuperClass.getInstance(), COLLECTION_NAME);
+		GridFS gfs = new GridFS(DBSuperClass.getInstance(), COLLECTION_NAME);
 		
 		BasicDBObject firstResource = new BasicDBObject(FIRST_RESOURCE, new BasicDBObject("$lte", resource));
 		BasicDBObject lastResource = new BasicDBObject(LAST_RESOURCE, new BasicDBObject("$gte", resource));
@@ -183,10 +185,14 @@ public abstract class SuperBucket {
 		and.add(lastResource);
 		and.add(distribution);
 		
-		GridFSDBFile file = gfsPhoto.findOne(new BasicDBObject("$and",and));
+//		System.out.println(new BasicDBObject("$and",and));
 		
-		GoogleBloomFilter filter = new GoogleBloomFilter();
+		GridFSDBFile file = gfs.findOne(new BasicDBObject("$and",and));
+		
+		GoogleBloomFilter filter = null;
+		if(file!=null)
 		try {
+			filter = new GoogleBloomFilter();
 			filter.filter = BloomFilter.readFrom(file.getInputStream(), filter.funnel);
 			this.lastResource = file.get(LAST_RESOURCE).toString();
 			this.firstResource = file.get(FIRST_RESOURCE).toString();
@@ -194,6 +200,8 @@ public abstract class SuperBucket {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
+		
 		return filter;
 	}
 	

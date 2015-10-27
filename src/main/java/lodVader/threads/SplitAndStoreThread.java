@@ -2,7 +2,6 @@ package lodVader.threads;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -11,6 +10,7 @@ import org.openrdf.model.Statement;
 import org.openrdf.rio.helpers.RDFHandlerBase;
 
 import lodVader.LODVaderProperties;
+import lodVader.utils.Timer;
 
 public class SplitAndStoreThread extends RDFHandlerBase {
 
@@ -24,6 +24,10 @@ public class SplitAndStoreThread extends RDFHandlerBase {
 
 	ConcurrentLinkedQueue<String> subjectQueue = null;
 
+//	ArrayList<String> subjects = new ArrayList<String>();
+//
+//	ArrayList<String> objects = new ArrayList<String>();
+	
 	public Integer subjectLines = 0;
 
 	public Integer objectLines = 0;
@@ -35,9 +39,11 @@ public class SplitAndStoreThread extends RDFHandlerBase {
 	public boolean isChain = true;
 
 	private int bufferSize = 100000;
-
-	// tmp files to store subjects and objects. 
-	// these files will be used to create Bloom folters
+	
+	private Timer t = new Timer();
+	
+	int distributionID;
+	
 	BufferedWriter subjectFile = null;
 	BufferedWriter objectFile = null;
 	
@@ -53,15 +59,15 @@ public class SplitAndStoreThread extends RDFHandlerBase {
 	
 	
 	public SplitAndStoreThread(ConcurrentLinkedQueue<String> subjectQueue,
-			ConcurrentLinkedQueue<String> objectQueue, String fileName) {
+			ConcurrentLinkedQueue<String> objectQueue, String fileName, int distributionID) {
 		this.objectQueue = objectQueue;
 		this.subjectQueue = subjectQueue;
 		this.fileName = fileName;
-		startQueues();
+		this.distributionID = distributionID; 
 
+		 startQueues();
 	}
-
-
+	
 	private void startQueues() {
 		try {
 			if (subjectQueue != null)
@@ -88,7 +94,7 @@ public class SplitAndStoreThread extends RDFHandlerBase {
 			ex.printStackTrace();
 		}
 	}
-
+	
 	public String getFileName() {
 		return fileName;
 	}
@@ -169,6 +175,8 @@ public class SplitAndStoreThread extends RDFHandlerBase {
 					if(stSubject.startsWith("htt")){
 						// get subject and save to file
 						subjectFile.write(stSubject+"\n");
+//						subjects.add(stSubject);
+						
 						subjectLines++;
 						lastSubject = stSubject;
 						if (isChain)
@@ -181,6 +189,7 @@ public class SplitAndStoreThread extends RDFHandlerBase {
 				// to queue and save to file
 				if (!stObject.startsWith("\"")) {
 					objectFile.write(stObject+"\n");
+//					objects.add(stObject);
 
 					// add object to object queue (the queue is read by another thread)
 					if (isChain)
@@ -198,11 +207,21 @@ public class SplitAndStoreThread extends RDFHandlerBase {
 //				System.out.println(subjectQueue.size());
 			}
 			
+//			if(totalTriplesRead % 500000== 0){
+			
+//				if(objects.size()>0)
+//					new TmpObjectResourcesDB().save(objects, distributionID );
+//				if(subjects.size()>0)				
+//					new TmpSubjectResourcesDB().save(subjects, distributionID);
+//				subjects = new ArrayList<String>();
+//				objects = new ArrayList<String>();
+				
 			if (totalTriplesRead % 1000000 == 0) {
-				logger.info("Triples read: " + totalTriplesRead);
-				// System.out.println(objectQueue.size());
-				// System.out.println(subjectQueue.size());
-			}
+				logger.info("Triples read: " + totalTriplesRead + ", time: "+t.stopTimer());
+				t = new Timer();
+				t.startTimer();
+//			}
+		}
 
 		} catch (Exception e) {
 			e.printStackTrace();

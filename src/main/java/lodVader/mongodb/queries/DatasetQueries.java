@@ -12,6 +12,7 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
+import lodVader.LODVaderProperties;
 import lodVader.mongodb.DBSuperClass;
 import lodVader.mongodb.collections.DatasetDB;
 import lodVader.mongodb.collections.DistributionDB;
@@ -186,7 +187,7 @@ public class DatasetQueries {
 			DBCollection collection = DBSuperClass.getInstance().getCollection(
 					LinksetDB.COLLECTION_NAME);
 			BasicDBObject query = new BasicDBObject(LinksetDB.LINK_NUMBER_LINKS,
-					new BasicDBObject("$gt", 50));
+					new BasicDBObject("$gt", LODVaderProperties.LINKSET_TRESHOLD));
 			List<Integer> out = collection.distinct(
 					LinksetDB.DATASET_TARGET, query);
 

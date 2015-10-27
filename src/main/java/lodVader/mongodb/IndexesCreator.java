@@ -13,6 +13,7 @@ import lodVader.mongodb.collections.RDFResources.owlClass.OwlClassRelationDB;
 import lodVader.mongodb.collections.RDFResources.rdfSubClassOf.RDFSubClassOfRelationDB;
 import lodVader.mongodb.collections.RDFResources.rdfType.RDFTypeObjectRelationDB;
 import lodVader.mongodb.collections.RDFResources.rdfType.RDFTypeSubjectRelationDB;
+import lodVader.mongodb.collections.gridFS.SuperBucket;
 
 public class IndexesCreator {
 	
@@ -75,8 +76,15 @@ public class IndexesCreator {
 		addIndex(OwlClassRelationDB.COLLECTION_NAME, OwlClassRelationDB.DISTRIBUTION_ID, 1);
 		addIndex(OwlClassRelationDB.COLLECTION_NAME, OwlClassRelationDB.DATASET_ID, 1);
 		
-		
-		
+		// indices for gridFS
+		addIndex("ObjectsBucket.files", SuperBucket.DISTRIBUTION_ID, 1);
+		addIndex("ObjectsBucket.files", SuperBucket.FIRST_RESOURCE, 1);
+		addIndex("ObjectsBucket.files", SuperBucket.LAST_RESOURCE, 1);
+
+		addIndex("SubjectsBucket.files", SuperBucket.DISTRIBUTION_ID, 1);
+		addIndex("SubjectsBucket.files", SuperBucket.FIRST_RESOURCE, 1);
+		addIndex("SubjectsBucket.files", SuperBucket.LAST_RESOURCE, 1);
+
 	}
 	
 	public void addIndex(String collection, String field, int value){

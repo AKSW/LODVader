@@ -30,7 +30,7 @@ import lodVader.mongodb.collections.RDFResources.rdfSubClassOf.RDFSubClassOfRela
 import lodVader.mongodb.collections.RDFResources.rdfType.RDFTypeObjectRelationDB;
 import lodVader.parsers.InputRDFParser;
 import lodVader.streaming.CheckWhetherToStream;
-import lodVader.streaming.StreamAndCompareDistribution;
+import lodVader.streaming.StreamDistribution;
 import lodVader.utils.FileUtils;
 import lodVader.utils.Timer;
 
@@ -90,12 +90,12 @@ public class Manager {
 					distributionMongoDBObj.updateObject(true);
 
 					// now we need to download the distribution
-					StreamAndCompareDistribution downloadedFile = new StreamAndCompareDistribution(
+					StreamDistribution streamFile = new StreamDistribution(
 							distributionMongoDBObj);
 
 					logger.info("Streaming distribution.");
 
-						downloadedFile.streamDistribution();
+						streamFile.streamDistribution();
 					
 
 					// uptate status of distribution
@@ -112,28 +112,28 @@ public class Manager {
 
 					logger.info("Creating bloom filter.");
 
-					createBloomFilters(downloadedFile, distributionMongoDBObj);
+//					createBloomFilters(downloadedFile, distributionMongoDBObj);
 
 					// save distribution in a mongodb object
 
 					logger.info("Saving mongodb \"Distribution\" document.");
 
 					distributionMongoDBObj.setNumberOfObjectTriples(String
-							.valueOf(downloadedFile.objectLines));
-					distributionMongoDBObj.setDownloadUrl(downloadedFile.url
+							.valueOf(streamFile.objectLines));
+					distributionMongoDBObj.setDownloadUrl(streamFile.url
 							.toString());
-					distributionMongoDBObj.setFormat(downloadedFile.extension
+					distributionMongoDBObj.setFormat(streamFile.extension
 							.toString());
 					distributionMongoDBObj.setHttpByteSize(String
-							.valueOf((int) downloadedFile.httpContentLength));
+							.valueOf((int) streamFile.httpContentLength));
 					distributionMongoDBObj
-							.setHttpFormat(downloadedFile.httpContentType);
+							.setHttpFormat(streamFile.httpContentType);
 					distributionMongoDBObj
-							.setHttpLastModified(downloadedFile.httpLastModified);
+							.setHttpLastModified(streamFile.httpLastModified);
 					distributionMongoDBObj
-							.setObjectPath(downloadedFile.objectFilePath);
+							.setObjectPath(streamFile.objectFilePath);
 					distributionMongoDBObj
-							.setTriples(downloadedFile.totalTriples);
+							.setTriples(streamFile.totalTriples);
 
 
 					distributionMongoDBObj.setSuccessfullyDownloaded(true);
@@ -159,8 +159,8 @@ public class Manager {
 						.setStatus(DistributionDB.STATUS_UPDATING_LINK_STRENGTH);
 					distributionMongoDBObj.updateObject(true);
 					// Saving link similarities
-					LinkStrength linkStrength = new LinkStrength();
-					linkStrength.updateLinks(distributionMongoDBObj);
+//					LinkStrength linkStrength = new LinkStrength();
+//					linkStrength.updateLinks(distributionMongoDBObj);
 
 
 					logger.info("Done streaming mongodb distribution object.");
@@ -294,8 +294,9 @@ public class Manager {
 	}
 
 	public boolean createBloomFilters(
-			StreamAndCompareDistribution downloadedFile,
+			StreamDistribution downloadedFile,
 			DistributionDB distributionMongoDBObj) {
+		
 		
 		GoogleBloomFilter filterSubject;
 		GoogleBloomFilter filterObject;

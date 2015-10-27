@@ -19,7 +19,7 @@ import com.mongodb.DBObject;
 
 import lodVader.LODVaderProperties;
 import lodVader.LoadedBloomFiltersCache;
-import lodVader.linksets.DistributionNS;
+import lodVader.linksets.DistributionFilter;
 import lodVader.mongodb.DBSuperClass;
 import lodVader.mongodb.collections.DatasetDB;
 import lodVader.mongodb.collections.DistributionDB;
@@ -37,14 +37,14 @@ public class DistributionQueries {
 	
 	NSUtils nsUtils = new NSUtils();
 
-	public ArrayList<DistributionDB> getDistributionsByOutdegree(ArrayList<String> fqdnToSearch,
-			ConcurrentHashMap<Integer, DistributionNS> fqdnPerDistribution) {
+	public ArrayList<DistributionDB> getDistributionsByOutdegree(ArrayList<String> nsToSearch,
+			ConcurrentHashMap<Integer, DistributionFilter> distributionFilter) {
 		ArrayList<DistributionDB> list = new ArrayList<DistributionDB>();
 		try {
 
 			// query all fqdn
 			BasicDBObject query = new BasicDBObject(DistributionSubjectNSDB.SUBJECT_NS,
-					new BasicDBObject("$in", fqdnToSearch));
+					new BasicDBObject("$in", nsToSearch));
 
 			DBCollection collection = DBSuperClass.getInstance()
 					.getCollection(DistributionSubjectNSDB.COLLECTION_NAME);
@@ -58,9 +58,9 @@ public class DistributionQueries {
 						((Number) instance.get(DistributionSubjectNSDB.DISTRIBUTION_ID)).intValue());
 				list.add(distribution);
 
-				if (!fqdnPerDistribution.containsKey(distribution.getLODVaderID())) {
-					fqdnPerDistribution.put(distribution.getLODVaderID(),
-							createDistributionFQDNObject(distribution.getLODVaderID()));
+				if (!distributionFilter.containsKey(distribution.getLODVaderID())) {
+					distributionFilter.put(distribution.getLODVaderID(),
+							new DistributionFilter(distribution.getLODVaderID()));
 
 				}
 			}
@@ -71,48 +71,10 @@ public class DistributionQueries {
 		return list;
 	}
 
-	public DistributionNS createDistributionFQDNObject(int distribution) {
-
-		DistributionNS distributionFQDNObject = new DistributionNS();
-
-		// query all objects fqdn for the distribution
-		BasicDBObject subjectQuery = new BasicDBObject(DistributionSubjectNSDB.DISTRIBUTION_ID, distribution);
-
-		DBCollection collection = DBSuperClass.getInstance()
-				.getCollection(DistributionSubjectNSDB.COLLECTION_NAME);
-
-		DBCursor cursor = collection.find(subjectQuery);
-
-		TreeSet<String> subjectsFQDN = new TreeSet<String>();
-
-		while (cursor.hasNext()) {
-			subjectsFQDN.add(cursor.next().get(DistributionSubjectNSDB.SUBJECT_NS).toString());
-		}
-
-		// doing the same for objects fqdn
-		BasicDBObject objectQuery = new BasicDBObject(DistributionObjectNSDB.DISTRIBUTION_ID, distribution);
-
-		collection = DBSuperClass.getInstance().getCollection(DistributionObjectNSDB.COLLECTION_NAME);
-
-		cursor = collection.find(objectQuery);
-
-		TreeSet<String> objectsFQDN = new TreeSet<String>();
-
-		while (cursor.hasNext()) {
-			objectsFQDN.add(cursor.next().get(DistributionObjectNSDB.OBJECT_NS).toString());
-		}
-
-		distributionFQDNObject.addObjectsFQDN(objectsFQDN);
-		distributionFQDNObject.addSubjectsFQDN(subjectsFQDN);
-		distributionFQDNObject.distributionMongoDBObject = new DistributionDB(distribution);
-		distributionFQDNObject.distribution = distributionFQDNObject.distributionMongoDBObject.getLODVaderID();
-
-		return distributionFQDNObject;
-
-	}
+	
 
 	public ArrayList<DistributionDB> getDistributionsByIndegree(ArrayList<String> fqdnToSearch,
-			ConcurrentHashMap<Integer, DistributionNS> fqdnPerDistribution) {
+			ConcurrentHashMap<Integer, DistributionFilter> fqdnPerDistribution) {
 		ArrayList<DistributionDB> list = new ArrayList<DistributionDB>();
 		try {
 
@@ -134,7 +96,7 @@ public class DistributionQueries {
 
 				if (!fqdnPerDistribution.containsKey(distribution.getUri())) {
 					fqdnPerDistribution.put(distribution.getLODVaderID(),
-							createDistributionFQDNObject(distribution.getLODVaderID()));
+							new DistributionFilter(distribution.getLODVaderID()));
 				}
 
 			}

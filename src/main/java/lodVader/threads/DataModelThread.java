@@ -1,14 +1,17 @@
 package lodVader.threads;
 
-import java.util.TreeSet;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import lodVader.TuplePart;
-import lodVader.bloomfilters.GoogleBloomFilter;
-import lodVader.linksets.DistributionNS;
+import lodVader.linksets.DistributionFilter;
 import lodVader.mongodb.collections.DistributionDB;
+import lodVader.mongodb.collections.gridFS.SuperBucket;
 
-public class DataModelThread {
+public class DataModelThread extends Thread{
 
 	// true if the source distribution is the subject column
 	//
@@ -34,97 +37,54 @@ public class DataModelThread {
 	// | o| | s| p| o| -> |s |
 	//
 	//
-	
-	String distributionTitle; 
 
-//	public boolean isSubject;
+	String targetDistributionTitle;
+
+	// public boolean isSubject;
 
 	// 0 for filter not loaded, 1 for loading and 2 for loaded
 	public AtomicInteger filterLoaded = new AtomicInteger(0);
 
 	public int distributionID = 0;
-	public int datasetID= 0;
+	public int datasetID = 0;
 
-	public int targetDistributionID= 0;
-	public int targetDatasetID= 0;
-	
+	public int targetDistributionID = 0;
+	public int targetDatasetID = 0;
+
 	public String filterPath;
+	
+	public ConcurrentHashMap<String, Integer> validLinks = new ConcurrentHashMap<String, Integer>(); 
+	public ConcurrentHashMap<String, Integer> invalidLinks = new ConcurrentHashMap<String, Integer>(); 
 
-	public AtomicInteger links = new AtomicInteger(0);
-	public AtomicInteger invalidLinks = new AtomicInteger(0);
+	public AtomicInteger numberOfValidLinks = new AtomicInteger(0);
+	public AtomicInteger numberOfInvalidLinks = new AtomicInteger(0);
 	public int ontologyLinks = 0;
 
-	public GoogleBloomFilter filter = new GoogleBloomFilter();
-	
-	public TreeSet<String> targetFQDNTree = new TreeSet<String>();
-	
+	public ArrayList<? extends SuperBucket> filters = null;
+
+	public HashSet<String> targetNSSet = new HashSet<String>();
+
 	public String tuplePart;
 
 	// flat to execute or not this model in a thread
 	public boolean active = true;
 
-	public DataModelThread(
-			DistributionDB distribution,
-			DistributionDB targetDistribution, 
-			DistributionNS distributionFQDN,
-			String tuplePart) {
-
+	public DataModelThread(DistributionDB sourceDistribution, DistributionDB targetDistribution,
+			DistributionFilter distributionFilter, String tuplePart) {
 		
-//		DataModelThread dataThread = new DataModelThread();
-//		this.isSubject = isSubject;
-//		dataThread.describedFQDN = describedFQDN;
 		this.tuplePart = tuplePart;
-		
-		distributionTitle = targetDistribution.getTitle();
+		this.datasetID = sourceDistribution.getTopDataset();
+		this.distributionID = sourceDistribution.getLODVaderID();
+		this.targetDistributionID = targetDistribution.getLODVaderID();
+		this.targetDatasetID = targetDistribution.getTopDataset();
+		this.targetDistributionTitle = targetDistribution.getTitle();
 
-		if (!targetDistribution.getUri().equals(distribution.getUri())) {
-			// save dataThread object
-
-			if (tuplePart.equals(TuplePart.SUBJECT)){
-				this.filterPath = targetDistribution
-						.getObjectFilterPath();
-				targetFQDNTree = distributionFQDN.objectsFQDN;
-			}
-			else if((tuplePart.equals(TuplePart.OBJECT))){
-				this.filterPath = targetDistribution
-						.getSubjectFilterPath();
-				targetFQDNTree = distributionFQDN.subjectsFQDN;
-			}
-
-			
-			this.targetDistributionID = targetDistribution
-					.getLODVaderID();
-			this.targetDatasetID = targetDistribution.getTopDataset();
-
-			this.datasetID = distribution.getTopDataset();
-			this.distributionID = distribution.getLODVaderID();
-			// dataThread.distributionObjectPath = distribution
-			// .getObjectPath(); 
-
-		}
-
-	}
-	
-	public void startFilter(){
-		while(filterLoaded.get() == 1)
-			try {
-				Thread.sleep(2);
-			} catch (InterruptedException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-		
-		if(filterLoaded.get()==2) return;
-		
-		try {
-			
-			this.filterLoaded.set(1);
-			this.filter.loadFilter(filterPath, distributionTitle);
-			
-			this.filterLoaded.set(2);
-
-		} catch (Exception e) {
-			e.printStackTrace();
+		if (tuplePart.equals(TuplePart.SUBJECT)) {
+			this.filters = distributionFilter.objectBuckets;
+			this.targetNSSet = distributionFilter.objectsNS;
+		} else if ((tuplePart.equals(TuplePart.OBJECT))) {
+			this.filters = distributionFilter.subjectBuckets;
+			this.targetNSSet = distributionFilter.subjectsNS;
 		}
 	}
 

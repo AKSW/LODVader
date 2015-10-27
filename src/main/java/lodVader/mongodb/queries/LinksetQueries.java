@@ -365,7 +365,7 @@ public class LinksetQueries {
 			
 			DBObject clause1 = new BasicDBObject(LinksetDB.DATASET_SOURCE, new BasicDBObject("$regex", url+".*"));  
 			DBObject clause2 = new BasicDBObject(LinksetDB.LINK_NUMBER_LINKS,
-					new BasicDBObject("$gt", 50));   
+					new BasicDBObject("$gt", LODVaderProperties.LINKSET_TRESHOLD));   
 
 			BasicDBList and = new BasicDBList();
 			and.add(clause1);

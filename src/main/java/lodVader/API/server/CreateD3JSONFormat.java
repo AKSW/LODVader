@@ -334,14 +334,14 @@ public class CreateD3JSONFormat extends HttpServlet {
 				LINK_TYPE = LinksetDB.LINK_STRENGHT;
 			else if(parameters.get("linkType")[0].equals("showDarkLOD")){
 				LINK_TYPE = LinksetDB.INVALID_LINKS;
-				min = 50;
+				min = LODVaderProperties.LINKSET_TRESHOLD;
 				max = -1;
 			}
 			else if(parameters.get("linkType")[0].equals("showSimilarity"))
 				LINK_TYPE = LinksetDB.PREDICATE_SIMILARITY;
 			else if(parameters.get("linkType")[0].equals("showLinks")){
 				LINK_TYPE = LinksetDB.LINK_NUMBER_LINKS;
-				min = 50;
+				min = LODVaderProperties.LINKSET_TRESHOLD;
 				max = -1;
 			}
 				

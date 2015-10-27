@@ -43,7 +43,7 @@ public class StartLODVader extends HttpServlet {
 
 					// creating indexes
 					new IndexesCreator().createIndexes();
-
+					
 					ArrayList<DistributionDB> distributions = new ArrayList<DistributionDB>();
 
 					if (LODVaderProperties.RESUME) {

@@ -1,9 +1,5 @@
 package lodVader.lov;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -11,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.jena.riot.Lang;
@@ -32,7 +29,6 @@ import com.hp.hpl.jena.sparql.core.DatasetGraph;
 
 import lodVader.LODVaderProperties;
 import lodVader.TuplePart;
-import lodVader.bloomfilters.GoogleBloomFilter;
 import lodVader.links.similarity.JaccardSimilarity;
 import lodVader.links.similarity.LinkSimilarity;
 import lodVader.links.strength.LinkStrength;
@@ -47,6 +43,8 @@ import lodVader.mongodb.collections.RDFResources.rdfSubClassOf.RDFSubClassOfDB;
 import lodVader.mongodb.collections.RDFResources.rdfSubClassOf.RDFSubClassOfRelationDB;
 import lodVader.mongodb.collections.RDFResources.rdfType.RDFTypeObjectDB;
 import lodVader.mongodb.collections.RDFResources.rdfType.RDFTypeObjectRelationDB;
+import lodVader.mongodb.collections.gridFS.ObjectsBucket;
+import lodVader.mongodb.collections.gridFS.SubjectsBucket;
 import lodVader.streaming.Stream;
 import lodVader.utils.FileUtils;
 import lodVader.utils.Timer;
@@ -55,103 +53,91 @@ public class LOV extends Stream {
 	final static Logger logger = Logger.getLogger(LOV.class);
 
 	DistributionDB distribution = null;
-	
-	
-	// saving all predicates
-	HashMap<String, Integer> allPredicates = new  HashMap<String, Integer>();
 
-	HashMap<String, Integer> owlClasses = new  HashMap<String, Integer>();
+	int numberOfTriples = 0;
+
+	// saving all predicates
+	HashMap<String, Integer> allPredicates = new HashMap<String, Integer>();
+
+	HashMap<String, Integer> owlClasses = new HashMap<String, Integer>();
 
 	// saving all rdf type
-//	HashMap<String, Integer> rdfTypeSubjects = new HashMap<String, Integer>();
+	// HashMap<String, Integer> rdfTypeSubjects = new HashMap<String,
+	// Integer>();
 	HashMap<String, Integer> rdfTypeObjects = new HashMap<String, Integer>();
 
-	HashMap<String, Integer> rdfSubClassOf= new HashMap<String, Integer>();
-	
+	HashMap<String, Integer> rdfSubClassOf = new HashMap<String, Integer>();
 
 	@Test
 	public void loadLOVVocabularies() throws Exception {
-		
-		logger.info("Loading LOV vocabulary.");;
 
-		
+		logger.info("Loading LOV vocabulary.");
+
 		Model m = ModelFactory.createDefaultModel();
 		Model tmpModel = ModelFactory.createDefaultModel();
-		
+
 		new LODVaderProperties().loadProperties();
 
 		setUrl(new URL(LODVaderProperties.LOV_URL));
-//		setUrl(new URL("http://data.pokepedia.fr/dumps/pokepedia-fr_rdfdump.tar.gz"));
-//		
+		// setUrl(new
+		// URL("http://data.pokepedia.fr/dumps/pokepedia-fr_rdfdump.tar.gz"));
+		//
 		// download lov file
 		openStream();
 
 		// allowing gzip format
 		checkGZipInputStream();
-		
-//		inputStream = getTarInputStream(inputStream);
-		
 
-		simpleDownload(LODVaderProperties.BASE_PATH + "lov.tmp",
-				inputStream);
+		simpleDownload(LODVaderProperties.BASE_PATH + "lov.tmp", inputStream);
 
-		
-		DatasetGraph dg = RDFDataMgr.loadDatasetGraph(
-				LODVaderProperties.BASE_PATH + "lov.tmp", Lang.NQUADS);
-
+		DatasetGraph dg = RDFDataMgr.loadDatasetGraph(LODVaderProperties.BASE_PATH + "lov.tmp", Lang.NQUADS);
+		// DatasetGraph dg = RDFDataMgr.loadDatasetGraph(
+		// LODVaderProperties.BASE_PATH + "lov", Lang.NQUADS);
 
 		Iterator<Node> tmpNodeIt = dg.listGraphNodes();
-		
+
 		int a = 0;
-		
-		Node tmpNode =null;
+
+		Node tmpNode = null;
 		while (tmpNodeIt.hasNext()) {
 			tmpNode = tmpNodeIt.next();
-			Graph tmpGraph = dg.getGraph(tmpNode);			
-			
+			Graph tmpGraph = dg.getGraph(tmpNode);
+
 			tmpModel = ModelFactory.createModelForGraph(tmpGraph);
-		
-			if(tmpNode.getURI().equals("http://lov.okfn.org/dataset/lov")){
+
+			if (tmpNode.getURI().equals("http://lov.okfn.org/dataset/lov")) {
 				break;
 			}
-		
+
 		}
 
-		
-		
 		Iterator<Node> nodeIt = dg.listGraphNodes();
-		
-		
+
 		int i = 0;
 
 		while (nodeIt.hasNext()) {
 			Node node = nodeIt.next();
-			Graph graph = dg.getGraph(node);			
-			
+			Graph graph = dg.getGraph(node);
+
 			m = ModelFactory.createModelForGraph(graph);
 
-			Property p = ResourceFactory
-					.createProperty("http://purl.org/dc/terms/title");
+			Property p = ResourceFactory.createProperty("http://purl.org/dc/terms/title");
 
-			Property p2 = ResourceFactory
-					.createProperty("http://www.w3.org/2000/01/rdf-schema#label");
+			Property p2 = ResourceFactory.createProperty("http://www.w3.org/2000/01/rdf-schema#label");
 
-			Resource r = ResourceFactory
-					.createResource(node.getURI());
+			Resource r = ResourceFactory.createResource(node.getURI());
 
 			// new dataset at mongodb
-			DatasetDB dataset = new DatasetDB(
-					node.getNameSpace());
+			DatasetDB dataset = new DatasetDB(node.getNameSpace());
 			StmtIterator stmt = tmpModel.listStatements(r, p, (RDFNode) null);
-			
+
 			if (stmt.hasNext())
 				dataset.setTitle(stmt.next().getObject().toString());
-			
 
 			stmt = tmpModel.listStatements(r, p2, (RDFNode) null);
 			if (stmt.hasNext())
 				dataset.setLabel(stmt.next().getObject().toString());
-			
+
 			dataset.setIsVocabulary(true);
 
 			dataset.updateObject(true);
@@ -160,14 +146,14 @@ public class LOV extends Stream {
 
 			ConcurrentLinkedQueue<String> subjectsQueue = new ConcurrentLinkedQueue<String>();
 			ConcurrentLinkedQueue<String> objectsQueue = new ConcurrentLinkedQueue<String>();
-			ArrayList<String> subjects = new ArrayList<String>();
-			ArrayList<String> objects = new ArrayList<String>();
-			
+			TreeSet<String> subjects = new TreeSet<String>();
+			TreeSet<String> objects = new TreeSet<String>();
+
 			// saving all predicates
-			allPredicates = new  HashMap<String, Integer>();
+			allPredicates = new HashMap<String, Integer>();
 
 			// saving all rdf type
-//			rdfTypeSubjects = new HashMap<String, Integer>();
+			// rdfTypeSubjects = new HashMap<String, Integer>();
 			rdfTypeObjects = new HashMap<String, Integer>();
 			rdfSubClassOf = new HashMap<String, Integer>();
 			owlClasses = new HashMap<String, Integer>();
@@ -175,34 +161,40 @@ public class LOV extends Stream {
 			while (triples.hasNext()) {
 
 				Statement triple = triples.next();
-				
-				
-				
-				subjects.add(triple.getSubject().toString() );
-				subjectsQueue.add(triple.getSubject().toString() );
-				if (triple.getObject().isResource()){
-					objects.add(triple.getObject().toString());
-					objectsQueue.add(triple.getObject().toString());
-				
-					if(triple.getObject().toString().equals("http://www.w3.org/2002/07/owl#Class")){
-						addToMap(owlClasses, triple.getSubject().toString());
-					}
-					else if(triple.getPredicate().toString().equals("http://www.w3.org/2000/01/rdf-schema#subClassOf")){
-						addToMap(rdfSubClassOf, triple.getObject().toString());
-					}
-					else if(triple.getPredicate().toString().equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")){
-//						addToMap(rdfTypeSubjects, triple.getSubject().toString());
-						addToMap(rdfTypeObjects, triple.getObject().toString());
-					}
-				}
-				addToMap(allPredicates, triple.getPredicate().toString());
-//				predicates.add(triple.getPredicate().toString());
 
+				if (triple.getSubject().toString().contains(node.getNameSpace())) {
+					if (triple.getSubject().toString().startsWith("http")) {
+						subjects.add(triple.getSubject().toString());
+						subjectsQueue.add(triple.getSubject().toString());
+					}
+					if (triple.getObject().isResource()) {
+						if (triple.getObject().toString().startsWith("http")) {
+							objects.add(triple.getObject().toString());
+							objectsQueue.add(triple.getObject().toString());
+						}
+
+						if (triple.getObject().toString().equals("http://www.w3.org/2002/07/owl#Class")) {
+							addToMap(owlClasses, triple.getSubject().toString());
+						} else if (triple.getPredicate().toString()
+								.equals("http://www.w3.org/2000/01/rdf-schema#subClassOf")) {
+							addToMap(rdfSubClassOf, triple.getObject().toString());
+						} else if (triple.getPredicate().toString()
+								.equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")) {
+							// addToMap(rdfTypeSubjects,
+							// triple.getSubject().toString());
+							addToMap(rdfTypeObjects, triple.getObject().toString());
+						}
+					}
+					addToMap(allPredicates, triple.getPredicate().toString());
+					// predicates.add(triple.getPredicate().toString());
+					numberOfTriples++;
+
+				}
 			}
 			distribution = new DistributionDB(node.getNameSpace());
 			distribution.setTopDataset(dataset.getLODVaderID());
 			distribution.updateObject(true);
-//			
+			//
 			MakeLinksetsMasterThread makeLinksets = new MakeLinksetsMasterThread(subjectsQueue, node.getNameSpace());
 			MakeLinksetsMasterThread makeLinksets2 = new MakeLinksetsMasterThread(objectsQueue, node.getNameSpace());
 			makeLinksets.threshold = 0;
@@ -211,109 +203,118 @@ public class LOV extends Stream {
 			makeLinksets.tuplePart = TuplePart.SUBJECT;
 			makeLinksets.start();
 			makeLinksets2.start();
-			
+
 			Thread.sleep(50);
 
 			makeLinksets.setDoneSplittingString(true);
 			makeLinksets2.setDoneSplittingString(true);
 			makeLinksets.join();
 			makeLinksets2.join();
-			
-			
-			
+
 			if (dataset.getTitle() != null)
 				distribution.setTitle(dataset.getTitle());
 			else if (dataset.getLabel() != null)
 				distribution.setTitle(dataset.getLabel());
-			
+
 			SaveDist(node.getNameSpace(), subjects, objects, dataset.getLODVaderID(), dataset.getTitle());
 
 		}
 
 	}
 
-	public void SaveDist(String nameSpace, ArrayList<String> subjects,
-			ArrayList<String> objects, int parentDynID, String parentTitle) throws Exception {
-		
-	
-		
-		File fout = new File(
-				LODVaderProperties.SUBJECT_FILE_DISTRIBUTION_PATH
-						+ FileUtils.stringToHash(nameSpace));
-		FileOutputStream fos = new FileOutputStream(fout);
+	public void SaveDist(String nameSpace, TreeSet<String> subjects, TreeSet<String> objects, int parentDynID,
+			String parentTitle) throws Exception {
 
-		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
-
-		for (String string : subjects) {
-			bw.write(string);
-			bw.newLine();
-		}
-
-		bw.close();
-
-		fout = new File(LODVaderProperties.OBJECT_FILE_DISTRIBUTION_PATH
-				+ FileUtils.stringToHash(nameSpace));
-		fos = new FileOutputStream(fout);
-		bw = new BufferedWriter(new OutputStreamWriter(fos));
-
-		for (String string : objects) {
-			bw.write(string);
-			bw.newLine();
-		}
-		bw.close();
-
-		// make a filter with subjects and objects
-		GoogleBloomFilter subjectFilter;
-		GoogleBloomFilter objectFilter;
-		
-		if (subjects.size() > 1000000){
-			subjectFilter = new GoogleBloomFilter((int) subjects.size(),
-					(0.9) / subjects.size());
-			objectFilter = new GoogleBloomFilter((int) objects.size(),
-					(0.9) / objects.size());
-		}
-		else{
-			subjectFilter = new GoogleBloomFilter((int) subjects.size(), 0.0000001);
-			objectFilter = new GoogleBloomFilter((int) objects.size(), 0.0000001);
-			}
-
-		// creating filter for subjects
 		Timer t = new Timer();
 		t.startTimer();
-		// load file to filter and take the process time
-//		FileToFilter f = new FileToFilter();
+		SubjectsBucket s = new SubjectsBucket(new ArrayList<String>(subjects), distribution.getLODVaderID());
+		s.makeBucket();
+		String timer1 = t.stopTimer();
 
-		// Loading file to filter
-		subjectFilter.loadFileToFilter(LODVaderProperties.SUBJECT_FILE_DISTRIBUTION_PATH+FileUtils.stringToHash(nameSpace));
-
-		subjectFilter.saveFilter(LODVaderProperties.SUBJECT_FILE_FILTER_PATH+FileUtils.stringToHash(nameSpace));
-		// save filter
-		String timer = t.stopTimer();
-		
-		
-		// creating filter for objects		
-		t = new Timer();
+		Timer t2 = new Timer();
 		t.startTimer();
-		// load file to filter and take the process time
-//		f = new FileToFilter();
+		ObjectsBucket o = new ObjectsBucket(new ArrayList<String>(objects), distribution.getLODVaderID());
+		o.makeBucket();
+		String timer2 = t2.stopTimer();
 
-		// Loading file to filter
-		objectFilter.loadFileToFilter(LODVaderProperties.OBJECT_FILE_DISTRIBUTION_PATH+ FileUtils.stringToHash(nameSpace));
-
-		objectFilter.saveFilter(LODVaderProperties.OBJECT_FILE_FILTER_PATH+FileUtils.stringToHash(nameSpace));
-		// save filter
-		String timer2 = t.stopTimer();
-		
-		
+		// File fout = new File(
+		// LODVaderProperties.SUBJECT_FILE_DISTRIBUTION_PATH
+		// + FileUtils.stringToHash(nameSpace));
+		// FileOutputStream fos = new FileOutputStream(fout);
+		//
+		// BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
+		//
+		// for (String string : subjects) {
+		// bw.write(string);
+		// bw.newLine();
+		// }
+		//
+		// bw.close();
+		//
+		// fout = new File(LODVaderProperties.OBJECT_FILE_DISTRIBUTION_PATH
+		// + FileUtils.stringToHash(nameSpace));
+		// fos = new FileOutputStream(fout);
+		// bw = new BufferedWriter(new OutputStreamWriter(fos));
+		//
+		// for (String string : objects) {
+		// bw.write(string);
+		// bw.newLine();
+		// }
+		// bw.close();
+		//
+		// // make a filter with subjects and objects
+		// GoogleBloomFilter subjectFilter;
+		// GoogleBloomFilter objectFilter;
+		//
+		// if (subjects.size() > 1000000){
+		// subjectFilter = new GoogleBloomFilter((int) subjects.size(),
+		// (0.9) / subjects.size());
+		// objectFilter = new GoogleBloomFilter((int) objects.size(),
+		// (0.9) / objects.size());
+		// }
+		// else{
+		// subjectFilter = new GoogleBloomFilter((int) subjects.size(),
+		// 0.0000001);
+		// objectFilter = new GoogleBloomFilter((int) objects.size(),
+		// 0.0000001);
+		// }
+		//
+		// // creating filter for subjects
+		// Timer t = new Timer();
+		// t.startTimer();
+		// // load file to filter and take the process time
+		//// FileToFilter f = new FileToFilter();
+		//
+		// // Loading file to filter
+		// subjectFilter.loadFileToFilter(LODVaderProperties.SUBJECT_FILE_DISTRIBUTION_PATH+FileUtils.stringToHash(nameSpace));
+		//
+		// subjectFilter.saveFilter(LODVaderProperties.SUBJECT_FILE_FILTER_PATH+FileUtils.stringToHash(nameSpace));
+		// // save filter
+		// String timer = t.stopTimer();
+		//
+		//
+		// // creating filter for objects
+		// t = new Timer();
+		// t.startTimer();
+		// // load file to filter and take the process time
+		//// f = new FileToFilter();
+		//
+		// // Loading file to filter
+		// objectFilter.loadFileToFilter(LODVaderProperties.OBJECT_FILE_DISTRIBUTION_PATH+
+		// FileUtils.stringToHash(nameSpace));
+		//
+		// objectFilter.saveFilter(LODVaderProperties.OBJECT_FILE_FILTER_PATH+FileUtils.stringToHash(nameSpace));
+		// // save filter
+		// String timer2 = t.stopTimer();
 
 		ArrayList<Integer> parentDataset = new ArrayList<Integer>();
 		parentDataset.add(parentDynID);
-		
+
 		distribution.setDownloadUrl(nameSpace);
 		distribution.setDefaultDatasets(parentDataset);
 		distribution.setTopDataset(parentDynID);
-		distribution.setTriples(subjects.size() + objects.size());
-		distribution.setTimeToCreateSubjectFilter(timer);
+		distribution.setTriples(numberOfTriples);
+		distribution.setTimeToCreateSubjectFilter(timer1);
 		distribution.setTimeToCreateObjectFilter(timer2);
 		distribution.setFormat("nq");
 		distribution.setTopDatasetTitle(parentTitle);
@@ -321,57 +322,64 @@ public class LOV extends Stream {
 		distribution.setNumberOfObjectTriples(String.valueOf(objects.size()));
 		distribution.setNumberOfSubjectTriples(String.valueOf(subjects.size()));
 		distribution.setSuccessfullyDownloaded(true);
-//		distribution.setStatus(DistributionMongoDBObject.STATUS_WAITING_TO_CREATE_LINKSETS);
+		// distribution.setStatus(DistributionMongoDBObject.STATUS_WAITING_TO_CREATE_LINKSETS);
 		distribution.setStatus(DistributionDB.STATUS_DONE);
-		distribution.setSubjectFilterPath(LODVaderProperties.SUBJECT_FILE_FILTER_PATH
-				+ FileUtils.stringToHash(nameSpace));
-		distribution.setObjectFilterPath(LODVaderProperties.OBJECT_FILE_FILTER_PATH
-				+ FileUtils.stringToHash(nameSpace));
-		distribution.setObjectPath(LODVaderProperties.OBJECT_FILE_DISTRIBUTION_PATH
-				+ FileUtils.stringToHash(nameSpace));
-		
-		DateFormat dateFormat = new SimpleDateFormat(
-				"HH:mm:ss dd/MM/yyyy");
+		distribution
+				.setSubjectFilterPath(LODVaderProperties.SUBJECT_FILE_FILTER_PATH + FileUtils.stringToHash(nameSpace));
+		distribution
+				.setObjectFilterPath(LODVaderProperties.OBJECT_FILE_FILTER_PATH + FileUtils.stringToHash(nameSpace));
+		distribution
+				.setObjectPath(LODVaderProperties.OBJECT_FILE_DISTRIBUTION_PATH + FileUtils.stringToHash(nameSpace));
+
+		DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss dd/MM/yyyy");
 		// get current date time with Date()
 		Date date = new Date();
 
-		distribution.setLastTimeStreamed(dateFormat
-				.format(date).toString());
-
+		distribution.setLastTimeStreamed(dateFormat.format(date).toString());
 
 		distribution.updateObject(true);
 
-//		ObjectId id = new ObjectId();
-//		DistributionSubjectDomainsMongoDBObject ds = new DistributionSubjectDomainsMongoDBObject(
-//				id.get().toString());
-//		ds.setDistributionID(distribution.getDynLodID());
-//		ds.setSubjectFQDN(obj);
-//		ds.updateObject(true);
-		
+		numberOfTriples = 0;
+
+		// ObjectId id = new ObjectId();
+		// DistributionSubjectDomainsMongoDBObject ds = new
+		// DistributionSubjectDomainsMongoDBObject(
+		// id.get().toString());
+		// ds.setDistributionID(distribution.getDynLodID());
+		// ds.setSubjectFQDN(obj);
+		// ds.updateObject(true);
+
 		logger.info("Saving predicates...");
 		// save predicates
-//		new PredicatesQueries().insertPredicates(predicates, distribution.getDynLodID(), distribution.getTopDataset());
-//		new AllPredicatesDB().insertSet(predicates.allPredicates.keySet());
-//		new AllPredicatesRelationDB().insertSet(splitThread.allPredicates, distribution.getDynLodID(), distribution.getTopDataset());
+		// new PredicatesQueries().insertPredicates(predicates,
+		// distribution.getDynLodID(), distribution.getTopDataset());
+		// new AllPredicatesDB().insertSet(predicates.allPredicates.keySet());
+		// new AllPredicatesRelationDB().insertSet(splitThread.allPredicates,
+		// distribution.getDynLodID(), distribution.getTopDataset());
 
 		new AllPredicatesDB().insertSet(allPredicates.keySet());
-		new AllPredicatesRelationDB().insertSet(allPredicates, distribution.getLODVaderID(), distribution.getTopDataset());
-		
+		new AllPredicatesRelationDB().insertSet(allPredicates, distribution.getLODVaderID(),
+				distribution.getTopDataset());
+
 		new RDFTypeObjectDB().insertSet(rdfTypeObjects.keySet());
 		new RDFSubClassOfDB().insertSet(rdfSubClassOf.keySet());
-//		new RDFTypeSubjectDB().insertSet(rdfTypeSubjects.keySet());
-		
-		new RDFTypeObjectRelationDB().insertSet(rdfTypeObjects, distribution.getLODVaderID(), distribution.getTopDataset());
-		new RDFSubClassOfRelationDB().insertSet(rdfSubClassOf, distribution.getLODVaderID(), distribution.getTopDataset());
-//		new RDFTypeSubjectRelationDB().insertSet(rdfTypeSubjects, distribution.getDynLodID(), distribution.getTopDataset());
-		
+		// new RDFTypeSubjectDB().insertSet(rdfTypeSubjects.keySet());
+
+		new RDFTypeObjectRelationDB().insertSet(rdfTypeObjects, distribution.getLODVaderID(),
+				distribution.getTopDataset());
+		new RDFSubClassOfRelationDB().insertSet(rdfSubClassOf, distribution.getLODVaderID(),
+				distribution.getTopDataset());
+		// new RDFTypeSubjectRelationDB().insertSet(rdfTypeSubjects,
+		// distribution.getDynLodID(), distribution.getTopDataset());
+
 		logger.info("Saving OWL classes...");
 		// Saving OWL classes
 		new OwlClassDB().insertSet(owlClasses.keySet());
 		new OwlClassRelationDB().insertSet(owlClasses, distribution.getLODVaderID(), distribution.getTopDataset());
-		
-//		new OWLClassQueries().insertOWLClasses(owlClasses,  distribution.getDynLodID(), distribution.getTopDataset());
-		
+
+		// new OWLClassQueries().insertOWLClasses(owlClasses,
+		// distribution.getDynLodID(), distribution.getTopDataset());
+
 		logger.info("Checking Jaccard Similarities...");
 		// Checking Jaccard Similarities...
 		LinkSimilarity linkSimilarity = new JaccardSimilarity();
@@ -379,19 +387,19 @@ public class LOV extends Stream {
 		linkSimilarity.updateLinks(distribution, new RDFTypeObjectRelationDB());
 		linkSimilarity.updateLinks(distribution, new RDFSubClassOfRelationDB());
 		linkSimilarity.updateLinks(distribution, new OwlClassRelationDB());
-		
+
 		logger.info("Updating link strength among distributions...");
 		// Saving link similarities
 		LinkStrength linkStrength = new LinkStrength();
 		linkStrength.updateLinks(distribution);
-		
+
 	}
-	
-	private void addToMap(HashMap<String, Integer> map, String value){
-		int n=0;
-		if(map.get(value)!=null)
-			n=map.get(value);
-		map.put(value, n+1);
+
+	private void addToMap(HashMap<String, Integer> map, String value) {
+		int n = 0;
+		if (map.get(value) != null)
+			n = map.get(value);
+		map.put(value, n + 1);
 	}
 
 }

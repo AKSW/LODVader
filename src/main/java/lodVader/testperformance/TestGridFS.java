@@ -9,9 +9,20 @@ import lodVader.utils.Timer;
 
 public class TestGridFS  {
 	
+	
+	
 	@Test
-	public void Go(){
+	public void Go2(){
+	
+		String str1 = "b";
+		String str2 = "b";
 		
+		System.out.println(str1.compareTo(str2));
+		
+	}
+//		@Test
+		public void Go(){
+			
 		TreeSet<String> resources = new TreeSet<String>();
 		
 		

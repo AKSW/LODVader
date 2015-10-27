@@ -1,11 +1,15 @@
 package lodVader.streaming;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -38,16 +42,16 @@ import lodVader.mongodb.collections.RDFResources.rdfSubClassOf.RDFSubClassOfDB;
 import lodVader.mongodb.collections.RDFResources.rdfSubClassOf.RDFSubClassOfRelationDB;
 import lodVader.mongodb.collections.RDFResources.rdfType.RDFTypeObjectDB;
 import lodVader.mongodb.collections.RDFResources.rdfType.RDFTypeObjectRelationDB;
-import lodVader.mongodb.queries.PredicatesQueries;
+import lodVader.mongodb.collections.gridFS.ObjectsBucket;
+import lodVader.mongodb.collections.gridFS.SubjectsBucket;
 import lodVader.parsers.NTriplesLODVaderParser;
 import lodVader.threads.SplitAndStoreThread;
 import lodVader.utils.FileUtils;
 import lodVader.utils.Formats;
 
-public class StreamAndCompareDistribution extends Stream {
+public class StreamDistribution extends Stream {
 
-	final static Logger logger = Logger
-			.getLogger(StreamAndCompareDistribution.class);
+	final static Logger logger = Logger.getLogger(StreamDistribution.class);
 
 	// Paths
 	public String objectFilePath;
@@ -69,20 +73,18 @@ public class StreamAndCompareDistribution extends Stream {
 
 	public MakeLinksetsMasterThread makeLinksetFromObjectsThread = null;
 	public MakeLinksetsMasterThread makeLinksetFromSubjectsThread = null;
-	
+
 	private DistributionDB distribution = null;
 
-	public StreamAndCompareDistribution(DistributionDB distributionMongoDBObj) throws MalformedURLException {
+	public StreamDistribution(DistributionDB distributionMongoDBObj) throws MalformedURLException {
 		this.distribution = distributionMongoDBObj;
 		this.url = new URL(distributionMongoDBObj.getDownloadUrl());
 		this.RDFFormat = distributionMongoDBObj.getFormat();
 		this.uri = distributionMongoDBObj.getUri();
 	}
 
-	public void streamDistribution() throws IOException,
-			LODVaderLODGeneralException, InterruptedException,
-			RDFHandlerException, RDFParseException,
-			LODVaderFormatNotAcceptedException {
+	public void streamDistribution() throws IOException, LODVaderLODGeneralException, InterruptedException,
+			RDFHandlerException, RDFParseException, LODVaderFormatNotAcceptedException {
 
 		openStream();
 
@@ -94,22 +96,19 @@ public class StreamAndCompareDistribution extends Stream {
 
 		// transform the URI to a hash
 		hashFileName = FileUtils.stringToHash(url.toString());
-		
-		// get the path where the objects should be stored 
-		objectFilePath = LODVaderProperties.OBJECT_FILE_DISTRIBUTION_PATH
-				+ hashFileName;
+
+		// get the path where the objects should be stored
+		objectFilePath = LODVaderProperties.OBJECT_FILE_DISTRIBUTION_PATH + hashFileName;
 
 		// check format and extension
 		if (RDFFormat == null || RDFFormat.equals("")) {
-			DistributionDB dist = new DistributionDB(
-					url.toString());
-			if (dist.getFormat() == null || dist.getFormat() == ""
-					|| dist.getFormat().equals(""))
+			DistributionDB dist = new DistributionDB(url.toString());
+			if (dist.getFormat() == null || dist.getFormat() == "" || dist.getFormat().equals(""))
 				RDFFormat = getExtension();
 			else
 				RDFFormat = dist.getFormat();
 		}
-		
+
 		// start streaming the distribution
 		StreamDistribution();
 
@@ -128,22 +127,20 @@ public class StreamAndCompareDistribution extends Stream {
 		inputStream.close();
 	}
 
-	private void StreamDistribution() throws InterruptedException,
-			LODVaderLODGeneralException, 
-			LODVaderFormatNotAcceptedException {
+	private void StreamDistribution()
+			throws InterruptedException, LODVaderLODGeneralException, LODVaderFormatNotAcceptedException {
 
-		SplitAndStoreThread splitThread = new SplitAndStoreThread(subjectQueue,
-				objectQueue, FileUtils.stringToHash(url.toString()));
-//		SplitAndStoreThread splitThread = new SplitAndStoreThread(subjectQueue,
-//				objectQueue, distribution.getTitle()+"_"+distribution.getDynLodID());
+		SplitAndStoreThread splitThread = new SplitAndStoreThread(subjectQueue, objectQueue,
+				FileUtils.stringToHash(url.toString()), distribution.getLODVaderID());
+		// SplitAndStoreThread splitThread = new
+		// SplitAndStoreThread(subjectQueue,
+		// objectQueue, distribution.getTitle()+"_"+distribution.getDynLodID());
 
-		makeLinksetFromObjectsThread = new MakeLinksetsMasterThread(objectQueue,
-				uri);
-		makeLinksetFromSubjectsThread = new MakeLinksetsMasterThread(subjectQueue,
-				uri);
-		
+		makeLinksetFromObjectsThread = new MakeLinksetsMasterThread(objectQueue, uri);
+		makeLinksetFromSubjectsThread = new MakeLinksetsMasterThread(subjectQueue, uri);
+
 		// setting thread names
-		makeLinksetFromObjectsThread.setName("getNSFromObjectsThread");	
+		makeLinksetFromObjectsThread.setName("getNSFromObjectsThread");
 		makeLinksetFromSubjectsThread.setName("getNSFromSubjectsThread");
 
 		// setting part of the tuple being processed
@@ -160,48 +157,47 @@ public class StreamAndCompareDistribution extends Stream {
 				rdfParser = new TurtleParser();
 				logger.info("==== Turtle Parser loaded ====");
 			}
-			
+
 			// checking ntriples to use turtle parser
 			else if (RDFFormat.equals(Formats.DEFAULT_NTRIPLES)) {
 				// rdfParser = new NTriplesParser();
 				rdfParser = new NTriplesLODVaderParser();
 				logger.info("==== NTriples Parser loaded ====");
-			} 
-			
-			// checking rdf/xml to use turtle parser			
+			}
+
+			// checking rdf/xml to use turtle parser
 			else if (RDFFormat.equals(Formats.DEFAULT_RDFXML)) {
 				rdfParser = new RDFXMLParser();
 				logger.info("==== RDF/XML Parser loaded ====");
-			} 
-			
-			// checking jsonld to use turtle parser				
+			}
+
+			// checking jsonld to use turtle parser
 			else if (RDFFormat.equals(Formats.DEFAULT_JSONLD)) {
 				rdfParser = new JSONLDParser();
 				logger.info("==== JSON-LD Parser loaded ====");
-			} 
-			
-			// checking n3 to use turtle parser				
+			}
+
+			// checking n3 to use turtle parser
 			else if (RDFFormat.equals(Formats.DEFAULT_N3)) {
 				rdfParser = new N3ParserFactory().getParser();
 				logger.info("==== N3Parser loaded ====");
-			} 
-			
+			}
+
 			// if the format is not supported, throw an exception
 			else {
 				httpConn.disconnect();
 				inputStream.close();
 				logger.info("RDF format not supported: " + RDFFormat);
-				throw new LODVaderFormatNotAcceptedException(
-						"RDF format not supported: " + RDFFormat);
+				throw new LODVaderFormatNotAcceptedException("RDF format not supported: " + RDFFormat);
 			}
-			
+
 			// start threads
 			makeLinksetFromSubjectsThread.start();
 			makeLinksetFromObjectsThread.start();
 
 			// set RDF handler
 			rdfParser.setRDFHandler(splitThread);
-			
+
 			// set OpenRDF parset config
 			ParserConfig config = new ParserConfig();
 			config.set(BasicParserSettings.FAIL_ON_UNKNOWN_DATATYPES, false);
@@ -287,24 +283,67 @@ public class StreamAndCompareDistribution extends Stream {
 
 		splitThread.closeQueues();
 
-		
 		logger.info("Saving predicates...");
 		// save predicates
-//		new PredicatesQueries().insertPredicates(splitThread.predicates, distribution.getDynLodID(), distribution.getTopDataset());
+		// new PredicatesQueries().insertPredicates(splitThread.predicates,
+		// distribution.getDynLodID(), distribution.getTopDataset());
 		new AllPredicatesDB().insertSet(splitThread.allPredicates.keySet());
-		new AllPredicatesRelationDB().insertSet(splitThread.allPredicates, distribution.getLODVaderID(), distribution.getTopDataset());
-		
+		new AllPredicatesRelationDB().insertSet(splitThread.allPredicates, distribution.getLODVaderID(),
+				distribution.getTopDataset());
+
 		logger.info("Saving RDF TYPE objects...");
 		// Saving RDF Type classes
 		new RDFTypeObjectDB().insertSet(splitThread.rdfTypeObjects.keySet());
-		new RDFTypeObjectRelationDB().insertSet(splitThread.rdfTypeObjects,  distribution.getLODVaderID(), distribution.getTopDataset());
+		new RDFTypeObjectRelationDB().insertSet(splitThread.rdfTypeObjects, distribution.getLODVaderID(),
+				distribution.getTopDataset());
 
 		new RDFSubClassOfDB().insertSet(splitThread.rdfSubClassOf.keySet());
-		new RDFSubClassOfRelationDB().insertSet(splitThread.rdfSubClassOf, distribution.getLODVaderID(), distribution.getTopDataset());
-		
+		new RDFSubClassOfRelationDB().insertSet(splitThread.rdfSubClassOf, distribution.getLODVaderID(),
+				distribution.getTopDataset());
+
 		new OwlClassDB().insertSet(splitThread.owlClasses.keySet());
-		new OwlClassRelationDB().insertSet(splitThread.owlClasses, distribution.getLODVaderID(), distribution.getTopDataset());
-			
+		new OwlClassRelationDB().insertSet(splitThread.owlClasses, distribution.getLODVaderID(),
+				distribution.getTopDataset());
+
+		// create BFs
+
+
+		SubjectsBucket subjectBucket = new SubjectsBucket(getUniqueItemsFromFile(LODVaderProperties.SUBJECT_FILE_DISTRIBUTION_PATH + hashFileName), distribution.getLODVaderID());
+		subjectBucket.makeBucket();
+
+		
+		
+		// making BF
+		ObjectsBucket objectBucket = new ObjectsBucket(getUniqueItemsFromFile(LODVaderProperties.OBJECT_FILE_DISTRIBUTION_PATH + hashFileName),
+				distribution.getLODVaderID());
+		objectBucket.makeBucket();
+		
+	}
+	
+	public ArrayList<String> getUniqueItemsFromFile(String fileName){
+		HashSet<String> uniqueResources = new HashSet<String>();
+		BufferedReader br;
+		String sCurrentLine;
+		ArrayList<String> items = new ArrayList<String>();
+
+		try {
+			br = new BufferedReader(new FileReader(fileName));
+
+			while ((sCurrentLine = br.readLine()) != null) {
+				if (!uniqueResources.contains(sCurrentLine)) {
+					uniqueResources.add(sCurrentLine);
+					items.add(sCurrentLine);
+				}
+				if (uniqueResources.size() == 5000000)
+					uniqueResources = new HashSet<String>();
+			}
+
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return items;
 	}
 
 }

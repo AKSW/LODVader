@@ -4,6 +4,8 @@ import java.util.HashMap;
 
 import lodVader.bloomfilters.GoogleBloomFilter;
 import lodVader.mongodb.collections.DistributionDB;
+import lodVader.mongodb.collections.gridFS.ObjectsBucket;
+import lodVader.mongodb.collections.gridFS.SubjectsBucket;
 
 public class LoadedBloomFiltersCache {
 
@@ -44,17 +46,22 @@ public class LoadedBloomFiltersCache {
 	public static boolean querySubject(DistributionDB distribution, String query){
 		boolean contains = false;
 		
-		loadSubjectFilter(distribution);
+		SubjectsBucket o = new SubjectsBucket();
+		o.resource=query;
+		if (o.query(distribution.getLODVaderID()))
+			return true;
 		
-		GoogleBloomFilter f = subjectFilters.get(distribution.getUri());
-		try {
-			if(f.compare(query))
-				return true; 
-			
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		loadSubjectFilter(distribution);
+//		
+//		GoogleBloomFilter f = subjectFilters.get(distribution.getUri());
+//		try {
+//			if(f.compare(query))
+//				return true; 
+//			
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		return contains;
 	}
 	
@@ -67,17 +74,22 @@ public class LoadedBloomFiltersCache {
 	public static boolean queryObject(DistributionDB distribution, String query){
 		boolean contains = false;
 		
-		loadObjectFilter(distribution);
+		ObjectsBucket o = new ObjectsBucket();
+		o.resource=query;
+		if (o.query(distribution.getLODVaderID()))
+			return true;
 		
-		GoogleBloomFilter f = objectFilters.get(distribution.getUri());
-		try {
-			if(f.compare(query))
-				return true; 
-			
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		loadObjectFilter(distribution);
+//		
+//		GoogleBloomFilter f = objectFilters.get(distribution.getUri());
+//		try {
+//			if(f.compare(query))
+//				return true; 
+//			
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		return contains;
 	}
 	

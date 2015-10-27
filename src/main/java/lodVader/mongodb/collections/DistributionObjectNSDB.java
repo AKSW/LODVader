@@ -106,7 +106,7 @@ public class DistributionObjectNSDB extends DBSuperClass {
 		return objectNS;
 	}
 
-	public void setObjectFQDN(String objectFqdn) {
+	public void setObjectNS(String objectFqdn) {
 		this.objectNS = objectFqdn;
 	}
 
