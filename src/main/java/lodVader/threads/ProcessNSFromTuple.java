@@ -170,15 +170,17 @@ public class ProcessNSFromTuple extends Thread {
 				l.setDatasetSource(dataThread.datasetID);
 				l.setDatasetTarget(dataThread.targetDatasetID);
 			}
-			l.setLinks(dataThread.validLinks.size());
-			l.setInvalidLinks(dataThread.invalidLinks.size());
-			if (l.getLinks() > 0 || l.getInvalidLinks() > 0)
-				l.updateObject(true);
 			
 			// save top N valid and invalid links
-			new TopValidLinks().saveAll(dataThread.validLinks, dataThread.distributionID, dataThread.targetDistributionID);
-			new TopInvalidLinks().saveAll(dataThread.invalidLinks, dataThread.distributionID, dataThread.targetDistributionID);
+			TopValidLinks validLinks = new TopValidLinks();
+			validLinks.saveAll(dataThread.getAllValidLinks(), dataThread.distributionID, dataThread.targetDistributionID);
+			TopInvalidLinks invalidLinks = new TopInvalidLinks();
+			invalidLinks.saveAll(dataThread.getAllInvalidLinks(), dataThread.distributionID, dataThread.targetDistributionID);
 			
+			l.setLinks(dataThread.getAllValidLinks().size());
+			l.setInvalidLinks(dataThread.getAllInvalidLinks().size());
+			if (l.getLinks() > 0 || l.getInvalidLinks() > 0)
+				l.updateObject(true);
 		}
 	}
 

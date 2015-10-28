@@ -24,7 +24,7 @@ public class SuperTop {
 
 	public static String TARGET_DISTRIBUTION_ID = "targetDistributionID";
 
-	public void saveAll(ConcurrentHashMap<String, Integer> values, int sourceDistributionID, int targetDistributionID) {
+	public void saveAll(HashMap<String, Integer> values, int sourceDistributionID, int targetDistributionID) {
 		// public void saveAll(){
 		// int distributionID = 1;
 		// HashMap<String, Integer> values = new HashMap<String, Integer> ();
@@ -52,7 +52,7 @@ public class SuperTop {
 
 	}
 
-	public HashMap<String, Integer> topNKeys(final ConcurrentHashMap<String, Integer> map, int n) {
+	public HashMap<String, Integer> topNKeys(final HashMap<String, Integer> map, int n) {
 		PriorityQueue<String> topN = new PriorityQueue<String>(n, new Comparator<String>() {
 			public int compare(String s1, String s2) {
 				return Double.compare(map.get(s1), map.get(s2));
@@ -65,7 +65,7 @@ public class SuperTop {
 			else if (map.get(topN.peek()) < map.get(key)) {
 				topN.poll();
 				topN.add(key);
-			}
+			} 
 		}
 
 		HashMap<String, Integer> returnValue = new HashMap<String, Integer>();

@@ -28,6 +28,10 @@ public class FileUtils {
 		f = new File(LODVaderProperties.SUBJECT_PATH);
 		if (!f.exists())
 			f.mkdirs();
+		
+		f = new File(LODVaderProperties.TMP_LINKS_PATH);
+		if (!f.exists())
+			f.mkdirs();
 
 		f = new File(LODVaderProperties.OBJECT_PATH);
 		if (!f.exists())

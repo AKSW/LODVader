@@ -21,19 +21,21 @@ public class JobThread implements Runnable {
 	}
 
 	public void saveValidLink(String resource) {
-		n = dataThread.validLinks.get(resource);
-		if (n != null)
-			dataThread.validLinks.putIfAbsent(resource, n + 1);
-		else
-			dataThread.validLinks.putIfAbsent(resource, 1);
+//		n = dataThread.validLinks.get(resource);
+//		if (n != null)
+//			dataThread.validLinks.putIfAbsent(resource, n + 1);
+//		else
+//			dataThread.validLinks.putIfAbsent(resource, 1);
+		dataThread.addValidLink(resource);
 	}
 
 	public void saveInvalidLink(String resource) {
-		n = dataThread.validLinks.get(resource);
-		if (n != null)
-			dataThread.invalidLinks.putIfAbsent(resource, n + 1);
-		else
-			dataThread.invalidLinks.putIfAbsent(resource, 1);
+//		n = dataThread.validLinks.get(resource);
+//		if (n != null)
+//			dataThread.invalidLinks.putIfAbsent(resource, n + 1);
+//		else
+//			dataThread.invalidLinks.putIfAbsent(resource, 1);
+		dataThread.addInvalidLink(resource);
 	}
 
 	public void run() {

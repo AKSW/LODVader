@@ -52,6 +52,7 @@ public class LODVaderProperties {
 			FILTER_PATH = BASE_PATH + "filters/";
 			SUBJECT_PATH = BASE_PATH + "subjects/";
 			OBJECT_PATH = BASE_PATH + "objects/";
+			TMP_LINKS_PATH = BASE_PATH + "tmp_links/";
 			DUMP_PATH = BASE_PATH + "dump/";
 			FILE_URL_PATH = BASE_PATH + "dataid/";
 			AUTHORITY_FILTER_PATH = BASE_PATH + "authority_filter";
@@ -94,6 +95,10 @@ public class LODVaderProperties {
 	
 	// defining dump file path
 	public static String DUMP_PATH;
+	
+	
+	// defining temporary links file path
+	public static String TMP_LINKS_PATH;
 
 	// defining dataids file path
 	public static String FILE_URL_PATH;
@@ -153,7 +158,7 @@ public class LODVaderProperties {
 
 	public static int LINKSET_TRESHOLD = 1;
 	
-	public static int CHECK_LINKS_EACH = 1500;
+	public static int CHECK_LINKS_EACH = 10000;
 	
 
 }

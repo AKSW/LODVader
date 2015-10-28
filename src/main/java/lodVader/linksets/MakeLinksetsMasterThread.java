@@ -42,14 +42,14 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 		localNS = new HashMap<String, Integer>();
 		resourcesToBeProcessedQueue = new HashMap<String,String>();
 		
-		while (numberOfOpenThreads.get() > 10) {
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+//		while (numberOfOpenThreads.get() > 200) {
+//			try {
+//				Thread.sleep(1);
+//			} catch (InterruptedException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//		}
 		
 
 		try {
@@ -79,166 +79,6 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 						distributionsToCompare = new DistributionQueries().getDistributionsByIndegree(nsToSearch,
 								distributionFilter);
 
-					// Boolean foundFilter = false;
-					//
-					//
-					// Iterator it =
-					// resourcesToBeProcessedQueueCopy.entrySet().iterator();
-					// while (it.hasNext()) {
-					// Map.Entry pair = (Map.Entry)it.next();
-					// String resource = pair.getKey().toString();
-					// String ns = pair.getValue().toString();
-					//
-					//// for(String resource:
-					// resourcesToBeProcessedQueueCopy.keySet()){
-					//
-					//
-					//
-					//// if(resourceToBeRemoved!=null){
-					//// resourcesToBeProcessedQueueCopy.remove(resourceToBeRemoved);
-					//// resourceToBeRemoved = null;
-					//// }
-					//// String ns =
-					// resourcesToBeProcessedQueueCopy.get(resource);
-					//
-					// for (DistributionDB distributionToCompare :
-					// distributionsToCompare) {
-					// foundFilter = false;
-					//
-					// // check whether is there any distribution BF loaded
-					// if (!listOfWorkerThreads
-					// .containsKey(distributionToCompare.getLODVaderID())){
-					//
-					// try {
-					//
-					// DataModelThread dataModelThread = new DataModelThread(
-					// resource,
-					// distribution,
-					// distributionToCompare,
-					// distributionFilter.get(distributionToCompare.getLODVaderID()),
-					// tuplePart);
-					//
-					// if(dataModelThread.filter != null){
-					//// if (dataModelThread.datasetID != 0) {
-					//
-					// ArrayList<DataModelThread> d = new
-					// ArrayList<DataModelThread>();
-					// d.add(dataModelThread);
-					//
-					// listOfWorkerThreads.putIfAbsent(
-					// distributionToCompare.getLODVaderID(),
-					// d);
-					// foundFilter=true;
-					//
-					//// }
-					// }
-					// else{
-					// it.remove();
-					//
-					// break;
-					// }
-					//
-					//
-					// } catch (Exception e) {
-					//// logger.error("Error: "
-					//// + e.getMessage());
-					//// System.out.println(distributionToCompare);
-					// e.printStackTrace();
-					// }
-					//
-					// }
-					//
-					//
-					//
-					// if(!foundFilter){
-					// if (tuplePart.equals(TuplePart.SUBJECT)) {
-					// if
-					// (distributionFilter.get(distributionToCompare.getLODVaderID()).objectsNS.contains(ns)){
-					//
-					// for(DataModelThread dt:
-					// listOfWorkerThreads.get(distributionToCompare.getLODVaderID())){
-					// if(dt.lastResource.compareTo(resource) >=0
-					// &&
-					// dt.firstResource.compareTo(resource) <=0 ){
-					// dt.active = true;
-					// foundFilter = true;
-					// break;
-					// }
-					// }
-					// }
-					// }
-					// if (tuplePart.equals(TuplePart.OBJECT)) {
-					//// System.out.println(ns);
-					////
-					//// for(String a :
-					// nsPerDistribution.get(distributionToCompare.getLODVaderID()).subjectsNS){
-					//// System.out.println(a);
-					//// }
-					//
-					// if
-					// (distributionFilter.get(distributionToCompare.getLODVaderID()).subjectsNS.contains(ns)){
-					// for(DataModelThread dt:
-					// listOfWorkerThreads.get(
-					// distributionToCompare.
-					// getLODVaderID())){
-					// if(dt.lastResource.
-					// compareTo(
-					// resource) >= 0
-					// &&
-					// dt.firstResource.compareTo(resource) <=0 ){
-					// dt.active = true;
-					// foundFilter = true;
-					// break;
-					// }
-					// }
-					// }
-					// }
-					// }
-					// // case the DataTherad is not active, we have to load a
-					// new BF
-					// if(!foundFilter){
-					// try {
-					// if
-					// (!distributionToCompare.getUri().equals(distribution.getUri()))
-					// {
-					//
-					// DataModelThread workerThread = new DataModelThread(
-					// resource,
-					// distribution,
-					// distributionToCompare,
-					// distributionFilter.get(distributionToCompare.getLODVaderID()),
-					// tuplePart);
-					// if(workerThread.filter != null){
-					//// if (workerThread.datasetID != 0) {
-					//
-					//// ArrayList<DataModelThread> d = new
-					// ArrayList<DataModelThread>();
-					//// d.add(workerThread);
-					//
-					// listOfWorkerThreads.get(distributionToCompare.getLODVaderID()).add(workerThread);
-					//
-					//// listOfWorkerThreads.putIfAbsent(
-					//// distributionToCompare.getLODVaderID(),
-					//// d);
-					//// workerThread =
-					// listOfWorkerThreads.get(distributionToCompare.getLODVaderID());
-					//// workerThread.startFilter();
-					// foundFilter=true;
-					//// }
-					// }
-					// }
-					// } catch (Exception e) {
-					// logger.error("Error: "
-					// + e.getMessage());
-					//// System.out.println(distributionToCompare);
-					// e.printStackTrace();
-					// }
-					// }
-					//
-					//
-					// }
-					//
-					// }
 
 					for (DistributionDB distributionToCompare : distributionsToCompare) {
 
@@ -334,21 +174,7 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 										threads[threadIndex].setName("MakeLinkSetWorker-" + threadIndex + "-"
 												+ dataThread.targetDistributionID);
 										threads[threadIndex].start();
-										threadIndex++;
-//										numberOfOpenThreads.addAndGet(1);
-//										
-//										
-//										
-//										while (numberOfOpenThreads.get() > 5) {
-//											try {
-//												Thread.sleep(10);
-//											} catch (InterruptedException e) {
-//												// TODO Auto-generated catch block
-//												e.printStackTrace();
-//											}
-//										}
-										
-										
+										threadIndex++;										
 									}
 									else{
 //										threads[threadIndex].
