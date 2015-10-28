@@ -137,7 +137,10 @@ public class ProcessNSFromTuple extends Thread {
 			e.printStackTrace();
 		}
 
+		logger.info("Saving links...");
 		saveLinks();
+		
+		logger.info("Saving namespaces...");
 		saveNSs();
 		listOfWorkerThreads = new ConcurrentHashMap<Integer, DataModelThread>();
 
@@ -174,13 +177,18 @@ public class ProcessNSFromTuple extends Thread {
 			// save top N valid and invalid links
 			TopValidLinks validLinks = new TopValidLinks();
 			validLinks.saveAll(dataThread.getAllValidLinks(), dataThread.distributionID, dataThread.targetDistributionID);
+			l.setLinks(dataThread.getAllValidLinks().size());
+			dataThread.setValidLinks(null);
+			
 			TopInvalidLinks invalidLinks = new TopInvalidLinks();
 			invalidLinks.saveAll(dataThread.getAllInvalidLinks(), dataThread.distributionID, dataThread.targetDistributionID);
-			
-			l.setLinks(dataThread.getAllValidLinks().size());
 			l.setInvalidLinks(dataThread.getAllInvalidLinks().size());
+			dataThread.setInvalidLinks(null);
+
 			if (l.getLinks() > 0 || l.getInvalidLinks() > 0)
 				l.updateObject(true);
+			
+			
 		}
 	}
 

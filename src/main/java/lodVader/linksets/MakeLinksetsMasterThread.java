@@ -42,14 +42,7 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 		localNS = new HashMap<String, Integer>();
 		resourcesToBeProcessedQueue = new HashMap<String,String>();
 		
-//		while (numberOfOpenThreads.get() > 200) {
-//			try {
-//				Thread.sleep(1);
-//			} catch (InterruptedException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//		}
+//		while (nu
 		
 
 		try {

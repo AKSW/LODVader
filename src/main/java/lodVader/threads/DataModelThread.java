@@ -123,6 +123,14 @@ public class DataModelThread extends Thread {
 		}
 	}
 
+	public void setValidLinks(HashMap<String, Integer> l){
+		validLinks = l;
+	}
+
+	public void setInvalidLinks(HashMap<String, Integer> l){
+		invalidLinks = l;
+	}
+
 	public HashMap<String, Integer> getAllValidLinks() {
 		try {
 			validLinksWriter.close();
