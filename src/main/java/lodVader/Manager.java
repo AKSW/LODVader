@@ -46,32 +46,27 @@ public class Manager {
 
 	public void streamAndCreateFilters() throws Exception {
 		// if there is at least one distribution, load them
-		Iterator<DistributionDB> distributions = distributionsLinks
-				.iterator();
+		Iterator<DistributionDB> distributions = distributionsLinks.iterator();
 
 		int counter = 0;
 
-		logger.info("Loading " + distributionsLinks.size()
-				+ " distributions...");
+		logger.info("Loading " + distributionsLinks.size() + " distributions...");
 
 		while (distributions.hasNext()) {
 			counter++;
 
-			DistributionDB distributionMongoDBObj = distributions
-					.next();
+			DistributionDB distributionMongoDBObj = distributions.next();
 
 			// case there is no such distribution, create one.
 			if (distributionMongoDBObj.getStatus() == null) {
-				distributionMongoDBObj
-						.setStatus(DistributionDB.STATUS_WAITING_TO_STREAM);
+				distributionMongoDBObj.setStatus(DistributionDB.STATUS_WAITING_TO_STREAM);
 			}
 
 			// check is distribution need to be streamed
 			boolean needDownload = checkDistributionStatus(distributionMongoDBObj);
 			// needDownload = true;
 
-			logger.info("Distribution n. " + counter + ": "
-					+ distributionMongoDBObj.getUri());
+			logger.info("Distribution n. " + counter + ": " + distributionMongoDBObj.getUri());
 
 			if (!needDownload) {
 				logger.info("Distribution is already in the last version. No needs to stream again. ");
@@ -85,96 +80,79 @@ public class Manager {
 				try {
 
 					// uptate status of distribution to streaming
-					distributionMongoDBObj
-							.setStatus(DistributionDB.STATUS_STREAMING);
+					distributionMongoDBObj.setStatus(DistributionDB.STATUS_STREAMING);
 					distributionMongoDBObj.updateObject(true);
 
 					// now we need to download the distribution
-					StreamDistribution streamFile = new StreamDistribution(
-							distributionMongoDBObj);
+					StreamDistribution streamFile = new StreamDistribution(distributionMongoDBObj);
 
 					logger.info("Streaming distribution.");
 
-						streamFile.streamDistribution();
-					
+					streamFile.streamDistribution();
 
 					// uptate status of distribution
-					distributionMongoDBObj
-							.setStatus(DistributionDB.STATUS_STREAMED);
+					distributionMongoDBObj.setStatus(DistributionDB.STATUS_STREAMED);
 					distributionMongoDBObj.updateObject(true);
 
-					logger.info("Distribution streamed. ");
+					if (!LODVaderProperties.ONLY_STREAM_DATASETS) {
+
+						logger.info("Distribution streamed. ");
+
+						// uptate status of distribution
+						distributionMongoDBObj.setStatus(DistributionDB.STATUS_CREATING_BLOOM_FILTER);
+						distributionMongoDBObj.updateObject(true);
+
+						logger.info("Creating bloom filter.");
+
+						// createBloomFilters(downloadedFile,
+						// distributionMongoDBObj);
+
+						// save distribution in a mongodb object
+
+						logger.info("Saving mongodb \"Distribution\" document.");
+
+						distributionMongoDBObj.setNumberOfObjectTriples(String.valueOf(streamFile.objectLines));
+						distributionMongoDBObj.setDownloadUrl(streamFile.url.toString());
+						distributionMongoDBObj.setFormat(streamFile.extension.toString());
+						distributionMongoDBObj.setHttpByteSize(String.valueOf((int) streamFile.httpContentLength));
+						distributionMongoDBObj.setHttpFormat(streamFile.httpContentType);
+						distributionMongoDBObj.setHttpLastModified(streamFile.httpLastModified);
+						distributionMongoDBObj.setObjectPath(streamFile.objectFilePath);
+						distributionMongoDBObj.setTriples(streamFile.totalTriples);
+
+						distributionMongoDBObj.setSuccessfullyDownloaded(true);
+						distributionMongoDBObj.updateObject(true);
+
+						logger.info("Checking Similarity among distributions...");
+						distributionMongoDBObj.setStatus(DistributionDB.STATUS_CREATING_JACCARD_SIMILARITY);
+						distributionMongoDBObj.updateObject(true);
+						// Saving link similarities
+
+						logger.info("Checking Jaccard Similarities...");
+						// Checking Jaccard Similarities...
+						LinkSimilarity linkSimilarity = new JaccardSimilarity();
+						linkSimilarity.updateLinks(distributionMongoDBObj, new AllPredicatesRelationDB());
+						linkSimilarity.updateLinks(distributionMongoDBObj, new RDFTypeObjectRelationDB());
+						linkSimilarity.updateLinks(distributionMongoDBObj, new RDFSubClassOfRelationDB());
+						linkSimilarity.updateLinks(distributionMongoDBObj, new OwlClassRelationDB());
+
+						logger.info("Updating link strength among distributions...");
+						distributionMongoDBObj.setStatus(DistributionDB.STATUS_UPDATING_LINK_STRENGTH);
+						distributionMongoDBObj.updateObject(true);
+						// Saving link similarities
+						// LinkStrength linkStrength = new LinkStrength();
+						// linkStrength.updateLinks(distributionMongoDBObj);
+
+						logger.info("Done streaming mongodb distribution object.");
+					}
 
 					// uptate status of distribution
-					distributionMongoDBObj
-							.setStatus(DistributionDB.STATUS_CREATING_BLOOM_FILTER);
-					distributionMongoDBObj.updateObject(true);
-
-					logger.info("Creating bloom filter.");
-
-//					createBloomFilters(downloadedFile, distributionMongoDBObj);
-
-					// save distribution in a mongodb object
-
-					logger.info("Saving mongodb \"Distribution\" document.");
-
-					distributionMongoDBObj.setNumberOfObjectTriples(String
-							.valueOf(streamFile.objectLines));
-					distributionMongoDBObj.setDownloadUrl(streamFile.url
-							.toString());
-					distributionMongoDBObj.setFormat(streamFile.extension
-							.toString());
-					distributionMongoDBObj.setHttpByteSize(String
-							.valueOf((int) streamFile.httpContentLength));
-					distributionMongoDBObj
-							.setHttpFormat(streamFile.httpContentType);
-					distributionMongoDBObj
-							.setHttpLastModified(streamFile.httpLastModified);
-					distributionMongoDBObj
-							.setObjectPath(streamFile.objectFilePath);
-					distributionMongoDBObj
-							.setTriples(streamFile.totalTriples);
-
-
-					distributionMongoDBObj.setSuccessfullyDownloaded(true);
-					distributionMongoDBObj.updateObject(true);
-					
-					logger.info("Checking Similarity among distributions...");
-					distributionMongoDBObj
-						.setStatus(DistributionDB.STATUS_CREATING_JACCARD_SIMILARITY);
-					distributionMongoDBObj.updateObject(true);
-					// Saving link similarities
-					
-					logger.info("Checking Jaccard Similarities...");
-					// Checking Jaccard Similarities...
-					LinkSimilarity linkSimilarity = new JaccardSimilarity();
-					linkSimilarity.updateLinks(distributionMongoDBObj, new AllPredicatesRelationDB());
-					linkSimilarity.updateLinks(distributionMongoDBObj, new RDFTypeObjectRelationDB());
-					linkSimilarity.updateLinks(distributionMongoDBObj, new RDFSubClassOfRelationDB());
-					linkSimilarity.updateLinks(distributionMongoDBObj, new OwlClassRelationDB());
-
-					
-					logger.info("Updating link strength among distributions...");
-					distributionMongoDBObj
-						.setStatus(DistributionDB.STATUS_UPDATING_LINK_STRENGTH);
-					distributionMongoDBObj.updateObject(true);
-					// Saving link similarities
-//					LinkStrength linkStrength = new LinkStrength();
-//					linkStrength.updateLinks(distributionMongoDBObj);
-
-
-					logger.info("Done streaming mongodb distribution object.");
-
-					// uptate status of distribution
-					distributionMongoDBObj
-							.setStatus(DistributionDB.STATUS_DONE);
-					DateFormat dateFormat = new SimpleDateFormat(
-							"HH:mm:ss dd/MM/yyyy");
+					distributionMongoDBObj.setStatus(DistributionDB.STATUS_WAITING_TO_STREAM);
+					DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss dd/MM/yyyy");
 					// get current date time with Date()
 					Date date = new Date();
 
-					distributionMongoDBObj.setLastTimeStreamed(dateFormat
-							.format(date).toString());
+					distributionMongoDBObj.setLastTimeStreamed(dateFormat.format(date).toString());
 
 					distributionMongoDBObj.updateObject(true);
 
@@ -182,16 +160,13 @@ public class Manager {
 
 				} catch (Exception e) {
 					// uptate status of distribution
-					distributionMongoDBObj
-							.setStatus(DistributionDB.STATUS_ERROR);
+					distributionMongoDBObj.setStatus(DistributionDB.STATUS_ERROR);
 					distributionMongoDBObj.setLastMsg(e.getMessage());
 
 					e.printStackTrace();
 					distributionMongoDBObj.setSuccessfullyDownloaded(false);
 					distributionMongoDBObj.updateObject(true);
-					
-					
-					
+
 				}
 
 		}
@@ -226,24 +201,21 @@ public class Manager {
 			logger.info("Parsing model in order to find distributions...");
 
 			// parse model in order to find distributions
-			List<DistributionDB> listOfSubsets = fileInputParserModel
-					.parseDistributions();
+			List<DistributionDB> listOfSubsets = fileInputParserModel.parseDistributions();
 			int numberOfDistributions = listOfSubsets.size();
 
 			if (!fileInputParserModel.someDownloadURLFound)
-				throw new DynamicLODNoDownloadURLFoundException(
-						"No DownloadURL property found!");
+				throw new DynamicLODNoDownloadURLFoundException("No DownloadURL property found!");
 			else if (numberOfDistributions == 0)
-				throw new DynamicLODNoDistributionFoundException(
-						"### 0 distribution found! ###");
+				throw new DynamicLODNoDistributionFoundException("### 0 distribution found! ###");
 
 			checkLOV();
 
 			// try to load distributions and make filters
 			streamAndCreateFilters();
 
-		} catch (DynamicLODFileNotAcceptedException | LODVaderNoDatasetFoundException | DynamicLODNoDownloadURLFoundException
-				| DynamicLODNoDistributionFoundException e) {
+		} catch (DynamicLODFileNotAcceptedException | LODVaderNoDatasetFoundException
+				| DynamicLODNoDownloadURLFoundException | DynamicLODNoDistributionFoundException e) {
 			logger.error(e.getMessage());
 		} catch (Exception e1) {
 			e1.printStackTrace();
@@ -267,37 +239,28 @@ public class Manager {
 				e.printStackTrace();
 				g.setDownloadedLOV(false);
 				g.updateObject(true);
-				logger.info("We got an error trying to load LOV vocabularies! "
-						+ e.getMessage());
+				logger.info("We got an error trying to load LOV vocabularies! " + e.getMessage());
 			}
 		}
 	}
 
-	private boolean checkDistributionStatus(
-			DistributionDB distributionMongoDBObj) throws Exception {
+	private boolean checkDistributionStatus(DistributionDB distributionMongoDBObj) throws Exception {
 		boolean needDownload = false;
 
-		if (distributionMongoDBObj.getStatus().equals(
-				DistributionDB.STATUS_WAITING_TO_STREAM))
+		if (distributionMongoDBObj.getStatus().equals(DistributionDB.STATUS_WAITING_TO_STREAM))
 			needDownload = true;
-		else if (distributionMongoDBObj.getStatus().equals(
-				DistributionDB.STATUS_STREAMING))
+		else if (distributionMongoDBObj.getStatus().equals(DistributionDB.STATUS_STREAMING))
 			needDownload = false;
-		else if (distributionMongoDBObj.getStatus().equals(
-				DistributionDB.STATUS_ERROR))
+		else if (distributionMongoDBObj.getStatus().equals(DistributionDB.STATUS_ERROR))
 			needDownload = true;
-		else if (new CheckWhetherToStream()
-				.checkDistribution(distributionMongoDBObj))
+		else if (new CheckWhetherToStream().checkDistribution(distributionMongoDBObj))
 			needDownload = true;
 
 		return needDownload;
 	}
 
-	public boolean createBloomFilters(
-			StreamDistribution downloadedFile,
-			DistributionDB distributionMongoDBObj) {
-		
-		
+	public boolean createBloomFilters(StreamDistribution downloadedFile, DistributionDB distributionMongoDBObj) {
+
 		GoogleBloomFilter filterSubject;
 		GoogleBloomFilter filterObject;
 		if (downloadedFile.subjectLines != 0) {
@@ -321,93 +284,66 @@ public class Manager {
 				// create filter for subjects
 				Double result = (Double) e.evaluate(context);
 
-				filterSubject = new GoogleBloomFilter(
-						(int) downloadedFile.subjectLines, result);
+				filterSubject = new GoogleBloomFilter((int) downloadedFile.subjectLines, result);
 
-				logger.info("Created bloom filter with customized equation: "
-						+ LODVaderProperties.FPP_EQUATION + " and value: "
-						+ result);
+				logger.info("Created bloom filter with customized equation: " + LODVaderProperties.FPP_EQUATION
+						+ " and value: " + result);
 
 				// create filter for objects
-				filterObject = new GoogleBloomFilter(
-						(int) downloadedFile.objectLines, result);
+				filterObject = new GoogleBloomFilter((int) downloadedFile.objectLines, result);
 
 			} else {
 
 				if (downloadedFile.subjectLines > 1000000) {
-					filterSubject = new GoogleBloomFilter(
-							(int) downloadedFile.subjectLines,
+					filterSubject = new GoogleBloomFilter((int) downloadedFile.subjectLines,
 							0.9 / downloadedFile.subjectLines);
-					filterObject = new GoogleBloomFilter(
-							(int) downloadedFile.objectLines,
+					filterObject = new GoogleBloomFilter((int) downloadedFile.objectLines,
 							0.9 / downloadedFile.objectLines);
 
 				} else {
-					filterSubject = new GoogleBloomFilter(
-							(int) downloadedFile.subjectLines, 0.0000001);
-					filterObject = new GoogleBloomFilter(
-							(int) downloadedFile.objectLines, 0.0000001);
+					filterSubject = new GoogleBloomFilter((int) downloadedFile.subjectLines, 0.0000001);
+					filterObject = new GoogleBloomFilter((int) downloadedFile.objectLines, 0.0000001);
 				}
 			}
 		} else {
-			filterSubject = new GoogleBloomFilter(
-					(int) downloadedFile.contentLengthAfterDownloaded / 40,
-					0.000001);
-			filterObject = new GoogleBloomFilter(
-					(int) downloadedFile.contentLengthAfterDownloaded / 40,
-					0.000001);
+			filterSubject = new GoogleBloomFilter((int) downloadedFile.contentLengthAfterDownloaded / 40, 0.000001);
+			filterObject = new GoogleBloomFilter((int) downloadedFile.contentLengthAfterDownloaded / 40, 0.000001);
 		}
 
 		// load file to filter and take the process time
-//		FileToFilter f = new FileToFilter();
+		// FileToFilter f = new FileToFilter();
 
 		Timer timer = new Timer();
 		timer.startTimer();
 
 		// Loading subject file to filter
-		filterSubject.loadFileToFilter(
-				LODVaderProperties.SUBJECT_FILE_DISTRIBUTION_PATH
-						+ downloadedFile.hashFileName);
-		distributionMongoDBObj.setTimeToCreateSubjectFilter(String
-				.valueOf(timer.stopTimer()));
+		filterSubject.loadFileToFilter(LODVaderProperties.SUBJECT_FILE_DISTRIBUTION_PATH + downloadedFile.hashFileName);
+		distributionMongoDBObj.setTimeToCreateSubjectFilter(String.valueOf(timer.stopTimer()));
 
-		filterSubject
-				.saveFilter(LODVaderProperties.SUBJECT_FILE_FILTER_PATH
-						+ downloadedFile.hashFileName);
+		filterSubject.saveFilter(LODVaderProperties.SUBJECT_FILE_FILTER_PATH + downloadedFile.hashFileName);
 		// save filter
 
 		distributionMongoDBObj
-				.setSubjectFilterPath(LODVaderProperties.SUBJECT_FILE_FILTER_PATH
-						+ downloadedFile.hashFileName);
-		distributionMongoDBObj.setNumberOfSubjectTriples(String
-				.valueOf(filterSubject.elementsLoadedIntoFilter));
+				.setSubjectFilterPath(LODVaderProperties.SUBJECT_FILE_FILTER_PATH + downloadedFile.hashFileName);
+		distributionMongoDBObj.setNumberOfSubjectTriples(String.valueOf(filterSubject.elementsLoadedIntoFilter));
 
 		timer = new Timer();
 		timer.startTimer();
 		// Loading object file to filter
-		filterObject.loadFileToFilter(
-				LODVaderProperties.OBJECT_FILE_DISTRIBUTION_PATH
-						+ downloadedFile.hashFileName);
-		distributionMongoDBObj.setTimeToCreateObjectFilter(String.valueOf(timer
-				.stopTimer()));
+		filterObject.loadFileToFilter(LODVaderProperties.OBJECT_FILE_DISTRIBUTION_PATH + downloadedFile.hashFileName);
+		distributionMongoDBObj.setTimeToCreateObjectFilter(String.valueOf(timer.stopTimer()));
 
-		filterObject.saveFilter(LODVaderProperties.OBJECT_FILE_FILTER_PATH
-				+ downloadedFile.hashFileName);
+		filterObject.saveFilter(LODVaderProperties.OBJECT_FILE_FILTER_PATH + downloadedFile.hashFileName);
 		// save filter
 
 		distributionMongoDBObj
-				.setObjectFilterPath(LODVaderProperties.OBJECT_FILE_FILTER_PATH
-						+ downloadedFile.hashFileName);
-		distributionMongoDBObj.setNumberOfObjectTriples(String
-				.valueOf(filterObject.elementsLoadedIntoFilter));
-		
+				.setObjectFilterPath(LODVaderProperties.OBJECT_FILE_FILTER_PATH + downloadedFile.hashFileName);
+		distributionMongoDBObj.setNumberOfObjectTriples(String.valueOf(filterObject.elementsLoadedIntoFilter));
+
 		// remove temp files
-		FileUtils.removeFile(LODVaderProperties.SUBJECT_FILE_DISTRIBUTION_PATH
-						+ downloadedFile.hashFileName);
-		
-		FileUtils.removeFile(LODVaderProperties.OBJECT_FILE_DISTRIBUTION_PATH
-				+ downloadedFile.hashFileName);
-		
+		FileUtils.removeFile(LODVaderProperties.SUBJECT_FILE_DISTRIBUTION_PATH + downloadedFile.hashFileName);
+
+		FileUtils.removeFile(LODVaderProperties.OBJECT_FILE_DISTRIBUTION_PATH + downloadedFile.hashFileName);
 
 		return false;
 	}

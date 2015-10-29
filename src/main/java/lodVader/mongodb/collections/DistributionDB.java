@@ -241,7 +241,8 @@ public class DistributionDB extends ResourceDB {
 			timeToCreateObjectFilter = (String) obj.get(TIME_TO_CREATE_OBJECT_FILTER);
 			timeToCreateSubjectFilter = (String) obj.get(TIME_TO_CREATE_SUBJECT_FILTER);
 //			((Number) mapObj.get("autostart")).intValue();
-			triples = ((Number) obj.get(TRIPLES)).intValue() ;
+			if(obj.get(TRIPLES) != null)
+				triples = ((Number) obj.get(TRIPLES)).intValue() ;
 			numberOfSubjectTriples = (String) obj
 					.get(NUMBER_OF_SUBJECT_TRIPLES);
 			numberOfObjectTriples = (String) obj.get(NUMBER_OF_OBJECTS_TRIPLES);

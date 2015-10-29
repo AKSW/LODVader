@@ -1,6 +1,6 @@
 package lodVader.threads;
 
-import java.util.ArrayList;
+import java.sql.Time;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -23,6 +23,7 @@ import lodVader.mongodb.collections.LinksetDB;
 import lodVader.mongodb.collections.toplinks.TopInvalidLinks;
 import lodVader.mongodb.collections.toplinks.TopValidLinks;
 import lodVader.utils.NSUtils;
+import lodVader.utils.Timer;
 
 public class ProcessNSFromTuple extends Thread {
 	final static Logger logger = Logger.getLogger(ProcessNSFromTuple.class);
@@ -137,11 +138,17 @@ public class ProcessNSFromTuple extends Thread {
 			e.printStackTrace();
 		}
 
+		Timer t = new Timer();
+		t.startTimer();
 		logger.info("Saving links...");
 		saveLinks();
+		logger.debug("Time: "+ t.stopTimer());
 		
 		logger.info("Saving namespaces...");
+		t.startTimer();
 		saveNSs();
+		logger.debug("Time: "+ t.stopTimer());
+		
 		listOfWorkerThreads = new ConcurrentHashMap<Integer, DataModelThread>();
 
 		logger.debug("Ending GetDomainsFromTriplesThread class.");

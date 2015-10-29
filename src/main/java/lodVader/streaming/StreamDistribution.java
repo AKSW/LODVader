@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -69,7 +70,6 @@ public class StreamDistribution extends Stream {
 
 	boolean doneReadingFile = false;
 	boolean doneSplittingString = false;
-	boolean doneAuthorityObject = false;
 
 	public MakeLinksetsMasterThread makeLinksetFromObjectsThread = null;
 	public MakeLinksetsMasterThread makeLinksetFromSubjectsThread = null;
@@ -110,7 +110,10 @@ public class StreamDistribution extends Stream {
 		}
 
 		// start streaming the distribution
-		StreamDistribution();
+		if(LODVaderProperties.ONLY_STREAM_DATASETS)
+			onlyStream();
+		else
+			streamAndProcess();
 
 		// setExtension(Formats.getEquivalentFormat(getExtension()));
 
@@ -127,7 +130,80 @@ public class StreamDistribution extends Stream {
 		inputStream.close();
 	}
 
-	private void StreamDistribution()
+	private void onlyStream() throws IOException {
+		String directoryPath = LODVaderProperties.DUMP_PATH + distribution.getTopDatasetTitle() + "_" + distribution.getTopDataset()+"/";
+		String filePath = directoryPath + distribution.getTitle() + "_" + distribution.getLODVaderID();
+		
+		// check whether the folder exists
+		File f = new File(directoryPath);
+		if (!f.exists())
+			f.mkdir();	
+		
+		String metaFileName = filePath + ".meta";
+		
+		// creating some metadata to help identify the file
+		FileWriter metaWriter = new FileWriter(new File(metaFileName));
+		metaWriter.write(DistributionDB.LOD_VADER_ID+"=\""+distribution.getLODVaderID()+"\"\n");
+		metaWriter.write(DistributionDB.DOWNLOAD_URL+"=\""+distribution.getDownloadUrl()+"\"\n");
+		metaWriter.write(DistributionDB.TITLE+"=\""+distribution.getTitle()+"\"\n");
+		metaWriter.write(DistributionDB.TOP_DATASET+"=\""+distribution.getTopDataset()+"\"\n");
+		metaWriter.write(DistributionDB.TOP_DATASET_TITLE+"=\""+distribution.getTopDatasetTitle()+"\"\n");
+		
+		metaWriter.close();
+		
+		
+		// check whether file is tar/zip type
+		if (getExtension().equals("zip")) {
+			InputStream data = new BufferedInputStream(inputStream);
+			logger.info("File extension is zip, creating ZipInputStream and checking compressed files...");
+
+			ZipInputStream zip = new ZipInputStream(data);
+			int nf = 0;
+			ZipEntry entry = zip.getNextEntry();
+			while (entry != null) {
+				if (!entry.isDirectory()) {
+					logger.info(++nf + " zip file uncompressed.");
+					logger.info("File name: " + entry.getName());
+
+					simpleDownload(filePath,
+							zip);
+				}
+				entry = zip.getNextEntry();
+			}
+			setExtension(FilenameUtils.getExtension(getFileName()));
+		}
+
+		else if (getExtension().equals("tar")) {
+			InputStream data = new BufferedInputStream(inputStream);
+			logger.info("File extension is tar, creating TarArchiveInputStream and checking compressed files...");
+
+			TarArchiveInputStream tar = new TarArchiveInputStream(data);
+			int nf = 0;
+			TarArchiveEntry entry = (TarArchiveEntry) tar.getNextEntry();
+			while (entry != null) {
+				if (entry.isFile() && !entry.isDirectory()) {
+					logger.info(++nf + " tar file uncompressed.");
+					logger.info("File name: " + entry.getName());
+
+					byte[] content = new byte[(int) entry.getSize()];
+
+					tar.read(content, 0, (int) entry.getSize());
+
+					simpleDownload(filePath,
+							tar);
+				}
+				entry = (TarArchiveEntry) tar.getNextEntry();
+			}
+			setExtension(FilenameUtils.getExtension(getFileName()));
+		}
+
+		else {
+			simpleDownload(filePath,
+					inputStream);
+		}
+	}
+
+	private void streamAndProcess()
 			throws InterruptedException, LODVaderLODGeneralException, LODVaderFormatNotAcceptedException {
 
 		SplitAndStoreThread splitThread = new SplitAndStoreThread(subjectQueue, objectQueue,
@@ -306,21 +382,20 @@ public class StreamDistribution extends Stream {
 				distribution.getTopDataset());
 
 		// create BFs
-
-
-		SubjectsBucket subjectBucket = new SubjectsBucket(getUniqueItemsFromFile(LODVaderProperties.SUBJECT_FILE_DISTRIBUTION_PATH + hashFileName), distribution.getLODVaderID());
+		SubjectsBucket subjectBucket = new SubjectsBucket(
+				getUniqueItemsFromFile(LODVaderProperties.SUBJECT_FILE_DISTRIBUTION_PATH + hashFileName),
+				distribution.getLODVaderID());
 		subjectBucket.makeBucket();
 
-		
-		
 		// making BF
-		ObjectsBucket objectBucket = new ObjectsBucket(getUniqueItemsFromFile(LODVaderProperties.OBJECT_FILE_DISTRIBUTION_PATH + hashFileName),
+		ObjectsBucket objectBucket = new ObjectsBucket(
+				getUniqueItemsFromFile(LODVaderProperties.OBJECT_FILE_DISTRIBUTION_PATH + hashFileName),
 				distribution.getLODVaderID());
 		objectBucket.makeBucket();
-		
+
 	}
-	
-	public ArrayList<String> getUniqueItemsFromFile(String fileName){
+
+	public ArrayList<String> getUniqueItemsFromFile(String fileName) {
 		HashSet<String> uniqueResources = new HashSet<String>();
 		BufferedReader br;
 		String sCurrentLine;
@@ -342,7 +417,7 @@ public class StreamDistribution extends Stream {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		return items;
 	}
 
