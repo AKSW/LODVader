@@ -2,6 +2,7 @@ package lodVader.linksets;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.log4j.Logger;
@@ -12,6 +13,8 @@ import lodVader.mongodb.queries.DistributionQueries;
 import lodVader.threads.DataModelThread;
 import lodVader.threads.JobThread;
 import lodVader.threads.ProcessNSFromTuple;
+import lodVader.utils.NSUtils;
+import lodVader.utils.Timer;
 
 public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 
@@ -32,33 +35,43 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 	ArrayList<DistributionDB> distributionsToCompare;
 	HashMap<String,String> resourcesToBeProcessedQueueCopy;
 
-	public HashMap<String, Integer> localNSCopy = new HashMap<String, Integer>();
+	public HashSet<String> localNS0Copy = new HashSet<String>(); 
+	public HashSet<String> localNSCopy = new HashSet<String>(); 
 
 	@Override
 	public void makeLinks() {
 
-		localNSCopy = (HashMap<String, Integer>) localNS.clone();
+		localNSCopy = (HashSet<String>) localNS.clone();
+		localNS0Copy = (HashSet<String>) localNS0.clone();
 		resourcesToBeProcessedQueueCopy = (HashMap<String,String>) resourcesToBeProcessedQueue.clone();
-		localNS = new HashMap<String, Integer>();
+//		localNS = new HashSet<String>();
+		localNS0 = new HashSet<String>();
+		localNS = new HashSet<String>();
 		resourcesToBeProcessedQueue = new HashMap<String,String>();
 		
-//		while (nu
-		
-
 		try {
 			Thread t = new Thread(new Runnable() {
 				public void run() {
 
-					numberOfOpenThreads.addAndGet(1);
+					NSUtils nsUtils =  new NSUtils();
 					ArrayList<String> nsToSearch = new ArrayList<String>();
+					int numberOfOpenThreads = 0;
 
+					
 					// create a list of NS which should be fetched from
 					// database
 					// and add the loaded NS to a global map
-					for (String ns : localNSCopy.keySet()) {
-						if (!listLoadedNS.containsKey(ns)) {
-							nsToSearch.add(ns);
-							listLoadedNS.putIfAbsent(ns, 0);
+//					for (String ns : localNSCopy.keySet()) {
+//						if (!listLoadedNS.containsKey(ns)) {
+//							nsToSearch.add(ns);
+//							listLoadedNS.putIfAbsent(ns, 0);
+//						}
+//					}
+					
+					for (String ns0 : localNS0Copy) {
+						if (!listLoadedNS.containsKey(ns0)) {
+							nsToSearch.add(ns0);
+							listLoadedNS.putIfAbsent(ns0, 0);
 						}
 					}
 
@@ -71,7 +84,6 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 					else if (tuplePart.equals(TuplePart.SUBJECT))
 						distributionsToCompare = new DistributionQueries().getDistributionsByIndegree(nsToSearch,
 								distributionFilter);
-
 
 					for (DistributionDB distributionToCompare : distributionsToCompare) {
 
@@ -88,6 +100,7 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 										listOfWorkerThreads.putIfAbsent(distributionToCompare.getLODVaderID(),
 												workerThread);
 										workerThread = listOfWorkerThreads.get(distributionToCompare.getLODVaderID());
+										numberOfOpenThreads++;
 									}
 								}
 							} catch (Exception e) {
@@ -100,13 +113,14 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 					for (DistributionFilter dNS : distributionFilter.values()) {
 						// check whether NS is in the subject list
 						if (tuplePart.equals(TuplePart.SUBJECT)) {
-							for (String ns : localNSCopy.keySet()) {
+							for (String ns : localNSCopy) {
 								if (dNS.queryObjectNS(ns)) {
 									boolean keepTrying = true;
 									while (keepTrying) {
 										try {
 											if (!(dNS.distributionID == distribution.getLODVaderID())) {
 												listOfWorkerThreads.get(dNS.distributionID).active = true;
+												numberOfOpenThreads++;
 											}
 											keepTrying = false;
 										} catch (Exception e) {
@@ -122,14 +136,16 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 								}
 							}
 						} else if (tuplePart.equals(TuplePart.OBJECT)) {
-							for (String ns : localNSCopy.keySet()) {
+							for (String ns : localNSCopy) {
 								if (dNS.querySubjectNS(ns)) {
 
 									boolean keepTrying = true;
 									while (keepTrying) {
 										try {
-											if (!(dNS.distributionID == distribution.getLODVaderID()))
+											if (!(dNS.distributionID == distribution.getLODVaderID())){
 												listOfWorkerThreads.get(dNS.distributionID).active = true;
+												numberOfOpenThreads++;
+											}
 
 											keepTrying = false;
 										} catch (Exception e) {
@@ -157,6 +173,8 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 
 						Thread[] threads = new Thread[listOfWorkerThreads.size()];
 
+//						System.out.println(numberOfOpenThreads);
+						
 						// for (Integer in : listOfWorkerThreads.keySet())
 						for (DataModelThread dataThread : listOfWorkerThreads.values()) {
 							if (dataThread.targetDistributionID != distribution.getLODVaderID())
@@ -187,55 +205,10 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 					}
 
 					// save linksets into mongodb
-
 					for (DataModelThread dataThread : listOfWorkerThreads.values()) {
 						dataThread.active = false;
-					}
-
-					// for (DataModelThread dataThread : listOfWorkerThreads
-					// .values()) {
-					//
-					// dataThread.active = false;
-					//
-					// LinksetDB l;
-					//
-					// String mongoDBURL;
-					//
-					// // System.out.println(" Links working: "+positive + "
-					//
-					// if(tuplePart.equals(TuplePart.SUBJECT)){
-					// mongoDBURL = dataThread.targetDistributionID+ "-" +
-					// dataThread.distributionID;
-					// l = new LinksetDB(
-					// mongoDBURL);
-					// l.setDistributionSource(dataThread.targetDistributionID);
-					// l.setDistributionTarget(dataThread.distributionID);
-					// l.setDatasetSource(dataThread.targetDatasetID);
-					// l.setDatasetTarget(dataThread.datasetID);
-					//
-					// }
-					// else{
-					// mongoDBURL = dataThread.distributionID + "-"
-					// + dataThread.targetDistributionID;
-					// l = new LinksetDB(
-					// mongoDBURL);
-					//
-					// l.setDistributionSource(dataThread.distributionID);
-					// l.setDistributionTarget(dataThread.targetDistributionID);
-					// l.setDatasetSource(dataThread.datasetID);
-					// l.setDatasetTarget(dataThread.targetDatasetID);
-					// }
-					// l.setLinks(dataThread.numberOfValidLinks.get());
-					// l.setInvalidLinks(dataThread.numberOfInvalidLinks.get());
-					// if(l.getLinks()>0 || l.getInvalidLinks()>0)
-					// l.updateObject(true);
-					// }
-					
-					numberOfOpenThreads.decrementAndGet();
-
-				}
-				
-				
+					}				
+				}				
 				
 			});
 			threadNumber++;
@@ -244,7 +217,7 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 			t.start();
 
 		} catch (Exception e) {
-
+			e.printStackTrace();
 		}
 	}
 }

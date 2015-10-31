@@ -76,7 +76,7 @@ public class DataModelThread extends Thread {
 	public String tuplePart;
 
 	// flat to execute or not this model in a thread
-	public boolean active = true;
+	public boolean active = false;
 
 	public DataModelThread(DistributionDB sourceDistribution, DistributionDB targetDistribution,
 			DistributionFilter distributionFilter, String tuplePart) {
@@ -180,7 +180,7 @@ public class DataModelThread extends Thread {
 			f.delete();
 
 		} catch (Exception e) {
-			e.printStackTrace();
+//			e.printStackTrace();
 		}
 		return links;
 	}

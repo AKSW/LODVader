@@ -46,7 +46,7 @@ public class GoogleBloomFilter {
 
 	}
 
-	public boolean compare(String s) throws Exception {
+	public boolean compare(String s){
 		return filter.mightContain(s.getBytes());
 	}
 

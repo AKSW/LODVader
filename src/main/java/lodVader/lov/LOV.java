@@ -227,13 +227,13 @@ public class LOV extends Stream {
 
 		Timer t = new Timer();
 		t.startTimer();
-		SubjectsBucket s = new SubjectsBucket(new ArrayList<String>(subjects), distribution.getLODVaderID());
+		SubjectsBucket s = new SubjectsBucket(new TreeSet<String>(subjects), distribution.getLODVaderID());
 		s.makeBucket();
 		String timer1 = t.stopTimer();
 
 		Timer t2 = new Timer();
 		t.startTimer();
-		ObjectsBucket o = new ObjectsBucket(new ArrayList<String>(objects), distribution.getLODVaderID());
+		ObjectsBucket o = new ObjectsBucket(new TreeSet<String>(objects), distribution.getLODVaderID());
 		o.makeBucket();
 		String timer2 = t2.stopTimer();
 

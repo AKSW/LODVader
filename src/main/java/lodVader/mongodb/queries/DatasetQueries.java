@@ -16,8 +16,8 @@ import lodVader.LODVaderProperties;
 import lodVader.mongodb.DBSuperClass;
 import lodVader.mongodb.collections.DatasetDB;
 import lodVader.mongodb.collections.DistributionDB;
-import lodVader.mongodb.collections.DistributionSubjectNSDB;
 import lodVader.mongodb.collections.LinksetDB;
+import lodVader.mongodb.collections.namespaces.DistributionSubjectNSDB;
 
 public class DatasetQueries {
 

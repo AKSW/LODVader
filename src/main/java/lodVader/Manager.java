@@ -147,7 +147,8 @@ public class Manager {
 					}
 
 					// uptate status of distribution
-					distributionMongoDBObj.setStatus(DistributionDB.STATUS_WAITING_TO_STREAM);
+					distributionMongoDBObj.setStatus(DistributionDB.STATUS_DONE);
+					
 					DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss dd/MM/yyyy");
 					// get current date time with Date()
 					Date date = new Date();

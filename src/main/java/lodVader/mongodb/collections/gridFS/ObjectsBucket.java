@@ -3,6 +3,7 @@ package lodVader.mongodb.collections.gridFS;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeSet;
 
 import com.google.common.hash.BloomFilter;
 import com.mongodb.BasicDBObject;
@@ -20,7 +21,7 @@ public class ObjectsBucket  extends SuperBucket{
 		this.COLLECTION_NAME = OBJECTS_BUCKET_COLLECTION_NAME;
 	}
 	
-	public ObjectsBucket(ArrayList<String> resources, int distributionID) {
+	public ObjectsBucket(TreeSet<String> resources, int distributionID) {
 		this.COLLECTION_NAME = OBJECTS_BUCKET_COLLECTION_NAME;		
 		this.resources = resources;
 		this.distributionID = distributionID;

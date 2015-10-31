@@ -69,6 +69,7 @@ public class JobThread implements Runnable {
 					for (String resource : listOfResources.keySet()) {
 						if (filter.compare(resource)) {
 //							dataThread.numberOfValidLinks.addAndGet(1);
+//							System.out.println(resource);
 							saveValidLink(resource);
 						}
 					}
@@ -85,6 +86,7 @@ public class JobThread implements Runnable {
 									if (s.filter.compare(resource)) {
 										found = true;
 										// dataThread.numberOfValidLinks.addAndGet(1);
+//										System.out.println(resource);
 										saveValidLink(resource);
 										break;
 									}
@@ -195,6 +197,5 @@ public class JobThread implements Runnable {
 		// } catch (Exception e) {
 		// e.printStackTrace();
 		// }
-		ProcessNSFromTuple.numberOfOpenThreads.decrementAndGet();
 	}
 }

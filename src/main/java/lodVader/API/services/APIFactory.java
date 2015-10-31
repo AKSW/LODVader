@@ -25,15 +25,9 @@ public class APIFactory {
 			return (APIDataset) APITasks.tasks.get(datasetURI);
 	}
 	
-	public static APIStatus createStatusDataset(String datasetURI) {
+	public static APIDatasetStatus createStatusDataset(String datasetURI) {
 		
-//		logger.debug("API Factory Create Status Dataset started");
-//		APIStatusMongoDBObject apiStatus = new APIStatusMongoDBObject(datasetURI);
-//		if(apiStatus.getMessage()!=null){
-//			logger.debug("APIStatus instance created");
-			return new APIStatus(datasetURI);
-//		}
-//		else return null;
+			return new APIDatasetStatus(datasetURI);
 		
 	}
 

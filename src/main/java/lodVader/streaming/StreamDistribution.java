@@ -11,6 +11,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -367,27 +368,30 @@ public class StreamDistribution extends Stream {
 		new AllPredicatesRelationDB().insertSet(splitThread.allPredicates, distribution.getLODVaderID(),
 				distribution.getTopDataset());
 
-		logger.info("Saving RDF TYPE objects...");
+		logger.info("Saving rdf:type objects...");
 		// Saving RDF Type classes
 		new RDFTypeObjectDB().insertSet(splitThread.rdfTypeObjects.keySet());
 		new RDFTypeObjectRelationDB().insertSet(splitThread.rdfTypeObjects, distribution.getLODVaderID(),
 				distribution.getTopDataset());
 
+		logger.info("Saving rdfs:subclass objects...");
 		new RDFSubClassOfDB().insertSet(splitThread.rdfSubClassOf.keySet());
 		new RDFSubClassOfRelationDB().insertSet(splitThread.rdfSubClassOf, distribution.getLODVaderID(),
 				distribution.getTopDataset());
 
+		logger.info("Saving owl:Classobjects...");
 		new OwlClassDB().insertSet(splitThread.owlClasses.keySet());
 		new OwlClassRelationDB().insertSet(splitThread.owlClasses, distribution.getLODVaderID(),
 				distribution.getTopDataset());
 
+		logger.info("Creating subjects BF");
 		// create BFs
 		SubjectsBucket subjectBucket = new SubjectsBucket(
 				getUniqueItemsFromFile(LODVaderProperties.SUBJECT_FILE_DISTRIBUTION_PATH + hashFileName),
 				distribution.getLODVaderID());
 		subjectBucket.makeBucket();
 
-		// making BF
+		logger.info("Creating objects BF");
 		ObjectsBucket objectBucket = new ObjectsBucket(
 				getUniqueItemsFromFile(LODVaderProperties.OBJECT_FILE_DISTRIBUTION_PATH + hashFileName),
 				distribution.getLODVaderID());
@@ -395,22 +399,16 @@ public class StreamDistribution extends Stream {
 
 	}
 
-	public ArrayList<String> getUniqueItemsFromFile(String fileName) {
-		HashSet<String> uniqueResources = new HashSet<String>();
+	public TreeSet<String> getUniqueItemsFromFile(String fileName) {
 		BufferedReader br;
 		String sCurrentLine;
-		ArrayList<String> items = new ArrayList<String>();
+		TreeSet<String> items = new TreeSet<String>();
 
 		try {
 			br = new BufferedReader(new FileReader(fileName));
 
 			while ((sCurrentLine = br.readLine()) != null) {
-				if (!uniqueResources.contains(sCurrentLine)) {
-					uniqueResources.add(sCurrentLine);
 					items.add(sCurrentLine);
-				}
-				if (uniqueResources.size() == 5000000)
-					uniqueResources = new HashSet<String>();
 			}
 
 		} catch (Exception e) {

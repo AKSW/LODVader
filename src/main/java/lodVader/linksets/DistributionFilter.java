@@ -8,12 +8,13 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 
+import lodVader.bloomfilters.GoogleBloomFilter;
 import lodVader.mongodb.DBSuperClass;
 import lodVader.mongodb.collections.DistributionDB;
-import lodVader.mongodb.collections.DistributionObjectNSDB;
-import lodVader.mongodb.collections.DistributionSubjectNSDB;
 import lodVader.mongodb.collections.gridFS.ObjectsBucket;
 import lodVader.mongodb.collections.gridFS.SubjectsBucket;
+import lodVader.mongodb.collections.namespaces.DistributionObjectNSDB;
+import lodVader.mongodb.collections.namespaces.DistributionSubjectNSDB;
 
 public class DistributionFilter {
 
@@ -22,8 +23,14 @@ public class DistributionFilter {
 	public DistributionDB distributionMongoDBObject;
 
 	public HashSet<String> subjectsNS = new HashSet<String>();
- 
+	 
 	public HashSet<String> objectsNS = new HashSet<String>();
+	
+	public GoogleBloomFilter filterSubjectsNS;
+	 
+	public GoogleBloomFilter filterObjectsNS;
+	
+	
 
 	public ArrayList<ObjectsBucket> objectBuckets = new ArrayList<ObjectsBucket>();
 
@@ -38,11 +45,16 @@ public class DistributionFilter {
 	}
 
 	public boolean querySubjectNS(String fqdn) {
-		return subjectsNS.contains(fqdn);
+//		return subjectsNS.contains(fqdn);
+
+		return filterSubjectsNS.compare(fqdn);
+
 	}
 
 	public boolean queryObjectNS(String fqdn) {
-		return objectsNS.contains(fqdn);
+//		return objectsNS.contains(fqdn);
+		
+		return filterObjectsNS.compare(fqdn);
 	}
 
 	public void addSubjectsNS(HashSet<String> list) {
@@ -104,9 +116,14 @@ public class DistributionFilter {
 		DBCursor cursor = collection.find(subjectQuery);
 
 		HashSet<String> subjectsNS = new HashSet<String>();
+		String resource;
 
+		filterSubjectsNS = new GoogleBloomFilter(cursor.size(),0.0000001);
+		
 		while (cursor.hasNext()) {
-			subjectsNS.add(cursor.next().get(DistributionSubjectNSDB.SUBJECT_NS).toString());
+			resource = cursor.next().get(DistributionSubjectNSDB.SUBJECT_NS).toString();
+			subjectsNS.add(resource);
+			filterSubjectsNS.add(resource);
 		}
 
 		// doing the same for objects ns
@@ -117,13 +134,17 @@ public class DistributionFilter {
 		cursor = collection.find(objectQuery);
 
 		HashSet<String> objectsNS = new HashSet<String>();
-
+		filterObjectsNS = new GoogleBloomFilter(cursor.size(),0.0000001);
 		while (cursor.hasNext()) {
-			objectsNS.add(cursor.next().get(DistributionObjectNSDB.OBJECT_NS).toString());
+			resource = cursor.next().get(DistributionObjectNSDB.OBJECT_NS).toString();
+			objectsNS.add(resource);
+			filterObjectsNS.add(resource);
 		}
 
 		addObjectsNS(objectsNS);
 		addSubjectsNS(subjectsNS);
+//		System.out.println("o "+objectsNS.size());
+//		System.out.println("s "+subjectsNS.size());
 	}
 
 }

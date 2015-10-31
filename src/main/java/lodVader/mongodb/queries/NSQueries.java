@@ -5,7 +5,7 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 
 import lodVader.mongodb.DBSuperClass;
-import lodVader.mongodb.collections.DistributionObjectNSDB;
+import lodVader.mongodb.collections.namespaces.DistributionObjectNSDB;
 
 public class NSQueries {
 	public int getNumberOfObjectResources(

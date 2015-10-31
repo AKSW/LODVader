@@ -65,8 +65,6 @@ public class StartLODVader extends HttpServlet {
 //							distributions.add(dist);
 						}
 
-						// new
-
 						// download distributions with
 						// "STATUS_WAITING_TO_STREAM"
 						// status
@@ -82,7 +80,7 @@ public class StartLODVader extends HttpServlet {
 						for (String s : q) {
 							DistributionDB dist = new DistributionDB(
 									s);
-							dist.setStatus(DistributionDB.STATUS_WAITING_TO_STREAM);
+//							dist.setStatus(DistributionDB.STATUS_WAITING_TO_STREAM);
 							dist.updateObject(true);
 							distributions.add(dist);
 						}

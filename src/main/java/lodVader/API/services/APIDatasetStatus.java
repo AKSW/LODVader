@@ -15,13 +15,13 @@ import lodVader.mongodb.collections.LinksetDB;
 import lodVader.mongodb.queries.DistributionQueries;
 import lodVader.mongodb.queries.LinksetQueries;
 
-public class APIStatus extends API {
+public class APIDatasetStatus extends API {
 
 //	APIStatusMongoDBObject apiStatus = null;
 	
 	ArrayList<DistributionDB> distributions;
 	
-	final static Logger logger = Logger.getLogger(APIStatus.class);
+	final static Logger logger = Logger.getLogger(APIDatasetStatus.class);
 
 	@Override
 	public void run() {
@@ -29,18 +29,11 @@ public class APIStatus extends API {
 
 	}
 
-	public APIStatus(String url) {
+	public APIDatasetStatus(String url) {
 		
-//		logger.debug("APIStatus initialized. ");
-		
-		
-//		apiStatus = new APIStatusMongoDBObject(url);
 		distributions=new DistributionQueries().getDistributionsByTopDatasetID(url);
 		
 		apiMessage.setCoreMsgSuccess();
-//		apiMessage.setParserMsg("Dataset status:  " + apiStatus.getMessage());
-		
-//		logger.debug("APIStatus number of distributions found: "+distributions.size());
 	
 		for (DistributionDB distribution : distributions) {
 			
@@ -70,7 +63,7 @@ public class APIStatus extends API {
 			
 			
 			// indegrees
-			ArrayList<LinksetDB> indegrees = new  LinksetQueries().getLinksetsInDegreeByDistribution(distribution.getLODVaderID(), LinksetDB.LINK_NUMBER_LINKS,50,-1);
+			ArrayList<LinksetDB> indegrees = new  LinksetQueries().getLinksetsInDegreeByDistribution(distribution.getLODVaderID(), LinksetDB.LINK_NUMBER_LINKS,LODVaderProperties.LINKSET_TRESHOLD,-1);
 			int indegreeCount = 0;
 			JSONArray inegreeArray = new JSONArray();
 			
@@ -104,7 +97,7 @@ public class APIStatus extends API {
 //			datasetMessage.put("indegreeLinksCount", indegreeCount);
 			
 			// outdegrees
-			ArrayList<LinksetDB> outdegrees = new LinksetQueries().getLinksetsOutDegreeByDistribution(distribution.getLODVaderID(), LinksetDB.LINK_NUMBER_LINKS,50,-1);
+			ArrayList<LinksetDB> outdegrees = new LinksetQueries().getLinksetsOutDegreeByDistribution(distribution.getLODVaderID(), LinksetDB.LINK_NUMBER_LINKS,LODVaderProperties.LINKSET_TRESHOLD,-1);
 			int outdegreeCount = 0;
 			JSONArray outdegreeArray = new JSONArray();
 			for(LinksetDB linkset : outdegrees){

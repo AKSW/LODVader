@@ -1,4 +1,4 @@
-package lodVader.mongodb.collections;
+package lodVader.mongodb.collections.namespaces;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCursor;
@@ -7,29 +7,23 @@ import com.mongodb.DBObject;
 import lodVader.exceptions.LODVaderLODGeneralException;
 import lodVader.mongodb.DBSuperClass;
 
-public class DistributionObjectNSDB extends DBSuperClass {
+public class DistributionObjectNS0DB extends DBSuperClass {
 
 	// Collection name
-	public static final String COLLECTION_NAME = "DistributionObjectNS";
+	public static final String COLLECTION_NAME = "DistributionObjectNS0";
 
 	
 	// class properties
 	public static final String DISTRIBUTION_ID = "distributionID";
 	
-	public static final String OBJECT_NS = "objectNS";	
-	
-	public static final String NUMBER_OF_RESOURCES = "numberOfResources";	
-	
+	public static final String OBJECT_NS0 = "objectNS0";
 	
 	private int distributionID;
 
-	private String objectNS;
-
-	private int numberOfResources;
+	private String objectNS0;
 
 	
-	
-	public DistributionObjectNSDB(String uri) {
+	public DistributionObjectNS0DB(String uri) {
 		
 		super(COLLECTION_NAME, uri);
 		loadObject();
@@ -44,16 +38,10 @@ public class DistributionObjectNSDB extends DBSuperClass {
 			// updating subjectsTarget on mongodb
 			mongoDBObject.put(DISTRIBUTION_ID, distributionID);
 			mongoDBObject2.put(DISTRIBUTION_ID, distributionID);
-
-			// updating objectsTarget on mongodb
-			mongoDBObject.put(OBJECT_NS, objectNS);
-			mongoDBObject2.put(OBJECT_NS, objectNS);
 			
-			// updating number of resources on mongodb
-			mongoDBObject.put(NUMBER_OF_RESOURCES, numberOfResources);
-			mongoDBObject2.put(NUMBER_OF_RESOURCES, numberOfResources);
+			mongoDBObject.put(OBJECT_NS0, objectNS0);
+			mongoDBObject2.put(OBJECT_NS0, objectNS0);
 
-			
 			DBCursor d = objectCollection.find(mongoDBObject2);
 			if (d.hasNext())
 				return false;
@@ -83,12 +71,8 @@ public class DistributionObjectNSDB extends DBSuperClass {
 		if (obj != null) {
 
 			distributionID = ((Number) obj.get(DISTRIBUTION_ID)).intValue();
-
-			objectNS = (String) obj.get(OBJECT_NS);
-
-			numberOfResources = ((Number) obj.get(NUMBER_OF_RESOURCES)).intValue();
-
-
+			objectNS0 = obj.get(OBJECT_NS0).toString();
+			
 			return true;
 		}
 		return false;
@@ -101,23 +85,15 @@ public class DistributionObjectNSDB extends DBSuperClass {
 	public void setDistributionID(int distributionID) {
 		this.distributionID = distributionID;
 	}
- 
-	public String getObjectFQDN() {
-		return objectNS;
+
+	public String getObjectNS0() {
+		return objectNS0;
 	}
 
-	public void setObjectNS(String objectFqdn) {
-		this.objectNS = objectFqdn;
+	public void setObjectNS0(String objectNS0) {
+		this.objectNS0 = objectNS0;
 	}
 
-	public int getNumberOfResources() {
-		return numberOfResources;
-	}
-
-	public void setNumberOfResources(int numberOfResources) {
-		this.numberOfResources = numberOfResources;
-	}
-	
 	
 
 }

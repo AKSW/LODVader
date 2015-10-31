@@ -5,8 +5,6 @@ import com.mongodb.DBObject;
 
 import lodVader.mongodb.collections.DatasetDB;
 import lodVader.mongodb.collections.DistributionDB;
-import lodVader.mongodb.collections.DistributionObjectNSDB;
-import lodVader.mongodb.collections.DistributionSubjectNSDB;
 import lodVader.mongodb.collections.LinksetDB;
 import lodVader.mongodb.collections.RDFResources.allPredicates.AllPredicatesRelationDB;
 import lodVader.mongodb.collections.RDFResources.owlClass.OwlClassRelationDB;
@@ -14,6 +12,10 @@ import lodVader.mongodb.collections.RDFResources.rdfSubClassOf.RDFSubClassOfRela
 import lodVader.mongodb.collections.RDFResources.rdfType.RDFTypeObjectRelationDB;
 import lodVader.mongodb.collections.RDFResources.rdfType.RDFTypeSubjectRelationDB;
 import lodVader.mongodb.collections.gridFS.SuperBucket;
+import lodVader.mongodb.collections.namespaces.DistributionObjectNS0DB;
+import lodVader.mongodb.collections.namespaces.DistributionObjectNSDB;
+import lodVader.mongodb.collections.namespaces.DistributionSubjectNS0DB;
+import lodVader.mongodb.collections.namespaces.DistributionSubjectNSDB;
 
 public class IndexesCreator {
 	
@@ -76,6 +78,13 @@ public class IndexesCreator {
 		addIndex(OwlClassRelationDB.COLLECTION_NAME, OwlClassRelationDB.DISTRIBUTION_ID, 1);
 		addIndex(OwlClassRelationDB.COLLECTION_NAME, OwlClassRelationDB.DATASET_ID, 1);
 		
+		addIndex(DistributionSubjectNS0DB.COLLECTION_NAME, DistributionSubjectNS0DB.DISTRIBUTION_ID, 1);
+		addIndex(DistributionSubjectNS0DB.COLLECTION_NAME, DistributionSubjectNS0DB.SUBJECT_NS0, 1);
+		
+		addIndex(DistributionObjectNS0DB.COLLECTION_NAME, DistributionObjectNS0DB.OBJECT_NS0, 1);
+		addIndex(DistributionObjectNS0DB.COLLECTION_NAME, DistributionObjectNS0DB.DISTRIBUTION_ID, 1);
+			
+		
 		// indices for gridFS
 		addIndex("ObjectsBucket.files", SuperBucket.DISTRIBUTION_ID, 1);
 		addIndex("ObjectsBucket.files", SuperBucket.FIRST_RESOURCE, 1);
@@ -84,6 +93,8 @@ public class IndexesCreator {
 		addIndex("SubjectsBucket.files", SuperBucket.DISTRIBUTION_ID, 1);
 		addIndex("SubjectsBucket.files", SuperBucket.FIRST_RESOURCE, 1);
 		addIndex("SubjectsBucket.files", SuperBucket.LAST_RESOURCE, 1);
+		
+		
 
 	}
 	

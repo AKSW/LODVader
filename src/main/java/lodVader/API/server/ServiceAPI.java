@@ -19,7 +19,7 @@ import lodVader.API.services.APIDataset;
 import lodVader.API.services.APIFactory;
 import lodVader.API.services.APIRetrieveRDF;
 import lodVader.API.services.APIStatistics;
-import lodVader.API.services.APIStatus;
+import lodVader.API.services.APIDatasetStatus;
 import lodVader.exceptions.LODVaderNoDatasetFoundException;
 import lodVader.exceptions.api.DynamicLODAPINoLinksFoundException;
 import lodVader.exceptions.api.DynamicLODAPINoParametersFoundExceiption;
@@ -101,7 +101,7 @@ public class ServiceAPI extends HttpServlet {
 					
 //					logger.debug("API DATASET_STATUS: "+datasetURI);
 
-					APIStatus apiStatus = APIFactory
+					APIDatasetStatus apiStatus = APIFactory
 							.createStatusDataset(datasetURI);
 					try {
 						if (apiStatus != null) {

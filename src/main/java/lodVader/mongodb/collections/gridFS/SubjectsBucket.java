@@ -3,6 +3,7 @@ package lodVader.mongodb.collections.gridFS;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeSet;
 
 import org.junit.Test;
 
@@ -22,7 +23,7 @@ public class SubjectsBucket extends SuperBucket {
 		this.COLLECTION_NAME = SUBJECTS_BUCKET_COLLECTION_NAME;
 	}
 
-	public SubjectsBucket(ArrayList<String> resources, int distributionID) {
+	public SubjectsBucket(TreeSet<String> resources, int distributionID) {
 		this.COLLECTION_NAME = SUBJECTS_BUCKET_COLLECTION_NAME;
 		this.resources = resources;
 		this.distributionID = distributionID;

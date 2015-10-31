@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.TreeSet;
 
 import com.google.common.hash.BloomFilter;
 import com.mongodb.BasicDBList;
@@ -40,12 +41,12 @@ public abstract class SuperBucket {
 	
 	int distributionID;
 
-	ArrayList<String> resources;
+	TreeSet<String> resources;
 	
 	public SuperBucket() {
 	}
 	
-	public SuperBucket(ArrayList<String> resources, int distributionID) {
+	public SuperBucket(TreeSet<String> resources, int distributionID) {
 		this.resources = resources;
 		this.distributionID = distributionID;
 	}
@@ -65,20 +66,20 @@ public abstract class SuperBucket {
 		removeBFs(distributionID);
 		
 		// chunk
-		ArrayList<String> chunk = new ArrayList<String>();
+		TreeSet<String> chunk = new TreeSet<String>();
 		
 		// take the chunks of chunkSize resources
 		for(String resource: resources){
 			chunk.add(resource);
 			
 			if(chunk.size() == chunkSize){
-				saveChunk((ArrayList<String>) chunk.clone());
-				chunk = new ArrayList<String>();
+				saveChunk((TreeSet<String>) chunk.clone());
+				chunk = new TreeSet<String>();
 			}
 		}
 		
 		if(chunk.size()>0)
-			saveChunk((ArrayList<String>) chunk.clone());
+			saveChunk((TreeSet<String>) chunk.clone());
 	}
 	
 	
@@ -88,7 +89,7 @@ public abstract class SuperBucket {
 	}
 	
 	
-	private void saveChunk(final ArrayList<String> chunk){	
+	private void saveChunk(final TreeSet<String> chunk){	
 		final int distributionID = this.distributionID;
 		Thread t = new Thread(){
 			public void run() {
@@ -106,12 +107,14 @@ public abstract class SuperBucket {
 	}
 	
 	
-	private void makeBloomFilter(ArrayList<String> chunk, int distributionID){
+	private void makeBloomFilter(TreeSet<String> chunk, int distributionID){
 		
-		final String firstResource = chunk.get(0);
-		final String lastResource = chunk.get(chunk.size() -1);
-		
-		GoogleBloomFilter filter = new GoogleBloomFilter(chunk.size(), fpp);
+		final String firstResource = chunk.first();
+		final String lastResource = chunk.last();
+		int chunkSize = chunk.size();
+		if(chunkSize < 5000)
+			chunkSize = 5000;
+		GoogleBloomFilter filter = new GoogleBloomFilter(chunkSize, fpp);
 		for(String resource: chunk){
 			filter.add(resource);
 		}

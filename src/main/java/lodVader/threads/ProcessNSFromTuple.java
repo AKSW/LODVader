@@ -1,27 +1,29 @@
 package lodVader.threads;
 
-import java.sql.Time;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
 import org.bson.types.ObjectId;
 
 import lodVader.LODVaderProperties;
 import lodVader.TuplePart;
+import lodVader.bloomfilters.GoogleBloomFilter;
 import lodVader.exceptions.LODVaderLODGeneralException;
 import lodVader.linksets.DistributionFilter;
 import lodVader.mongodb.collections.DistributionDB;
-import lodVader.mongodb.collections.DistributionObjectNSDB;
-import lodVader.mongodb.collections.DistributionSubjectNSDB;
 import lodVader.mongodb.collections.LinksetDB;
+import lodVader.mongodb.collections.namespaces.DistributionObjectNS0DB;
+import lodVader.mongodb.collections.namespaces.DistributionObjectNSDB;
+import lodVader.mongodb.collections.namespaces.DistributionSubjectNS0DB;
+import lodVader.mongodb.collections.namespaces.DistributionSubjectNSDB;
 import lodVader.mongodb.collections.toplinks.TopInvalidLinks;
 import lodVader.mongodb.collections.toplinks.TopValidLinks;
+import lodVader.mongodb.queries.DistributionQueries;
 import lodVader.utils.NSUtils;
 import lodVader.utils.Timer;
 
@@ -45,7 +47,18 @@ public class ProcessNSFromTuple extends Thread {
 	private String uri;
 	public DistributionDB distributionMongoDBObject = null;
 
-	public HashMap<String, Integer> localNS = new HashMap<String, Integer>();
+	public HashSet<String> localNS = new HashSet<String>();
+	public HashSet<String> localNS0 = new HashSet<String>();
+
+	// public GoogleBloomFilter describedSubjectsNS0 = new DistributionQueries()
+	// .getDescribedNS0(LODVaderProperties.TYPE_SUBJECT);
+	// public GoogleBloomFilter describedObjectsNS0 = new DistributionQueries()
+	// .getDescribedNS0(LODVaderProperties.TYPE_OBJECT);
+
+	public GoogleBloomFilter describedSubjectsNS = new DistributionQueries()
+			.getDescribedNS(LODVaderProperties.TYPE_SUBJECT);
+	public GoogleBloomFilter describedObjectsNS = new DistributionQueries()
+			.getDescribedNS(LODVaderProperties.TYPE_OBJECT);
 
 	private boolean doneSplittingString;
 
@@ -56,21 +69,22 @@ public class ProcessNSFromTuple extends Thread {
 	public DistributionDB distribution;
 	protected ConcurrentHashMap<Integer, DataModelThread> listOfWorkerThreads = new ConcurrentHashMap<Integer, DataModelThread>();
 	public ConcurrentHashMap<String, Integer> listLoadedNS = new ConcurrentHashMap<String, Integer>();
+	public ConcurrentHashMap<String, Integer> listLoadedNS0 = new ConcurrentHashMap<String, Integer>();
 
 	private ConcurrentHashMap<String, Integer> countTotalNS = null;
+	private ConcurrentHashMap<String, Integer> countTotalNS0 = null;
 
 	int numberOfReadedTriples = 0;
-	
-	public static AtomicInteger numberOfOpenThreads = new AtomicInteger(0);
 
 	// int saveDomainsEach = 30000;
 	int makeLinksEach = LODVaderProperties.CHECK_LINKS_EACH;
-	
+
 	public HashMap<Integer, Thread> threads = new HashMap<Integer, Thread>();
 
 	public ProcessNSFromTuple(ConcurrentLinkedQueue<String> resourceQueue, String uri) {
 		this.resourceQueue = resourceQueue;
 		this.countTotalNS = new ConcurrentHashMap<String, Integer>();
+		this.countTotalNS0 = new ConcurrentHashMap<String, Integer>();
 		this.uri = uri;
 		this.distribution = new DistributionDB(uri);
 
@@ -91,6 +105,7 @@ public class ProcessNSFromTuple extends Thread {
 		NSUtils nsUtils = new NSUtils();
 
 		String ns = "";
+		String ns0 = "";
 		String resource = "";
 		while (!doneSplittingString) {
 			try {
@@ -98,32 +113,63 @@ public class ProcessNSFromTuple extends Thread {
 			} catch (InterruptedException e1) {
 				e1.printStackTrace();
 			}
-			while (resourceQueue.size() > 0) {
-				numberOfReadedTriples++;
-				try {
+			if (tuplePart.equals(LODVaderProperties.TYPE_OBJECT))
+				while (resourceQueue.size() > 0) {
 					resource = resourceQueue.remove();
 					ns = nsUtils.getNSFromString(resource);
-					resourcesToBeProcessedQueue.put(resource, ns);
-					// System.out.println(" -- -
-					// -"+nsUtils.getNSFromString(obj));
-					// System.out.println(" -- - -"+(obj));
+					ns0 = nsUtils.getNS0(resource);
+
+					if (!ns.equals("")) {
+						
+						countTotalNS.putIfAbsent(ns, 0);
+						countTotalNS.replace(ns, countTotalNS.get(ns) + 1);
+						countTotalNS0.putIfAbsent(ns0, 0);
+						if (describedSubjectsNS.compare(ns)) {
+							resourcesToBeProcessedQueue.put(resource, ns);
+							localNS.add(ns);
+							localNS0.add(ns0);
+							numberOfReadedTriples++;
+							if (numberOfReadedTriples % makeLinksEach == 0) {
+								// if(tuplePart.equals(TuplePart.OBJECT))
+								try {
+									makeLinks();
+								} catch (Exception e) {
+									e.printStackTrace();
+								}
+							}
+						}
+					}
+
+				}
+
+			else
+				while (resourceQueue.size() > 0) {
+					resource = resourceQueue.remove();
+					ns = nsUtils.getNSFromString(resource);
+					ns0 = nsUtils.getNS0(resource);
 
 					if (!ns.equals("")) {
 						countTotalNS.putIfAbsent(ns, 0);
 						countTotalNS.replace(ns, countTotalNS.get(ns) + 1);
-						localNS.put(ns, 0);
+						countTotalNS0.putIfAbsent(ns0, 0);
+						if (describedObjectsNS.compare(ns)) {
+							resourcesToBeProcessedQueue.put(resource, ns);
+							localNS.add(ns);
+							localNS0.add(ns0);
+							numberOfReadedTriples++;
 
+							if (numberOfReadedTriples % makeLinksEach == 0) {
+								// if(tuplePart.equals(TuplePart.OBJECT))
+								try {
+									makeLinks();
+								} catch (Exception e) {
+									e.printStackTrace();
+								}
+							}
+						}
 					}
-					if (numberOfReadedTriples % makeLinksEach == 0) {
-						// if(tuplePart.equals(TuplePart.OBJECT))
-						makeLinks();
-					}
-
-				} catch (NoSuchElementException e) {
-				} catch (Exception e) {
-					e.printStackTrace();
 				}
-			}
+
 		}
 
 		logger.info("Waiting all threads finish their jobs...");
@@ -142,13 +188,13 @@ public class ProcessNSFromTuple extends Thread {
 		t.startTimer();
 		logger.info("Saving links...");
 		saveLinks();
-		logger.debug("Time: "+ t.stopTimer());
-		
+		logger.debug("Time: " + t.stopTimer());
+
 		logger.info("Saving namespaces...");
 		t.startTimer();
 		saveNSs();
-		logger.debug("Time: "+ t.stopTimer());
-		
+		logger.debug("Time: " + t.stopTimer());
+
 		listOfWorkerThreads = new ConcurrentHashMap<Integer, DataModelThread>();
 
 		logger.debug("Ending GetDomainsFromTriplesThread class.");
@@ -180,36 +226,67 @@ public class ProcessNSFromTuple extends Thread {
 				l.setDatasetSource(dataThread.datasetID);
 				l.setDatasetTarget(dataThread.targetDatasetID);
 			}
-			
+
 			// save top N valid and invalid links
 			TopValidLinks validLinks = new TopValidLinks();
-			validLinks.saveAll(dataThread.getAllValidLinks(), dataThread.distributionID, dataThread.targetDistributionID);
+			validLinks.saveAll(dataThread.getAllValidLinks(), dataThread.distributionID,
+					dataThread.targetDistributionID);
 			l.setLinks(dataThread.getAllValidLinks().size());
 			dataThread.setValidLinks(null);
-			
+
 			TopInvalidLinks invalidLinks = new TopInvalidLinks();
-			invalidLinks.saveAll(dataThread.getAllInvalidLinks(), dataThread.distributionID, dataThread.targetDistributionID);
+			invalidLinks.saveAll(dataThread.getAllInvalidLinks(), dataThread.distributionID,
+					dataThread.targetDistributionID);
 			l.setInvalidLinks(dataThread.getAllInvalidLinks().size());
 			dataThread.setInvalidLinks(null);
 
 			if (l.getLinks() > 0 || l.getInvalidLinks() > 0)
 				l.updateObject(true);
-			
-			
+
 		}
 	}
 
 	private boolean saveNSs() {
-		logger.debug("Saving domains...");
+		logger.debug("Saving NS0...");
 		ObjectId id = new ObjectId();
+
+		if (tuplePart.equals(TuplePart.SUBJECT)) {
+			for (String s : countTotalNS0.keySet()) {
+				id = new ObjectId();
+				DistributionSubjectNS0DB d = new DistributionSubjectNS0DB(id.get().toString());
+				try {
+					d.setDistributionID(distribution.getLODVaderID());
+					d.setSubjectNS0(s);
+					d.updateObject(true);
+				} catch (LODVaderLODGeneralException e) {
+					e.printStackTrace();
+				}
+			}
+		} else {
+			for (String s : countTotalNS0.keySet()) {
+				id = new ObjectId();
+				DistributionObjectNS0DB d = new DistributionObjectNS0DB(id.get().toString());
+				try {
+					d.setDistributionID(distribution.getLODVaderID());
+					d.setObjectNS0(s);
+					d.updateObject(true);
+				} catch (LODVaderLODGeneralException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+		logger.debug("Saving NS...");
 
 		Iterator it = countTotalNS.entrySet().iterator();
 
 		if (distributionMongoDBObject == null)
 			distributionMongoDBObject = new DistributionDB(uri);
 
+		NSUtils nsUtils = new NSUtils();
+
 		while (it.hasNext()) {
-			Map.Entry pair = (Map.Entry) it.next(); 
+			Map.Entry pair = (Map.Entry) it.next();
 			String d = (String) pair.getKey();
 			int count = (Integer) pair.getValue();
 			// distributionMongoDBObj.addAuthorityObjects(d);

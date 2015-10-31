@@ -54,7 +54,7 @@ public class LinksetQueries {
 			DBCollection collection = DBSuperClass.getInstance().getCollection(
 					LinksetDB.COLLECTION_NAME);
 			DBObject query = new BasicDBObject(LinksetDB.LINK_NUMBER_LINKS,
-					new BasicDBObject("$gt", 50));
+					new BasicDBObject("$gt", LODVaderProperties.LINKSET_TRESHOLD));
 			DBCursor instances = collection.find(query);
 
 			for (DBObject instance : instances) {
