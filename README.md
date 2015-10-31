@@ -25,7 +25,7 @@ In order to run the project you need to start the Jetty server using the followi
  Now the server must be acessible at the address:
 `http://localhost:9090/dataid/`.
 
- A good starting point is add a VoID, DCAT or DataID file to you customized cloud. Thus, you can use the API:
+ A good starting point is add a VoID, DCAT or DataID file to you customized cloud. After that, you can use the API:
 `http://localhost:9090/dataid/api?addDataset=http://lod-cloud.net/data/void.ttl&rdfFormat=ttl`.
 
 To check you datasets status, you can access: 
