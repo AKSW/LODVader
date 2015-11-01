@@ -128,7 +128,7 @@ public class LinksetQueries {
 	
 
 	public ArrayList<LinksetDB> getLinksetsByDistribution(
-			String distribution, int topValue, String type) {
+			int distribution, int topValue, String type) {
 		
 		DistributionDB distributionDB = new DistributionDB(distribution);
 //		distribution = distributionDB.getDynLodID();

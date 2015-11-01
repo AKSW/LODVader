@@ -155,6 +155,7 @@ public class APIStatistics{
 			jsonObj.put(d.getDownloadUrl());
 			jsonObj.put(d.getStatus());
 			jsonObj.put(d.getLastTimeStreamed());
+			jsonObj.put(d.getLODVaderID());
 			jsonArr.put(jsonObj);
 		}
 		
@@ -166,7 +167,7 @@ public class APIStatistics{
 		return apimessage;
 	}
 
-	public APIMessage getTop(String distribution, int topN, String type){
+	public APIMessage getTop(int distribution, int topN, String type){
 		APIMessage apimessage = new APIMessage(); 
 		NumberFormat formatterLinks = new DecimalFormat("###,###,###,###");
 		DistributionDB dist= new DistributionDB(distribution);
@@ -223,7 +224,7 @@ public class APIStatistics{
 		return apimessage;
 	}
 	
-	public APIMessage datasetDetails(String distribution, int topN, String type){
+	public APIMessage datasetDetails(int distribution, int topN, String type){
 		APIMessage apimessage = new APIMessage(); 
 		NumberFormat formatterLinks = new DecimalFormat("###,###,###,###");
 		NumberFormat formatterDecimal = new DecimalFormat("#.####");
@@ -231,6 +232,8 @@ public class APIStatistics{
 		JSONArray jsonArr = new JSONArray();
 		JSONObject msg = new JSONObject();
 
+		
+		
 		DistributionDB dist= new DistributionDB(distribution);
 		
 		// get how many vocabs and datasets are in the database
