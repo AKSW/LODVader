@@ -14,7 +14,7 @@ import lodVader.mongodb.DBSuperClass;
 
 public class SuperTop {
 
-	public String COLLECTION_NAME = null;
+	public static String COLLECTION_NAME = null;
 
 	public static String AMOUNT = "amount";
 
@@ -23,6 +23,10 @@ public class SuperTop {
 	public static String SOURCE_DISTRIBUTION_ID = "sourceDistributionID";
 
 	public static String TARGET_DISTRIBUTION_ID = "targetDistributionID";
+	
+	public SuperTop(String collectionName) {
+		this.COLLECTION_NAME = collectionName;
+	}
 
 	public void saveAll(HashMap<String, Integer> values, int sourceDistributionID, int targetDistributionID) {
 		// public void saveAll(){
@@ -36,6 +40,8 @@ public class SuperTop {
 		// values.put("6m", 4);
 		// values.put("7m", 8);
 		// values.put("8m", 23);
+		if(sourceDistributionID==2 && targetDistributionID==31684)
+			System.out.println("oi");
 
 		removeAll(sourceDistributionID, targetDistributionID);
 

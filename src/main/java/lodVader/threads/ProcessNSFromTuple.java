@@ -202,8 +202,11 @@ public class ProcessNSFromTuple extends Thread {
 
 	private void saveLinks() {
 		for (DataModelThread dataThread : listOfWorkerThreads.values()) {
-
+			logger.debug("Saving links for "+dataThread.targetDistributionTitle);
 			LinksetDB l;
+			
+			Timer t = new Timer();
+			t.startTimer();
 
 			String mongoDBURL;
 
@@ -216,6 +219,20 @@ public class ProcessNSFromTuple extends Thread {
 				l.setDistributionTarget(dataThread.distributionID);
 				l.setDatasetSource(dataThread.targetDatasetID);
 				l.setDatasetTarget(dataThread.datasetID);
+				
+				// save top N valid and invalid links
+				TopValidLinks validLinks = new TopValidLinks();
+				validLinks.saveAll(dataThread.getAllValidLinks(), dataThread.targetDistributionID,
+						dataThread.distributionID);
+				l.setLinks(dataThread.getAllValidLinks().size());
+				dataThread.setValidLinks(null);
+
+				TopInvalidLinks invalidLinks = new TopInvalidLinks();
+				invalidLinks.saveAll(dataThread.getAllInvalidLinks(), dataThread.targetDistributionID,
+						dataThread.distributionID);
+				l.setInvalidLinks(dataThread.getAllInvalidLinks().size());
+				dataThread.setInvalidLinks(null);
+				
 
 			} else {
 				mongoDBURL = dataThread.distributionID + "-" + dataThread.targetDistributionID;
@@ -225,24 +242,27 @@ public class ProcessNSFromTuple extends Thread {
 				l.setDistributionTarget(dataThread.targetDistributionID);
 				l.setDatasetSource(dataThread.datasetID);
 				l.setDatasetTarget(dataThread.targetDatasetID);
+								
+				// save top N valid and invalid links
+				TopValidLinks validLinks = new TopValidLinks();
+				validLinks.saveAll(dataThread.getAllValidLinks(), dataThread.distributionID,
+						dataThread.targetDistributionID);
+				l.setLinks(dataThread.getAllValidLinks().size());
+				dataThread.setValidLinks(null);
+
+				TopInvalidLinks invalidLinks = new TopInvalidLinks();
+				invalidLinks.saveAll(dataThread.getAllInvalidLinks(), dataThread.distributionID,
+						dataThread.targetDistributionID);
+				l.setInvalidLinks(dataThread.getAllInvalidLinks().size());
+				dataThread.setInvalidLinks(null);
+				
 			}
-
-			// save top N valid and invalid links
-			TopValidLinks validLinks = new TopValidLinks();
-			validLinks.saveAll(dataThread.getAllValidLinks(), dataThread.distributionID,
-					dataThread.targetDistributionID);
-			l.setLinks(dataThread.getAllValidLinks().size());
-			dataThread.setValidLinks(null);
-
-			TopInvalidLinks invalidLinks = new TopInvalidLinks();
-			invalidLinks.saveAll(dataThread.getAllInvalidLinks(), dataThread.distributionID,
-					dataThread.targetDistributionID);
-			l.setInvalidLinks(dataThread.getAllInvalidLinks().size());
-			dataThread.setInvalidLinks(null);
 
 			if (l.getLinks() > 0 || l.getInvalidLinks() > 0)
 				l.updateObject(true);
 
+			logger.debug("Saved links: "+l.getLinks()+" (good) "+l.getInvalidLinks()+" (bad) in "+ t.stopTimer()+"s");			
+			
 		}
 	}
 

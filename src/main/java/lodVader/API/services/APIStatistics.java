@@ -1,29 +1,19 @@
 package lodVader.API.services;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.junit.Test;
-
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
 
 import lodVader.LODVaderProperties;
 import lodVader.API.core.APIMessage;
 import lodVader.API.core.ServiceAPIOptions;
-import lodVader.mongodb.DBSuperClass;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.LinksetDB;
 import lodVader.mongodb.collections.RDFResources.GeneralRDFResourceRelationDB;
@@ -35,10 +25,12 @@ import lodVader.mongodb.collections.RDFResources.rdfSubClassOf.RDFSubClassOfDB;
 import lodVader.mongodb.collections.RDFResources.rdfSubClassOf.RDFSubClassOfRelationDB;
 import lodVader.mongodb.collections.RDFResources.rdfType.RDFTypeObjectDB;
 import lodVader.mongodb.collections.RDFResources.rdfType.RDFTypeObjectRelationDB;
+import lodVader.mongodb.collections.toplinks.TopInvalidLinks;
+import lodVader.mongodb.collections.toplinks.TopValidLinks;
 import lodVader.mongodb.queries.DatasetQueries;
 import lodVader.mongodb.queries.DistributionQueries;
 import lodVader.mongodb.queries.LinksetQueries;
-import lodVader.utils.Timer;
+import lodVader.mongodb.queries.TopNLinksQueries;
 
 public class APIStatistics{
 	
@@ -187,7 +179,7 @@ public class APIStatistics{
 		else if(type.equals(ServiceAPIOptions.DATASET_TYPE_SUBCLASSES)){
 			collectionName = RDFSubClassOfRelationDB.COLLECTION_NAME;
 		}
-		else if(type.equals(ServiceAPIOptions.DATASET_TYPE_TYPE)){
+		else if(type.equals(ServiceAPIOptions.DATASET_TYPE_RDF_TYPE)){
 			collectionName = RDFTypeObjectRelationDB.COLLECTION_NAME;
 		}
 		
@@ -201,7 +193,7 @@ public class APIStatistics{
 				jsonObj.put(new OwlClassDB(d.getPredicateID()).getUri());
 			else if(type.equals(ServiceAPIOptions.DATASET_TYPE_SUBCLASSES))
 				jsonObj.put(new RDFSubClassOfDB(d.getPredicateID()).getUri());
-			else if(type.equals(ServiceAPIOptions.DATASET_TYPE_TYPE))
+			else if(type.equals(ServiceAPIOptions.DATASET_TYPE_RDF_TYPE))
 				jsonObj.put(new RDFTypeObjectDB(d.getPredicateID()).getUri());
 			else
 				jsonObj.put(new AllPredicatesDB(d.getPredicateID()).getUri());
@@ -248,13 +240,15 @@ public class APIStatistics{
 			
 			if(type.equals(ServiceAPIOptions.DATASET_TYPE_LINKS))
 				jsonObj.put(formatterLinks.format(d.getLinks()));
+			else if(type.equals(ServiceAPIOptions.DATASET_TYPE_TOP_BAD_LINKS))
+				jsonObj.put(formatterLinks.format(d.getInvalidLinks()));
 			else if(type.equals(ServiceAPIOptions.DATASET_TYPE_STRENGTH))
 				jsonObj.put(formatterDecimal.format(d.getStrength()));
 			else if(type.equals(ServiceAPIOptions.DATASET_TYPE_CLASSES))
 				jsonObj.put(formatterDecimal.format(d.getOwlClassSimilarity()));
 			else if(type.equals(ServiceAPIOptions.DATASET_TYPE_SUBCLASSES))
 				jsonObj.put(formatterDecimal.format(d.getRdfSubClassSimilarity()));
-			else if(type.equals(ServiceAPIOptions.DATASET_TYPE_TYPE))
+			else if(type.equals(ServiceAPIOptions.DATASET_TYPE_RDF_TYPE))
 				jsonObj.put(formatterDecimal.format(d.getRdfTypeSimilarity()));
 			else
 				jsonObj.put(formatterDecimal.format(d.getPredicateSimilarity()));
@@ -274,6 +268,40 @@ public class APIStatistics{
 		
 		return apimessage;
 	}	
+	
+	
+	public APIMessage getTopNLinks(int dataset1URL, int dataset2URL, String type){
+
+		APIMessage apimessage = new APIMessage(); 
+		
+		JSONArray jsonArr = new JSONArray();
+		JSONObject msg = new JSONObject();
+		
+		String collectionName;
+		if(type.equals(ServiceAPIOptions.DATASET_TYPE_LINKS))
+			collectionName = TopValidLinks.COLLECTION_NAME;
+		else
+			collectionName = TopInvalidLinks.COLLECTION_NAME;
+		
+		System.out.println(collectionName);
+			
+		HashMap<String, Integer> links = new TopNLinksQueries().getTopNLinks(dataset1URL, dataset2URL, collectionName);
+		
+		for(String url: links.keySet()){
+			JSONArray jsonObj = new JSONArray();
+			JSONObject o = new JSONObject();
+			o.put("url", url);
+			o.put("amount", links.get(url));
+			
+			jsonArr.put(o);
+		}
+
+		msg.put("topNLinks", jsonArr);
+		apimessage.addListMsg(msg); 
+		
+		return apimessage;
+	}
+	
 	
 //	@Test
 //	public void compareDatasets(){
@@ -314,7 +342,7 @@ public class APIStatistics{
 			values2 = new RDFSubClassOfRelationDB().getSetOfPredicates(distribution2.getLODVaderID());
 			collectionName = RDFSubClassOfRelationDB.COLLECTION_NAME;
 		}
-		else if(type.equals(ServiceAPIOptions.DATASET_TYPE_TYPE)){
+		else if(type.equals(ServiceAPIOptions.DATASET_TYPE_RDF_TYPE)){
 			values1 = new RDFTypeObjectRelationDB().getSetOfPredicates(distribution1.getLODVaderID());
 			values2 = new RDFTypeObjectRelationDB().getSetOfPredicates(distribution2.getLODVaderID());
 			collectionName = RDFTypeObjectRelationDB.COLLECTION_NAME;
@@ -322,49 +350,51 @@ public class APIStatistics{
 	
 		intersection = makeIntersecion(values1, values2);
 
-		Set<GeneralRDFResourceRelationDB> h = new GeneralRDFResourceRelationDB().getPredicatesIn
+		Set<GeneralRDFResourceRelationDB> relations = new GeneralRDFResourceRelationDB().getPredicatesIn
 				(collectionName, intersection, distribution1.getLODVaderID(), distribution2.getLODVaderID());
 		
 	
 		// group by predicate value
 		HashMap<String, HashMap<Integer, Integer>> m = new HashMap<String, HashMap<Integer, Integer>>();
-		for(GeneralRDFResourceRelationDB value: h){
+		for(GeneralRDFResourceRelationDB relation: relations){
 //			m.put(value.getPredicateID(), value)
 		
 			int v1 = 0;
 			int v2 = 0;
 			
-			for(GeneralRDFResourceRelationDB value2: h){
-				if(value2.getDistributionID() == distribution1.getLODVaderID() && value.getPredicateID()  == value2.getPredicateID())
+			for(GeneralRDFResourceRelationDB value2: relations){
+				if(value2.getDistributionID() == distribution1.getLODVaderID() && 
+						relation.getPredicateID()  == value2.getPredicateID())
 					v1=value2.getAmount();	
 			}
-			for(GeneralRDFResourceRelationDB value2: h){
-				if(value2.getDistributionID() == distribution2.getLODVaderID() &&  value.getPredicateID()  == value2.getPredicateID())
+			for(GeneralRDFResourceRelationDB value2: relations){
+				if(value2.getDistributionID() == distribution2.getLODVaderID() &&  
+						relation.getPredicateID()  == value2.getPredicateID())
 					v2=value2.getAmount();	
 			}	
 			
 			if(type.equals(ServiceAPIOptions.DATASET_TYPE_PREDICATES)){
 				HashMap<Integer, Integer> hs = new HashMap<Integer, Integer>();
 				hs.put(v1, v2);
-				AllPredicatesDB a = new AllPredicatesDB(value.getPredicateID());
+				AllPredicatesDB a = new AllPredicatesDB(relation.getPredicateID());
 				m.put(a.getUri(), hs);
 			}
 			else if(type.equals(ServiceAPIOptions.DATASET_TYPE_CLASSES)){
 				HashMap<Integer, Integer> hs = new HashMap<Integer, Integer>();
 				hs.put(v1, v2);
-				OwlClassDB a = new OwlClassDB(value.getPredicateID());
+				OwlClassDB a = new OwlClassDB(relation.getPredicateID());
 				m.put(a.getUri(), hs);
 			}
 			else if(type.equals(ServiceAPIOptions.DATASET_TYPE_SUBCLASSES)){
 				HashMap<Integer, Integer> hs = new HashMap<Integer, Integer>();
 				hs.put(v1, v2);
-				RDFSubClassOfDB a = new RDFSubClassOfDB(value.getPredicateID());
+				RDFSubClassOfDB a = new RDFSubClassOfDB(relation.getPredicateID());
 				m.put(a.getUri(), hs);
 			}			
-			else if(type.equals(ServiceAPIOptions.DATASET_TYPE_TYPE)){
+			else if(type.equals(ServiceAPIOptions.DATASET_TYPE_RDF_TYPE)){
 				HashMap<Integer, Integer> hs = new HashMap<Integer, Integer>();
 				hs.put(v1, v2);
-				RDFTypeObjectDB a = new RDFTypeObjectDB(value.getPredicateID());
+				RDFTypeObjectDB a = new RDFTypeObjectDB(relation.getPredicateID());
 				m.put(a.getUri(), hs);
 			}		
 			

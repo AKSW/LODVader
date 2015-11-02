@@ -16,6 +16,8 @@ import lodVader.mongodb.collections.namespaces.DistributionObjectNS0DB;
 import lodVader.mongodb.collections.namespaces.DistributionObjectNSDB;
 import lodVader.mongodb.collections.namespaces.DistributionSubjectNS0DB;
 import lodVader.mongodb.collections.namespaces.DistributionSubjectNSDB;
+import lodVader.mongodb.collections.toplinks.TopInvalidLinks;
+import lodVader.mongodb.collections.toplinks.TopValidLinks;
 
 public class IndexesCreator {
 	
@@ -83,6 +85,14 @@ public class IndexesCreator {
 		
 		addIndex(DistributionObjectNS0DB.COLLECTION_NAME, DistributionObjectNS0DB.OBJECT_NS0, 1);
 		addIndex(DistributionObjectNS0DB.COLLECTION_NAME, DistributionObjectNS0DB.DISTRIBUTION_ID, 1);
+		
+		addIndex(TopInvalidLinks.COLLECTION_NAME, TopInvalidLinks.SOURCE_DISTRIBUTION_ID, 1);
+		addIndex(TopInvalidLinks.COLLECTION_NAME, TopInvalidLinks.TARGET_DISTRIBUTION_ID, 1);
+		addIndex(TopInvalidLinks.COLLECTION_NAME, TopInvalidLinks.AMOUNT, 1);
+			
+		addIndex(TopValidLinks.COLLECTION_NAME, TopValidLinks.SOURCE_DISTRIBUTION_ID, 1);
+		addIndex(TopValidLinks.COLLECTION_NAME, TopValidLinks.TARGET_DISTRIBUTION_ID, 1);
+		addIndex(TopValidLinks.COLLECTION_NAME, TopValidLinks.AMOUNT, 1);
 			
 		
 		// indices for gridFS

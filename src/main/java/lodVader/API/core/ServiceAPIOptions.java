@@ -26,6 +26,8 @@ public class ServiceAPIOptions extends ArrayList<APIOption>{
 	
 	public static final String DATASET_DETAILS_STATISTICS = "datasetDetailsStatistics"; 
 
+	public static final String TOP_N_LINKS = "topNLinks"; 
+
 	public static final String DUMP_FILE = "dumpFile"; 
 	
 	public static final String TOP_N = "topN"; 
@@ -34,11 +36,15 @@ public class ServiceAPIOptions extends ArrayList<APIOption>{
 	
 	public static final String DATASET_TYPE_LINKS = "links"; 
 	
+	public static final String DATASET_TYPE_TOP_LINKS = "topLinks"; 
+	
+	public static final String DATASET_TYPE_TOP_BAD_LINKS = "badLinks"; 
+	
 	public static final String DATASET_TYPE_STRENGTH = "strength"; 
 	
 	public static final String DATASET_TYPE_PREDICATES = "predicates"; 
 	
-	public static final String DATASET_TYPE_TYPE = "type"; 
+	public static final String DATASET_TYPE_RDF_TYPE = "type"; 
 	
 	public static final String DATASET_TYPE_CLASSES = "class"; 
 	
@@ -76,6 +82,7 @@ public class ServiceAPIOptions extends ArrayList<APIOption>{
 		add(new APIOption(DATASET_STATISTICS, ""));
 		add(new APIOption(COMPARE_DATASETS, ""));
 		add(new APIOption(DATASET_DETAILS_STATISTICS, ""));
+		add(new APIOption(TOP_N_LINKS, ""));
 		
 		
 	}

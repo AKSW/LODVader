@@ -179,7 +179,16 @@ public class ServiceAPI extends HttpServlet {
 						Integer.parseInt(parameters.get(ServiceAPIOptions.TOP_N)[0]),
 						parameters.get(ServiceAPIOptions.TYPE)[0]
 						).toJSONString().getBytes("UTF-8")); 			
-			}	
+			}
+			
+			if (parameters.containsKey(ServiceAPIOptions.TOP_N_LINKS)) {
+				
+			out.write(new APIStatistics().getTopNLinks(Integer.valueOf(parameters.get(ServiceAPIOptions.COMPARE_DATASETS_DATASET1)[0]),
+						Integer.valueOf(parameters.get(ServiceAPIOptions.COMPARE_DATASETS_DATASET2)[0]), parameters.get(ServiceAPIOptions.TYPE)[0]).toJSONString().getBytes("UTF-8")); 
+		
+			}
+			
+			
 			
 			
 

@@ -156,13 +156,15 @@ public class LinksetQueries {
 			BasicDBObject sort;
 			if(type.equals(ServiceAPIOptions.DATASET_TYPE_LINKS))
 				sort = new BasicDBObject(LinksetDB.LINK_NUMBER_LINKS,-1);
+			else if(type.equals(ServiceAPIOptions.DATASET_TYPE_TOP_BAD_LINKS))
+				sort = new BasicDBObject(LinksetDB.INVALID_LINKS,-1);
 			else if(type.equals(ServiceAPIOptions.DATASET_TYPE_STRENGTH))
 				sort = new BasicDBObject(LinksetDB.LINK_STRENGHT,-1);
 			else if(type.equals(ServiceAPIOptions.DATASET_TYPE_CLASSES))
 				sort = new BasicDBObject(LinksetDB.OWL_CLASS_SIMILARITY,-1);
 			else if(type.equals(ServiceAPIOptions.DATASET_TYPE_SUBCLASSES))
 				sort = new BasicDBObject(LinksetDB.RDF_SUBCLASS_SIMILARITY,-1);
-			else if(type.equals(ServiceAPIOptions.DATASET_TYPE_TYPE))
+			else if(type.equals(ServiceAPIOptions.DATASET_TYPE_RDF_TYPE))
 				sort = new BasicDBObject(LinksetDB.RDF_TYPE_SIMILARITY,-1);
 			else
 				sort = new BasicDBObject(LinksetDB.PREDICATE_SIMILARITY,-1);				
