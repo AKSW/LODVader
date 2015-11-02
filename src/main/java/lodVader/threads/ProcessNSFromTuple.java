@@ -107,6 +107,7 @@ public class ProcessNSFromTuple extends Thread {
 		String ns = "";
 		String ns0 = "";
 		String resource = "";
+		Integer value;
 		while (!doneSplittingString) {
 			try {
 				Thread.sleep(1);
@@ -120,10 +121,13 @@ public class ProcessNSFromTuple extends Thread {
 					ns0 = nsUtils.getNS0(resource);
 
 					if (!ns.equals("")) {
+						value = countTotalNS.get(ns);
 						
-						countTotalNS.putIfAbsent(ns, 0);
-						countTotalNS.replace(ns, countTotalNS.get(ns) + 1);
-						countTotalNS0.putIfAbsent(ns0, 0);
+						if(value==null)
+							countTotalNS.put(ns, 0);
+						else
+							countTotalNS.put(ns, value + 1);
+						
 						if (describedSubjectsNS.compare(ns)) {
 							resourcesToBeProcessedQueue.put(resource, ns);
 							localNS.add(ns);
@@ -149,9 +153,14 @@ public class ProcessNSFromTuple extends Thread {
 					ns0 = nsUtils.getNS0(resource);
 
 					if (!ns.equals("")) {
-						countTotalNS.putIfAbsent(ns, 0);
-						countTotalNS.replace(ns, countTotalNS.get(ns) + 1);
-						countTotalNS0.putIfAbsent(ns0, 0);
+						value = countTotalNS.get(ns);
+						
+						if(value==null)
+							countTotalNS.put(ns, 0);
+						else
+							countTotalNS.put(ns, value + 1);
+												
+						countTotalNS0.put(ns0, 0);
 						if (describedObjectsNS.compare(ns)) {
 							resourcesToBeProcessedQueue.put(resource, ns);
 							localNS.add(ns);
