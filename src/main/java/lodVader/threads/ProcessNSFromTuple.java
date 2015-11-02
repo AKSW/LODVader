@@ -127,6 +127,9 @@ public class ProcessNSFromTuple extends Thread {
 							countTotalNS.put(ns, 0);
 						else
 							countTotalNS.put(ns, value + 1);
+
+						countTotalNS0.put(ns0, 0);
+
 						if (describedSubjectsNS.compare(ns)) {
 							
 							resourcesToBeProcessedQueue.put(resource, ns);
