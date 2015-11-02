@@ -48,9 +48,9 @@ public class NTriplesLODVaderParser extends RDFParserBase{
 		                		
 		                		
 		                		while(bufferQueue.size()>400){
-		                			Thread.sleep(1);
+		                			Thread.sleep(10);
 		                			sleeping++; 
-		                			if(sleeping%25000==0)
+		                			if(sleeping%1000==0)
 		                				System.out.println("Streaming thread is sleeping for a long time...");
 		                			}
 		                	}
@@ -159,7 +159,6 @@ public class NTriplesLODVaderParser extends RDFParserBase{
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
-
 				}
 			}
 

@@ -141,7 +141,7 @@ public class DistributionQueries {
 
 			DBCollection collection = DBSuperClass.getInstance().getCollection(DistributionObjectNSDB.COLLECTION_NAME);
 
-			g = new GoogleBloomFilter(collection.find().size(), 0.001);
+			g = new GoogleBloomFilter(collection.find().size(), 0.0001);
 
 			Cursor aggregate = collection.aggregate(ag, options);
 			while (aggregate.hasNext()) {
@@ -153,7 +153,7 @@ public class DistributionQueries {
 
 			DBCollection collection = DBSuperClass.getInstance().getCollection(DistributionSubjectNSDB.COLLECTION_NAME);
 
-			g = new GoogleBloomFilter(collection.find().size(), 0.001);
+			g = new GoogleBloomFilter(collection.find().size(), 0.0001);
 
 			Cursor aggregate = collection.aggregate(ag, options);
 			while (aggregate.hasNext()) {

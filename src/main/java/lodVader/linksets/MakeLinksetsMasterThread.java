@@ -61,17 +61,10 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 					// create a list of NS which should be fetched from
 					// database
 					// and add the loaded NS to a global map
-//					for (String ns : localNSCopy.keySet()) {
-//						if (!listLoadedNS.containsKey(ns)) {
-//							nsToSearch.add(ns);
-//							listLoadedNS.putIfAbsent(ns, 0);
-//						}
-//					}
-					
 					for (String ns0 : localNS0Copy) {
 						if (!listLoadedNS.containsKey(ns0)) {
 							nsToSearch.add(ns0);
-							listLoadedNS.putIfAbsent(ns0, 0);
+							listLoadedNS.put(ns0, 0);
 						}
 					}
 
@@ -97,7 +90,7 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 											distributionToCompare,
 											distributionFilter.get(distributionToCompare.getLODVaderID()), tuplePart);
 									if (workerThread.datasetID != 0) {
-										listOfWorkerThreads.putIfAbsent(distributionToCompare.getLODVaderID(),
+										listOfWorkerThreads.put(distributionToCompare.getLODVaderID(),
 												workerThread);
 										workerThread = listOfWorkerThreads.get(distributionToCompare.getLODVaderID());
 										numberOfOpenThreads++;
@@ -213,7 +206,7 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 			});
 			threadNumber++;
 			t.setName("MakingLinksets:" + (threadNumber) + ":" + distribution.getUri());
-			listOfThreads.putIfAbsent("MakingLinksets:" + (threadNumber) + ":" + distribution.getUri(), t);
+			listOfThreads.put("MakingLinksets:" + (threadNumber) + ":" + distribution.getUri(), t);
 			t.start();
 
 		} catch (Exception e) {

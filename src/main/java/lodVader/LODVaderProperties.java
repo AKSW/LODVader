@@ -158,7 +158,7 @@ public class LODVaderProperties {
 
 	public static int LINKSET_TRESHOLD = 1;
 	
-	public static int CHECK_LINKS_EACH = 20000;
+	public static int CHECK_LINKS_EACH = 10000;
 	
 	public static boolean ONLY_STREAM_DATASETS = false;
 	

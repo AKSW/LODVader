@@ -386,15 +386,19 @@ public class StreamDistribution extends Stream {
 
 		logger.info("Creating subjects BF");
 		// create BFs
+		logger.info("Reading resources from file system...");
 		SubjectsBucket subjectBucket = new SubjectsBucket(
 				getUniqueItemsFromFile(LODVaderProperties.SUBJECT_FILE_DISTRIBUTION_PATH + hashFileName),
 				distribution.getLODVaderID());
+		logger.info("Creating bucket.");
 		subjectBucket.makeBucket();
 
 		logger.info("Creating objects BF");
+		logger.info("Reading resources from file system...");
 		ObjectsBucket objectBucket = new ObjectsBucket(
 				getUniqueItemsFromFile(LODVaderProperties.OBJECT_FILE_DISTRIBUTION_PATH + hashFileName),
 				distribution.getLODVaderID());
+		logger.info("Creating bucket.");
 		objectBucket.makeBucket();
 
 	}

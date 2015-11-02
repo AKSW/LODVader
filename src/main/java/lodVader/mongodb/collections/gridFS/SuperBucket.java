@@ -66,20 +66,20 @@ public abstract class SuperBucket {
 		removeBFs(distributionID);
 		
 		// chunk
-		TreeSet<String> chunk = new TreeSet<String>();
+		ArrayList<String> chunk = new ArrayList<String>();
 		
 		// take the chunks of chunkSize resources
 		for(String resource: resources){
 			chunk.add(resource);
 			
 			if(chunk.size() == chunkSize){
-				saveChunk((TreeSet<String>) chunk.clone());
-				chunk = new TreeSet<String>();
+				saveChunk((ArrayList<String>) chunk.clone());
+				chunk = new ArrayList<String>();
 			}
 		}
 		
 		if(chunk.size()>0)
-			saveChunk((TreeSet<String>) chunk.clone());
+			saveChunk((ArrayList<String>) chunk.clone());
 	}
 	
 	
@@ -89,7 +89,7 @@ public abstract class SuperBucket {
 	}
 	
 	
-	private void saveChunk(final TreeSet<String> chunk){	
+	private void saveChunk(final ArrayList<String> chunk){	
 		final int distributionID = this.distributionID;
 		Thread t = new Thread(){
 			public void run() {
@@ -107,10 +107,10 @@ public abstract class SuperBucket {
 	}
 	
 	
-	private void makeBloomFilter(TreeSet<String> chunk, int distributionID){
+	private void makeBloomFilter(ArrayList<String> chunk, int distributionID){
 		
-		final String firstResource = chunk.first();
-		final String lastResource = chunk.last();
+		final String firstResource = chunk.get(0);
+		final String lastResource = chunk.get(chunk.size()-1);
 		int chunkSize = chunk.size();
 		if(chunkSize < 5000)
 			chunkSize = 5000;

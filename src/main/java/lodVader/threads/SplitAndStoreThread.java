@@ -64,10 +64,10 @@ public class SplitAndStoreThread extends RDFHandlerBase {
 		this.fileName = fileName;
 		this.distributionID = distributionID;
 
-		startQueues();
+		startFiles();
 	}
 
-	private void startQueues() {
+	private void startFiles() {
 		try {
 			if (subjectQueue != null)
 				subjectFile = new BufferedWriter(
@@ -166,8 +166,8 @@ public class SplitAndStoreThread extends RDFHandlerBase {
 
 					subjectLines++;
 					lastSubject = stSubject;
-					if (isChain)
-						subjectQueue.add(stSubject);
+//					if (isChain)
+					subjectQueue.add(stSubject);
 				}
 
 			}
@@ -188,10 +188,10 @@ public class SplitAndStoreThread extends RDFHandlerBase {
 			}
 			// }
 			while (objectQueue.size() > bufferSize) {
-				Thread.sleep(1);
+				Thread.sleep(5);
 			}
 			while (subjectQueue.size() > bufferSize) {
-				Thread.sleep(1);
+				Thread.sleep(5);
 
 				// System.out.println(subjectQueue.size());
 			}
