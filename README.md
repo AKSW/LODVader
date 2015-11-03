@@ -3,7 +3,7 @@ LODVader: Visualization, Analytics and DiscovEry in Real-time
 
 This is the source code of LODVader API. For the front end repository, please access: https://github.com/cirola2000/LODVader-webpage
 
-For more details and a working demo, check our webpage: http://cirola2000.cloudapp.net
+For more details and a working demo, check our webpage: lodvader.aksw.org
 
 ## Software Requirements
 1. This project uses MongoDB to save relevant metadata for creation of linksets. The MongoDB default installation is sufficient: `sudo apt-get install mongodb-server`.  
