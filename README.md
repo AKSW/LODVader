@@ -16,7 +16,7 @@ For more details and a working demo, check our webpage: http://lodvader.aksw.org
 ## Hardware Requirements
 The minimum hardware requirement to have an acceptable performance is:
 - Quad-core processor (4 real cores, not HT)
-- 16gb RAM
+- 16GB RAM
 - a super fast SSD drive
 
 ## How to use
