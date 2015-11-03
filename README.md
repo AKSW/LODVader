@@ -27,6 +27,8 @@ After cloning the project, open the project root folder and type: `mvn clean ins
 
 #### Starting Jetty server
 
+Before run LODVader, be sure that your JVM will have enough heap space to grow.  Here, we allow to use 28gb of RAM: `export MAVEN_OPTS="-Xmx28g"`
+
 In order to run the project you need to start the Jetty server using the following command:
 `mvn jetty:start`
 
