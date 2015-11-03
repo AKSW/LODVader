@@ -30,13 +30,9 @@ After cloning the project, open the project root folder and type: `mvn clean ins
 
 Before run LODVader, be sure that your JVM will have enough heap space to grow.  Here, we allow to use 28gb of RAM: `export MAVEN_OPTS="-Xmx28g"`
 
-In order to run the project you need to start the Jetty server using the following command:
-`mvn jetty:start`
+To run the API you need to start the Jetty server using `mvn jetty:start`, and the server must be accessible at the address:  `http://localhost:9090/LODVader/`.
 
- Now the server must be accessible at the address:
-`http://localhost:9090/LODVader/`.
-
- A good starting point is add a VoID, DCAT or DataID file to you customized cloud. After that, you can use the API:
+ A good starting point is adding a VoID, DCAT or DataID file to LODVader using the API:
 `http://localhost:9090/LODVader/api?addDataset=http://lod-cloud.net/data/void.ttl&rdfFormat=ttl`.
 
 To check you datasets status, you can access: 
@@ -45,3 +41,4 @@ To check you datasets status, you can access:
 Finally, you can access the RDF data about the discovered linksets via:
 `http://localhost:9090/LODVader/api?retrieveDataset=http://lod-cloud.net/`
 
+To use visualize the LODVader diagram, you can use our front end available in the repository: https://github.com/cirola2000/LODVader-webpage.
