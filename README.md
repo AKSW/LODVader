@@ -3,24 +3,24 @@ LODVader: Visualization, Analytics and DiscovEry in Real-time
 
 This is the source code of LODVader API. For the front end repository, please access: https://github.com/cirola2000/LODVader-webpage
 
-For more datails and a working demo, check our webpage: http://cirola2000.cloudapp.net
+For more details and a working demo, check our webpage: http://cirola2000.cloudapp.net
 
 ## Software Requirements
 1. This project uses MongoDB to save relevant metadata for creation of linksets. The MongoDB default installation is sufficient: `sudo apt-get install mongodb-server`.  
 2. To compile and run the project, you need maven. To install, please use apt-get: `sudo apt-get install maven` (version > 3.x).
 3. After cloning the project `git clone https://github.com/AKSW/LODVader.git`, please access the folder ./resources/config.properties and:
-3.1. edit the MongoDB autentication.
+3.1. edit the MongoDB authentication.
 3.2. change the "BASE_PATH" for the directory tha LODVader will store data. 
 
 ## Hardware Requirements
-The minimum hardware requeriment to have an acceptable performance is:
+The minimum hardware requirement to have an acceptable performance is:
 - Quad-core processor (4 real cores, not HT)
 - 16gb RAM
 - a super fast SSD drive
 
 ## How to use
 
-#### Instalation process
+#### Installation process
 
 After cloning the project, open the project root folder and type: `mvn clean install`. Maven will then download all dependencies and compile the project.
 
@@ -30,7 +30,7 @@ After cloning the project, open the project root folder and type: `mvn clean ins
 In order to run the project you need to start the Jetty server using the following command:
 `mvn jetty:start`
 
- Now the server must be acessible at the address:
+ Now the server must be accessible at the address:
 `http://localhost:9090/LODVader/`.
 
  A good starting point is add a VoID, DCAT or DataID file to you customized cloud. After that, you can use the API:
@@ -39,6 +39,6 @@ In order to run the project you need to start the Jetty server using the followi
 To check you datasets status, you can access: 
 `http://localhost:9090/LODVader/api?datasetStatus=http://lod-cloud.net/data/void.ttl`
 
-Finaly, you can access the RDF data about the discovered linksets via:
+Finally, you can access the RDF data about the discovered linksets via:
 `http://localhost:9090/LODVader/api?retrieveDataset=http://lod-cloud.net/`
 
