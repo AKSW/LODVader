@@ -29,32 +29,9 @@ public class LoadedBloomFiltersCache extends Thread{
 	
 	@Override
 	public void run() {
-		Timer t = new Timer();
-		t.startTimer();
 		s.resource=query;
 		if (s.query(distribution.getLODVaderID()))
 			found= true;
 	}
-	 
-	
-//	/**
-//	 * Query a the subject of a distribution
-//	 * @param distribution
-//	 * @param query
-//	 * @return
-//	 */
-//	public static boolean querySubject(DistributionDB distribution, String query){
-//	}
-//	
-//	public static boolean queryObject(DistributionDB distribution, String query){
-//		boolean contains = false;
-//		
-//		ObjectsBucket o = new ObjectsBucket();
-//		o.resource=query;
-//		if (o.query(distribution.getLODVaderID()))
-//			return true;
-//	
-//		return contains;
-//	}
 	
 }

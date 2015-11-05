@@ -5,6 +5,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -286,7 +287,7 @@ public class APIStatistics{
 		
 		System.out.println(collectionName);
 			
-		HashMap<String, Integer> links = new TopNLinksQueries().getTopNLinks(dataset1URL, dataset2URL, collectionName);
+		LinkedHashMap<String, Integer> links = new TopNLinksQueries().getTopNLinks(dataset1URL, dataset2URL, collectionName);
 		
 		for(String url: links.keySet()){
 			JSONArray jsonObj = new JSONArray();

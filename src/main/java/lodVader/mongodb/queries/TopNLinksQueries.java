@@ -1,6 +1,7 @@
 package lodVader.mongodb.queries;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
@@ -13,9 +14,9 @@ import lodVader.mongodb.collections.toplinks.SuperTop;
 
 public class TopNLinksQueries {
 
-	public HashMap<String, Integer> getTopNLinks(int dataset1, int dataset2, String collectionName) {
+	public LinkedHashMap<String, Integer> getTopNLinks(int dataset1, int dataset2, String collectionName) {
 
-		HashMap<String, Integer> result = new HashMap<String, Integer>();
+		LinkedHashMap<String, Integer> result = new LinkedHashMap<String, Integer>();
 
 		
 		DBCollection collection = DBSuperClass.getInstance()
@@ -32,8 +33,8 @@ public class TopNLinksQueries {
 		and.add(query1);
 		and.add(query2);
 		
-		DBCursor cursor = collection.find(new BasicDBObject("$and",and));
-		System.out.println(new BasicDBObject("$and",and));
+		DBCursor cursor = collection.find(new BasicDBObject("$and",and)).sort(new BasicDBObject(SuperTop.AMOUNT, -1));
+//		System.out.println(new BasicDBObject("$and",and));
 		
 		for(DBObject object: cursor){
 			result.put(object.get(SuperTop.LINK).toString(), Integer.parseInt(object.get(SuperTop.AMOUNT).toString()));
