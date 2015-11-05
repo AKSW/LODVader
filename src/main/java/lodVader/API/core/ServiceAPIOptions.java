@@ -61,6 +61,8 @@ public class ServiceAPIOptions extends ArrayList<APIOption>{
 	public static final String LIST_SEARCH = "search[value]"; 
 	
 	public static final String LIST_SEARCH_VOCABULARIES = "searchVocabularies"; 
+	
+	public static final String LIST_SEARCH_STATUS= "searchStatus"; 
 
 	public static final String LIST_SEARCH_SUBJECT = "searchSubject"; 
 

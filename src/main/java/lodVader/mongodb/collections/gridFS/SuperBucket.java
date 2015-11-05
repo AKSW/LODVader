@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.TreeSet;
 
+import org.junit.Test;
+
 import com.google.common.hash.BloomFilter;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
@@ -16,8 +18,11 @@ import com.mongodb.gridfs.GridFSInputFile;
 import lodVader.LODVaderProperties;
 import lodVader.bloomfilters.GoogleBloomFilter;
 import lodVader.mongodb.DBSuperClass;
+import lodVader.utils.Timer;
 
-public abstract class SuperBucket {
+public class SuperBucket {
+	
+	static double time = 0;
 
 	int chunkSize = LODVaderProperties.MAX_CHUNK_SIZE;	
 	
@@ -145,7 +150,9 @@ public abstract class SuperBucket {
 		
 	}
 	
-	public boolean query(int distributionID){
+//	@Test
+//	public void query(){
+		public boolean query(int distributionID){
 		
 		GridFS gfsPhoto = new GridFS(DBSuperClass.getInstance(), COLLECTION_NAME);
 		
@@ -161,16 +168,20 @@ public abstract class SuperBucket {
 		and.add(distribution);
 		
 		GridFSDBFile file = gfsPhoto.findOne(new BasicDBObject("$and",and));
-		
+		 
+//		Timer t = new Timer();
+//		t.startTimer();
 		GoogleBloomFilter filter = new GoogleBloomFilter();
 		if(file!=null)
 		try {
 			filter.filter = BloomFilter.readFrom(file.getInputStream(), filter.funnel);
+			result = filter.filter.mightContain(resource.getBytes());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+//		time=time+Double.parseDouble(t.stopTimer());
+//		System.out.println(time);
 		
-		result = filter.filter.mightContain(resource.getBytes());
 		
 		return result;
 	}

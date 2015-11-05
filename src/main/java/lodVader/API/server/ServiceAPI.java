@@ -143,6 +143,7 @@ public class ServiceAPI extends HttpServlet {
 			}			
 			if (parameters.containsKey(ServiceAPIOptions.LIST)) {
 				int searchVocabularies = Integer.parseInt(parameters.get(ServiceAPIOptions.LIST_SEARCH_VOCABULARIES)[0].toString());
+				int searchStatus = Integer.parseInt(parameters.get(ServiceAPIOptions.LIST_SEARCH_STATUS)[0].toString());
 				String searchValue = parameters.get(ServiceAPIOptions.LIST_SEARCH)[0];
 				
 				String searchSubject = null;
@@ -159,7 +160,7 @@ public class ServiceAPI extends HttpServlet {
 				out.write(new APIStatistics().listDistributions(
 						Integer.parseInt(parameters.get(ServiceAPIOptions.LIST_START)[0]),
 						Integer.parseInt(parameters.get(ServiceAPIOptions.LIST_SKIP)[0]), searchVocabularies,
-						searchValue, searchSubject, searchProperty, searchObject
+						searchValue, searchSubject, searchProperty, searchObject, searchStatus
 						).toJSONString().getBytes("UTF-8")); 
 			}
 			

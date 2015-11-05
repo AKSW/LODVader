@@ -31,7 +31,9 @@ public class GoogleBloomFilter {
 	}
 
 	public GoogleBloomFilter() {
-		create(98, 0.01);
+		if (filter == null)
+			filter = BloomFilter.create(funnel,0);
+
 	}
 
 	public boolean create(int insertions, double fpp) {

@@ -61,7 +61,7 @@ public class APIStatistics{
 	
 	
 	public APIMessage listDistributions(int skip, int limit, int searchVocabularies, String search, 
-			String searchSubject, String searchProperty, String searchObject){
+			String searchSubject, String searchProperty, String searchObject, int searchStatus){
 		APIMessage apimessage = new APIMessage(); 	
 		
 		boolean hasResource = false;
@@ -137,7 +137,7 @@ public class APIStatistics{
 		// search by name
 		DistributionQueries dq = new DistributionQueries();
 		ArrayList<DistributionDB> distributions = dq
-		.getDistributions(skip, limit, searchVocabularies, search, in);
+		.getDistributions(skip, limit, searchVocabularies, search, in, searchStatus);
 		
 		
 		for (DistributionDB d : distributions){
@@ -148,6 +148,7 @@ public class APIStatistics{
 			jsonObj.put(d.getStatus());
 			jsonObj.put(d.getLastTimeStreamed());
 			jsonObj.put(d.getLODVaderID());
+			jsonObj.put(d.getLastMsg());
 			jsonArr.put(jsonObj);
 		}
 		

@@ -287,7 +287,7 @@ public class DistributionQueries {
 	 * @return a ArrayList of DistributionMongoDBObject
 	 */
 	public ArrayList<DistributionDB> getDistributions(int skip, int limit, int searchVocabularies,
-			String downloadURLSearch, List<Integer> in) {
+			String downloadURLSearch, List<Integer> in, int searchStatus) {
 
 		ArrayList<DistributionDB> list = new ArrayList<DistributionDB>();
 
@@ -341,6 +341,28 @@ public class DistributionQueries {
 				if (query != null)
 					and.add(query);
 				and.add(new BasicDBObject(DistributionDB.IS_VOCABULARY, false));
+				query = new BasicDBObject("$and", and);
+			}
+			
+			if (searchStatus == 0) {
+				BasicDBList and = new BasicDBList();
+				if (query != null)
+					and.add(query);
+				and.add(new BasicDBObject(DistributionDB.STATUS, DistributionDB.STATUS_DONE));
+				query = new BasicDBObject("$and", and);
+			}
+			else if (searchStatus == 1) {
+				BasicDBList and = new BasicDBList();
+				if (query != null)
+					and.add(query);
+				and.add(new BasicDBObject(DistributionDB.STATUS, DistributionDB.STATUS_WAITING_TO_STREAM));
+				query = new BasicDBObject("$and", and);
+			}
+			else if (searchStatus == 2) {
+				BasicDBList and = new BasicDBList();
+				if (query != null)
+					and.add(query);
+				and.add(new BasicDBObject(DistributionDB.STATUS, DistributionDB.STATUS_ERROR));
 				query = new BasicDBObject("$and", and);
 			}
 
@@ -439,13 +461,30 @@ public class DistributionQueries {
 			query = new BasicDBObject(DistributionSubjectNSDB.SUBJECT_NS, ns);
 
 			DBCursor instances = collection.find(query);
+			
+			ArrayList<LoadedBloomFiltersCache> cache = new ArrayList<LoadedBloomFiltersCache>();
 
 			for (DBObject instance : instances) {
 				DistributionDB d = new DistributionDB(
 						Integer.valueOf(instance.get(DistributionSubjectNSDB.DISTRIBUTION_ID).toString()));
-
-				if (LoadedBloomFiltersCache.querySubject(d, resource))
-					setOfDistributionNS.add(d);
+				LoadedBloomFiltersCache l = new LoadedBloomFiltersCache(d, resource, LODVaderProperties.TYPE_SUBJECT);
+				l.start();
+				cache.add(l);
+			}
+			for(LoadedBloomFiltersCache l : cache){
+				try {
+					l.join();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			
+			for(LoadedBloomFiltersCache l : cache)
+			{
+				if (l.found)
+					setOfDistributionNS.add(l.distribution);
+				
 			}
 		}
 
@@ -457,13 +496,28 @@ public class DistributionQueries {
 
 			DBCursor instances = collection.find(query);
 
+			ArrayList<LoadedBloomFiltersCache> cache = new ArrayList<LoadedBloomFiltersCache>();
+
 			for (DBObject instance : instances) {
 				DistributionDB d = new DistributionDB(
-						Integer.valueOf(instance.get(DistributionObjectNSDB.DISTRIBUTION_ID).toString()));
-//System.out.println(Integer.valueOf(instance.get(DistributionObjectNSDB.DISTRIBUTION_ID).toString()));
-////System.out.println(resource);
-				if (LoadedBloomFiltersCache.queryObject(d, resource))
-					setOfDistributionNS.add(d);
+						Integer.valueOf(instance.get(DistributionSubjectNSDB.DISTRIBUTION_ID).toString()));
+				LoadedBloomFiltersCache l = new LoadedBloomFiltersCache(d, resource, LODVaderProperties.TYPE_OBJECT);
+				l.start();
+				cache.add(l);
+			}
+			for(LoadedBloomFiltersCache l : cache){
+				try {
+					l.join();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			for(LoadedBloomFiltersCache l : cache)
+			{
+				if (l.found)
+					setOfDistributionNS.add(l.distribution);
+				
 			}
 		}
 

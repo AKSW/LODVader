@@ -113,112 +113,112 @@ public class TestPerformance {
 	}
 	
 	public void test(int numberOfResources, String type, String path, int size) throws Exception{
-		ArrayList<String> list = new ArrayList<String>();
-		HashSet<Integer> rand = new HashSet<Integer>();
-		int counter = 0;
-		String tmp;
-		
-		Random r = new Random();
-		if(type.equals(PROPERTIES))
-		size =  DBSuperClass.getInstance()
-				.getCollection(AllPredicatesDB.COLLECTION_NAME).find().size();
-		
-		
-		int Low = 0;
-		int High = size;
-
-		// take number of resources here
-		for (int i = 0; i<numberOfResources; i++){
-			int R = r.nextInt(High-Low) + Low;
-			rand.add(R);
-		}
-		
-		
-		if(!type.equals(PROPERTIES)){
-			BufferedReader b = new BufferedReader(new FileReader(path));
-			while((tmp = b.readLine())!=null){
-				if(tmp.contains("http")){
-					counter ++;
-					if(rand.contains(counter)){
-						if (list.contains(tmp)){
-							counter -- ;
-						}
-						else{
-							list.add(tmp);
-							System.out.println("Matched "+counter+ " "+ tmp);
-						}
-					}
-				}
-			}
-		}else 
-			if(type.equals(PROPERTIES)){
-				DBCollection collection = DBSuperClass.getInstance()
-						.getCollection(AllPredicatesDB.COLLECTION_NAME);
-
-				DBCursor instances = collection.find();
-
-				for (DBObject instance : instances) {
-					tmp = instance.get(AllPredicatesDB.URI).toString();
-					counter ++;
-					if(rand.contains(counter)){
-					if (list.contains(tmp)){
-						counter -- ;
-					}
-					else{
-						list.add(tmp);
-						System.out.println("Matched "+counter+ " "+ tmp);
-					}
-					}
-				}
-			}
-		
-
-		
-		for(String s : list){
-			if(type.equals(SUBJECTS))
-				api.listDistributions( 0, 1, 2, null, s, null, null);
-			else if(type.equals(OBJECTS))
-				api.listDistributions( 0, 1, 2, null, null, null, s);
-			else if(type.equals(PROPERTIES))
-				api.listDistributions( 0, 1, 2, null, null, s, null);
-		}
-		
-		Timer t = new Timer();
-		Timer t2 = new Timer();
-		t2.startTimer();
-		for(String s : list){
-			if(type.contains(SUBJECTS))
-				api.listDistributions( 0, 1, 2, null, s, null, null);
-			else if(type.contains(OBJECTS))
-				api.listDistributions( 0, 1, 2, null, null, null, s);
-			else if(type.contains(PROPERTIES))
-				api.listDistributions( 0, 1, 2, null, null, s, null);		
-		}
-		String timer2 = t2.stopTimer();
-		System.out.println(timer2);
-		System.out.println(list.size());
-		FileWriter writer;
-		FileWriter writer2;
-		if(type.contains(SUBJECTS)){
-			writer = new FileWriter(LODVaderProperties.BASE_PATH+"results/subjects"+(String.valueOf(numberOfResources)));
-			writer2 = new FileWriter(LODVaderProperties.BASE_PATH+"results/subjects"+"_result", true);
-		}
-		else if(type.contains(OBJECTS)){
-			writer = new FileWriter(LODVaderProperties.BASE_PATH+"results/objects"+(String.valueOf(numberOfResources)));
-			writer2 = new FileWriter(LODVaderProperties.BASE_PATH+"results/objects"+"_result", true);
-		}
-		else{
-			writer = new FileWriter(LODVaderProperties.BASE_PATH+"results/properties"+(String.valueOf(numberOfResources)));
-			writer2 = new FileWriter(LODVaderProperties.BASE_PATH+"results/properties"+"_result", true); 	
-		}
-		for(String s : list){
-				writer.write(s+"\n");
-		}
-		
-		writer.close();
-		
-		writer2.write(timer2+"\n");
-		writer2.close();
-		
+//		ArrayList<String> list = new ArrayList<String>();
+//		HashSet<Integer> rand = new HashSet<Integer>();
+//		int counter = 0;
+//		String tmp;
+//		
+//		Random r = new Random();
+//		if(type.equals(PROPERTIES))
+//		size =  DBSuperClass.getInstance()
+//				.getCollection(AllPredicatesDB.COLLECTION_NAME).find().size();
+//		
+//		
+//		int Low = 0;
+//		int High = size;
+//
+//		// take number of resources here
+//		for (int i = 0; i<numberOfResources; i++){
+//			int R = r.nextInt(High-Low) + Low;
+//			rand.add(R);
+//		}
+//		
+//		
+//		if(!type.equals(PROPERTIES)){
+//			BufferedReader b = new BufferedReader(new FileReader(path));
+//			while((tmp = b.readLine())!=null){
+//				if(tmp.contains("http")){
+//					counter ++;
+//					if(rand.contains(counter)){
+//						if (list.contains(tmp)){
+//							counter -- ;
+//						}
+//						else{
+//							list.add(tmp);
+//							System.out.println("Matched "+counter+ " "+ tmp);
+//						}
+//					}
+//				}
+//			}
+//		}else 
+//			if(type.equals(PROPERTIES)){
+//				DBCollection collection = DBSuperClass.getInstance()
+//						.getCollection(AllPredicatesDB.COLLECTION_NAME);
+//
+//				DBCursor instances = collection.find();
+//
+//				for (DBObject instance : instances) {
+//					tmp = instance.get(AllPredicatesDB.URI).toString();
+//					counter ++;
+//					if(rand.contains(counter)){
+//					if (list.contains(tmp)){
+//						counter -- ;
+//					}
+//					else{
+//						list.add(tmp);
+//						System.out.println("Matched "+counter+ " "+ tmp);
+//					}
+//					}
+//				}
+//			}
+//		
+//
+//		
+//		for(String s : list){
+//			if(type.equals(SUBJECTS))
+//				api.listDistributions( 0, 1, 2, null, s, null, null);
+//			else if(type.equals(OBJECTS))
+//				api.listDistributions( 0, 1, 2, null, null, null, s);
+//			else if(type.equals(PROPERTIES))
+//				api.listDistributions( 0, 1, 2, null, null, s, null);
+//		}
+//		
+//		Timer t = new Timer();
+//		Timer t2 = new Timer();
+//		t2.startTimer();
+//		for(String s : list){
+//			if(type.contains(SUBJECTS))
+//				api.listDistributions( 0, 1, 2, null, s, null, null);
+//			else if(type.contains(OBJECTS))
+//				api.listDistributions( 0, 1, 2, null, null, null, s);
+//			else if(type.contains(PROPERTIES))
+//				api.listDistributions( 0, 1, 2, null, null, s, null);		
+//		}
+//		String timer2 = t2.stopTimer();
+//		System.out.println(timer2);
+//		System.out.println(list.size());
+//		FileWriter writer;
+//		FileWriter writer2;
+//		if(type.contains(SUBJECTS)){
+//			writer = new FileWriter(LODVaderProperties.BASE_PATH+"results/subjects"+(String.valueOf(numberOfResources)));
+//			writer2 = new FileWriter(LODVaderProperties.BASE_PATH+"results/subjects"+"_result", true);
+//		}
+//		else if(type.contains(OBJECTS)){
+//			writer = new FileWriter(LODVaderProperties.BASE_PATH+"results/objects"+(String.valueOf(numberOfResources)));
+//			writer2 = new FileWriter(LODVaderProperties.BASE_PATH+"results/objects"+"_result", true);
+//		}
+//		else{
+//			writer = new FileWriter(LODVaderProperties.BASE_PATH+"results/properties"+(String.valueOf(numberOfResources)));
+//			writer2 = new FileWriter(LODVaderProperties.BASE_PATH+"results/properties"+"_result", true); 	
+//		}
+//		for(String s : list){
+//				writer.write(s+"\n");
+//		}
+//		
+//		writer.close();
+//		
+//		writer2.write(timer2+"\n");
+//		writer2.close();
+//		
 	}
 }
