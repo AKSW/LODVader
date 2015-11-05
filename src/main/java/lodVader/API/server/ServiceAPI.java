@@ -165,7 +165,7 @@ public class ServiceAPI extends HttpServlet {
 			}
 			
 			if (parameters.containsKey(ServiceAPIOptions.DATASET_STATISTICS)) {
-				out.write(new APIStatistics().datasetDetails(Integer.parseInt(parameters.get(ServiceAPIOptions.DUMP_FILE)[0]),
+				out.write(new APIStatistics().datasetStatistics(Integer.parseInt(parameters.get(ServiceAPIOptions.DUMP_FILE)[0]),
 						Integer.parseInt(parameters.get(ServiceAPIOptions.TOP_N)[0]),
 						parameters.get(ServiceAPIOptions.TYPE)[0]
 						).toJSONString().getBytes("UTF-8")); 
@@ -176,7 +176,7 @@ public class ServiceAPI extends HttpServlet {
 			}	
 			
 			if (parameters.containsKey(ServiceAPIOptions.DATASET_DETAILS_STATISTICS)) {
-				out.write(new APIStatistics().getTop(Integer.valueOf(parameters.get(ServiceAPIOptions.DUMP_FILE)[0]),
+				out.write(new APIStatistics().getDatasetDetailsStatistics(Integer.valueOf(parameters.get(ServiceAPIOptions.DUMP_FILE)[0]),
 						Integer.parseInt(parameters.get(ServiceAPIOptions.TOP_N)[0]),
 						parameters.get(ServiceAPIOptions.TYPE)[0]
 						).toJSONString().getBytes("UTF-8")); 			

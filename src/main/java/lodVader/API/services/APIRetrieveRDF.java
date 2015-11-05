@@ -59,7 +59,6 @@ public class APIRetrieveRDF extends API {
 	
 	public void retrieveRDF(String source, String target) throws LODVaderNoDatasetFoundException,
 	DynamicLODAPINoLinksFoundException{
-		
 		outModelInit();
 		
 		// try to find by distribution
@@ -100,9 +99,9 @@ public class APIRetrieveRDF extends API {
 		DistributionDB dis = new DistributionDB(distributionURI);
 		
 		ArrayList<LinksetDB> in = new LinksetQueries()
-				.getLinksetsInDegreeByDistribution(dis.getLODVaderID(), LinksetDB.LINK_NUMBER_LINKS, 50,-1);
+				.getLinksetsInDegreeByDistribution(dis.getLODVaderID(), LinksetDB.LINK_NUMBER_LINKS, LODVaderProperties.LINKSET_TRESHOLD,-1);
 		ArrayList<LinksetDB> out = new LinksetQueries()
-				.getLinksetsOutDegreeByDistribution(dis.getLODVaderID(), LinksetDB.LINK_NUMBER_LINKS,50,-1);
+				.getLinksetsOutDegreeByDistribution(dis.getLODVaderID(), LinksetDB.LINK_NUMBER_LINKS,LODVaderProperties.LINKSET_TRESHOLD,-1);
 
 		// add choosen distribution to jena
 		// addDistributionToModel(new
