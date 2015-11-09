@@ -12,7 +12,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Test;
 
 import com.hp.hpl.jena.graph.Graph;
@@ -50,7 +51,7 @@ import lodVader.utils.FileUtils;
 import lodVader.utils.Timer;
 
 public class LOV extends Stream {
-	final static Logger logger = Logger.getLogger(LOV.class);
+	final static Logger logger = LoggerFactory.getLogger(LOV.class);
 
 	DistributionDB distribution = null;
 

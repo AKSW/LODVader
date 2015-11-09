@@ -11,7 +11,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import lodVader.API.core.APIOption;
 import lodVader.API.core.ServiceAPIOptions;
@@ -26,7 +27,7 @@ import lodVader.exceptions.api.DynamicLODAPINoParametersFoundExceiption;
 
 public class ServiceAPI extends HttpServlet {
 	
-	final static Logger logger = Logger.getLogger(ServiceAPI.class);
+	final static Logger logger = LoggerFactory.getLogger(ServiceAPI.class);
 
 	static HttpServletRequest staticRequest;
 

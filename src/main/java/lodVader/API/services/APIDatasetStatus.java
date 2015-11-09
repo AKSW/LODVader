@@ -3,7 +3,8 @@ package lodVader.API.services;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -21,7 +22,7 @@ public class APIDatasetStatus extends API {
 	
 	ArrayList<DistributionDB> distributions;
 	
-	final static Logger logger = Logger.getLogger(APIDatasetStatus.class);
+	final static Logger logger = LoggerFactory.getLogger(APIDatasetStatus.class);
 
 	@Override
 	public void run() {

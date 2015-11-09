@@ -4,8 +4,10 @@ import java.util.ArrayList;
 
 import javax.servlet.http.HttpServlet;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.LoggerFactory;
 
 import lodVader.mongodb.IndexesCreator;
 import lodVader.mongodb.collections.DistributionDB;
@@ -22,7 +24,7 @@ import lodVader.utils.FileUtils;
 public class StartLODVader extends HttpServlet {
 
 	private static final long serialVersionUID = 9131804335500741880L;
-	final static Logger logger = Logger.getLogger(StartLODVader.class);
+	final static Logger logger = LoggerFactory.getLogger(StartLODVader.class);
 
 	public StartLODVader() {
 
@@ -31,8 +33,6 @@ public class StartLODVader extends HttpServlet {
 			public void run() {
 
 				try {
-					BasicConfigurator.configure();
-
 					LODVaderProperties properties = new LODVaderProperties();
 
 					if (LODVaderProperties.SUBJECT_FILE_DISTRIBUTION_PATH == null) {

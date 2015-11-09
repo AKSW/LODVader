@@ -10,7 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.jena.riot.RiotException;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -39,7 +40,7 @@ import lodVader.utils.Formats;
  */
 public class InputRDFParser {
 
-	final static Logger logger = Logger.getLogger(InputRDFParser.class);
+	final static Logger logger = LoggerFactory.getLogger(InputRDFParser.class);
 
 	private Model inModel = ModelFactory.createDefaultModel();
 	public List<DistributionDB> distributionsLinks = new ArrayList<DistributionDB>();

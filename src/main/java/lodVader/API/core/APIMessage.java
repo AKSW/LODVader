@@ -1,12 +1,13 @@
 package lodVader.API.core;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class APIMessage {
 	
-	final static Logger logger = Logger.getLogger(APIMessage.class);
+	final static Logger logger = LoggerFactory.getLogger(APIMessage.class);
 	
 	JSONObject msg = new JSONObject();	
 	

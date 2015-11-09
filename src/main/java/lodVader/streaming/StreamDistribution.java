@@ -19,7 +19,8 @@ import java.util.zip.ZipInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.openrdf.rio.ParserConfig;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
@@ -53,7 +54,7 @@ import lodVader.utils.Formats;
 
 public class StreamDistribution extends Stream {
 
-	final static Logger logger = Logger.getLogger(StreamDistribution.class);
+	final static Logger logger = LoggerFactory.getLogger(StreamDistribution.class);
 
 	// Paths
 	public String objectFilePath;
@@ -156,15 +157,15 @@ public class StreamDistribution extends Stream {
 		// check whether file is tar/zip type
 		if (getExtension().equals("zip")) {
 			InputStream data = new BufferedInputStream(inputStream);
-			logger.info("File extension is zip, creating ZipInputStream and checking compressed files...");
+			logger.debug("File extension is zip, creating ZipInputStream and checking compressed files...");
 
 			ZipInputStream zip = new ZipInputStream(data);
 			int nf = 0;
 			ZipEntry entry = zip.getNextEntry();
 			while (entry != null) {
 				if (!entry.isDirectory()) {
-					logger.info(++nf + " zip file uncompressed.");
-					logger.info("File name: " + entry.getName());
+					logger.debug(++nf + " zip file uncompressed.");
+					logger.debug("File name: " + entry.getName());
 
 					simpleDownload(filePath,
 							zip);
@@ -176,15 +177,15 @@ public class StreamDistribution extends Stream {
 
 		else if (getExtension().equals("tar")) {
 			InputStream data = new BufferedInputStream(inputStream);
-			logger.info("File extension is tar, creating TarArchiveInputStream and checking compressed files...");
+			logger.debug("File extension is tar, creating TarArchiveInputStream and checking compressed files...");
 
 			TarArchiveInputStream tar = new TarArchiveInputStream(data);
 			int nf = 0;
 			TarArchiveEntry entry = (TarArchiveEntry) tar.getNextEntry();
 			while (entry != null) {
 				if (entry.isFile() && !entry.isDirectory()) {
-					logger.info(++nf + " tar file uncompressed.");
-					logger.info("File name: " + entry.getName());
+					logger.debug(++nf + " tar file uncompressed.");
+					logger.debug("File name: " + entry.getName());
 
 					byte[] content = new byte[(int) entry.getSize()];
 
@@ -287,15 +288,15 @@ public class StreamDistribution extends Stream {
 			// check whether file is tar/zip type
 			if (getExtension().equals("zip")) {
 				InputStream data = new BufferedInputStream(inputStream);
-				logger.info("File extension is zip, creating ZipInputStream and checking compressed files...");
+				logger.debug("File extension is zip, creating ZipInputStream and checking compressed files...");
 
 				ZipInputStream zip = new ZipInputStream(data);
 				int nf = 0;
 				ZipEntry entry = zip.getNextEntry();
 				while (entry != null) {
 					if (!entry.isDirectory()) {
-						logger.info(++nf + " zip file uncompressed.");
-						logger.info("File name: " + entry.getName());
+						logger.debug(++nf + " zip file uncompressed.");
+						logger.debug("File name: " + entry.getName());
 
 						// byte[] content = new byte[(int) entry.getSize()];
 
@@ -316,15 +317,15 @@ public class StreamDistribution extends Stream {
 
 			else if (getExtension().equals("tar")) {
 				InputStream data = new BufferedInputStream(inputStream);
-				logger.info("File extension is tar, creating TarArchiveInputStream and checking compressed files...");
+				logger.debug("File extension is tar, creating TarArchiveInputStream and checking compressed files...");
 
 				TarArchiveInputStream tar = new TarArchiveInputStream(data);
 				int nf = 0;
 				TarArchiveEntry entry = (TarArchiveEntry) tar.getNextEntry();
 				while (entry != null) {
 					if (entry.isFile() && !entry.isDirectory()) {
-						logger.info(++nf + " tar file uncompressed.");
-						logger.info("File name: " + entry.getName());
+						logger.debug(++nf + " tar file uncompressed.");
+						logger.debug("File name: " + entry.getName());
 
 						byte[] content = new byte[(int) entry.getSize()];
 
@@ -368,37 +369,37 @@ public class StreamDistribution extends Stream {
 		new AllPredicatesRelationDB().insertSet(splitThread.allPredicates, distribution.getLODVaderID(),
 				distribution.getTopDataset());
 
-		logger.info("Saving rdf:type objects...");
+		logger.debug("Saving rdf:type objects...");
 		// Saving RDF Type classes
 		new RDFTypeObjectDB().insertSet(splitThread.rdfTypeObjects.keySet());
 		new RDFTypeObjectRelationDB().insertSet(splitThread.rdfTypeObjects, distribution.getLODVaderID(),
 				distribution.getTopDataset());
 
-		logger.info("Saving rdfs:subclass objects...");
+		logger.debug("Saving rdfs:subclass objects...");
 		new RDFSubClassOfDB().insertSet(splitThread.rdfSubClassOf.keySet());
 		new RDFSubClassOfRelationDB().insertSet(splitThread.rdfSubClassOf, distribution.getLODVaderID(),
 				distribution.getTopDataset());
 
-		logger.info("Saving owl:Classobjects...");
+		logger.debug("Saving owl:Classobjects...");
 		new OwlClassDB().insertSet(splitThread.owlClasses.keySet());
 		new OwlClassRelationDB().insertSet(splitThread.owlClasses, distribution.getLODVaderID(),
 				distribution.getTopDataset());
 
-		logger.info("Creating subjects BF");
+		logger.debug("Creating subjects BF");
 		// create BFs
-		logger.info("Reading resources from file system...");
+		logger.debug("Reading resources from file system...");
 		SubjectsBucket subjectBucket = new SubjectsBucket(
 				getUniqueItemsFromFile(LODVaderProperties.SUBJECT_FILE_DISTRIBUTION_PATH + hashFileName),
 				distribution.getLODVaderID());
-		logger.info("Creating bucket.");
+		logger.debug("Creating bucket.");
 		subjectBucket.makeBucket();
 
-		logger.info("Creating objects BF");
-		logger.info("Reading resources from file system...");
+		logger.debug("Creating objects BF");
+		logger.debug("Reading resources from file system...");
 		ObjectsBucket objectBucket = new ObjectsBucket(
 				getUniqueItemsFromFile(LODVaderProperties.OBJECT_FILE_DISTRIBUTION_PATH + hashFileName),
 				distribution.getLODVaderID());
-		logger.info("Creating bucket.");
+		logger.debug("Creating bucket.");
 		objectBucket.makeBucket();
 
 	}

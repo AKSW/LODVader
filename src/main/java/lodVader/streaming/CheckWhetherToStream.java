@@ -3,13 +3,14 @@ package lodVader.streaming;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import lodVader.mongodb.collections.DistributionDB;
 
 public class CheckWhetherToStream {
 
-	final static Logger logger = Logger.getLogger(CheckWhetherToStream.class);
+	final static Logger logger = LoggerFactory.getLogger(CheckWhetherToStream.class);
 
 	/**
 	 * Check whether a distribution should be streamed

@@ -7,7 +7,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.bson.types.ObjectId;
 
 import lodVader.LODVaderProperties;
@@ -28,7 +29,7 @@ import lodVader.utils.NSUtils;
 import lodVader.utils.Timer;
 
 public class ProcessNSFromTuple extends Thread {
-	final static Logger logger = Logger.getLogger(ProcessNSFromTuple.class);
+	final static Logger logger = LoggerFactory.getLogger(ProcessNSFromTuple.class);
 
 	// public boolean isSubject = false;
 

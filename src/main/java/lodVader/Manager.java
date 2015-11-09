@@ -2,22 +2,15 @@ package lodVader;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
 
-import org.apache.commons.jexl2.Expression;
-import org.apache.commons.jexl2.JexlContext;
-import org.apache.commons.jexl2.JexlEngine;
-import org.apache.commons.jexl2.MapContext;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import lodVader.bloomfilters.GoogleBloomFilter;
-import lodVader.exceptions.DynamicLODFileNotAcceptedException;
-import lodVader.exceptions.DynamicLODNoDistributionFoundException;
-import lodVader.exceptions.DynamicLODNoDownloadURLFoundException;
-import lodVader.exceptions.LODVaderNoDatasetFoundException;
 import lodVader.links.similarity.JaccardSimilarity;
 import lodVader.links.similarity.LinkSimilarity;
 import lodVader.lov.LOV;
@@ -30,31 +23,29 @@ import lodVader.mongodb.collections.RDFResources.rdfType.RDFTypeObjectRelationDB
 import lodVader.parsers.InputRDFParser;
 import lodVader.streaming.CheckWhetherToStream;
 import lodVader.streaming.StreamDistribution;
-import lodVader.utils.FileUtils;
-import lodVader.utils.Timer;
 
 public class Manager {
-	final static Logger logger = Logger.getLogger(Manager.class);
+	final static Logger logger = LoggerFactory.getLogger(Manager.class);
 
 	private String someDatasetURI = null;
- 
+
 	// list of subset and their distributions
-	public static List<DistributionDB> distributionsLinks = new ArrayList<DistributionDB>();
+	public static Queue<DistributionDB> distributionsLinks = new LinkedBlockingQueue<DistributionDB>();
 
 	InputRDFParser fileInputParserModel = new InputRDFParser();
 
+	static boolean consumingQueue = false;
+
 	public static void streamAndCreateFilters() throws Exception {
-		// if there is at least one distribution, load them
-		Iterator<DistributionDB> distributions = distributionsLinks.iterator();
 
-		int counter = 0;
+		consumingQueue = true;
 
-		logger.info("Loading " + distributionsLinks.size() + " distributions...");
+		while (distributionsLinks.size() > 0) {
+			logger.info("We still have " + distributionsLinks.size() + " distributions in the queue...");
 
-		while (distributions.hasNext()) {
-			counter++;
+			DistributionDB distributionMongoDBObj = distributionsLinks.remove();
 
-			DistributionDB distributionMongoDBObj = distributions.next();
+			logger.info("Processing distribution: " + distributionMongoDBObj.getUri());
 
 			// case there is no such distribution, create one.
 			if (distributionMongoDBObj.getStatus() == null) {
@@ -62,10 +53,8 @@ public class Manager {
 			}
 
 			// check is distribution need to be streamed
-			boolean needDownload = checkDistributionStatus(distributionMongoDBObj);
-			// needDownload = true;
-
-			logger.info("Distribution n. " + counter + ": " + distributionMongoDBObj.getUri());
+//			boolean needDownload = checkDistributionStatus(distributionMongoDBObj);
+			boolean needDownload = true;
 
 			if (!needDownload) {
 				logger.info("Distribution is already in the last version. No needs to stream again. ");
@@ -95,20 +84,20 @@ public class Manager {
 
 					if (!LODVaderProperties.ONLY_STREAM_DATASETS) {
 
-						logger.info("Distribution streamed. ");
+						logger.debug("Distribution streamed. ");
 
 						// uptate status of distribution
 						distributionMongoDBObj.setStatus(DistributionDB.STATUS_CREATING_BLOOM_FILTER);
 						distributionMongoDBObj.updateObject(true);
 
-						logger.info("Creating bloom filter.");
+						logger.debug("Creating bloom filter.");
 
 						// createBloomFilters(downloadedFile,
 						// distributionMongoDBObj);
 
 						// save distribution in a mongodb object
 
-						logger.info("Saving mongodb \"Distribution\" document.");
+						logger.debug("Saving mongodb \"Distribution\" document.");
 
 						distributionMongoDBObj.setNumberOfObjectTriples(String.valueOf(streamFile.objectLines));
 						distributionMongoDBObj.setDownloadUrl(streamFile.url.toString());
@@ -122,12 +111,12 @@ public class Manager {
 						distributionMongoDBObj.setSuccessfullyDownloaded(true);
 						distributionMongoDBObj.updateObject(true);
 
-						logger.info("Checking Similarity among distributions...");
+						logger.debug("Checking Similarity among distributions...");
 						distributionMongoDBObj.setStatus(DistributionDB.STATUS_CREATING_JACCARD_SIMILARITY);
 						distributionMongoDBObj.updateObject(true);
 						// Saving link similarities
 
-						logger.info("Checking Jaccard Similarities...");
+						logger.debug("Checking Jaccard Similarities...");
 						// Checking Jaccard Similarities...
 						LinkSimilarity linkSimilarity = new JaccardSimilarity();
 						linkSimilarity.updateLinks(distributionMongoDBObj, new AllPredicatesRelationDB());
@@ -135,19 +124,19 @@ public class Manager {
 						linkSimilarity.updateLinks(distributionMongoDBObj, new RDFSubClassOfRelationDB());
 						linkSimilarity.updateLinks(distributionMongoDBObj, new OwlClassRelationDB());
 
-						logger.info("Updating link strength among distributions...");
+						logger.debug("Updating link strength among distributions...");
 						distributionMongoDBObj.setStatus(DistributionDB.STATUS_UPDATING_LINK_STRENGTH);
 						distributionMongoDBObj.updateObject(true);
 						// Saving link similarities
 						// LinkStrength linkStrength = new LinkStrength();
 						// linkStrength.updateLinks(distributionMongoDBObj);
 
-						logger.info("Done streaming mongodb distribution object.");
+						logger.debug("Done streaming mongodb distribution object.");
 					}
 
 					// uptate status of distribution
 					distributionMongoDBObj.setStatus(DistributionDB.STATUS_DONE);
-					
+
 					DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss dd/MM/yyyy");
 					// get current date time with Date()
 					Date date = new Date();
@@ -156,7 +145,7 @@ public class Manager {
 
 					distributionMongoDBObj.updateObject(true);
 
-					logger.info("Distribution saved! ");
+					logger.info("Distribution "+distributionMongoDBObj.getDownloadUrl()+" saved! ");
 
 				} catch (Exception e) {
 					// uptate status of distribution
@@ -168,27 +157,24 @@ public class Manager {
 					distributionMongoDBObj.updateObject(true);
 
 				}
-
 		}
+		consumingQueue = false;
+
 		logger.info("We are done reading your distributions.");
 	}
 
-	public Manager(List<DistributionDB> distributionsLinksToBeAdded) {		
+	public Manager(List<DistributionDB> distributionsLinksToBeAdded) {
 		checkLOV();
 		try {
-			if(distributionsLinks.size() == 0){
-				for(DistributionDB dist:distributionsLinksToBeAdded ){
-					distributionsLinks.add(dist);
-				}
+			for (DistributionDB dist : distributionsLinksToBeAdded) {
+				distributionsLinks.add(dist);
+				logger.info("Adding new distribution to the queue: "+dist.getDownloadUrl());
+
+			}
+			if (!consumingQueue) {
 				streamAndCreateFilters();
 			}
-			else{
-				for(DistributionDB dist:distributionsLinksToBeAdded ){
-					distributionsLinks.add(dist);
-				}
-			}
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}

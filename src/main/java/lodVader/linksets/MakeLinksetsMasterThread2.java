@@ -5,7 +5,8 @@ import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import lodVader.TuplePart;
 import lodVader.mongodb.collections.DistributionDB;
@@ -28,7 +29,7 @@ public class MakeLinksetsMasterThread2  {
 //		super(resourceQueue, uri);
 //	} 
 //
-//	final static Logger logger = Logger.getLogger(MakeLinksetsMasterThread2.class);
+//	final static Logger logger = LoggerFactory.getLogger(MakeLinksetsMasterThread2.class);
 //
 //	ArrayList<DistributionDB> distributionsToCompare;
 //	ArrayList<String> resourcesToBeProcessedQueueCopy;

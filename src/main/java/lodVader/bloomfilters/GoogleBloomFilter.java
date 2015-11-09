@@ -8,7 +8,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashSet;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.hash.BloomFilter;
 import com.google.common.hash.Funnel;
@@ -16,7 +17,7 @@ import com.google.common.hash.Funnels;
 
 public class GoogleBloomFilter {
 	
-	final static Logger logger = Logger.getLogger(GoogleBloomFilter.class);
+	final static Logger logger = LoggerFactory.getLogger(GoogleBloomFilter.class);
 
 	public BloomFilter<byte[]> filter = null;
 

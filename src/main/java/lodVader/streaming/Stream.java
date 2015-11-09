@@ -13,13 +13,14 @@ import java.text.DecimalFormat;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import lodVader.exceptions.LODVaderLODGeneralException;
 
 public class Stream {
 
-	final static Logger logger = Logger.getLogger(Stream.class);
+	final static Logger logger = LoggerFactory.getLogger(Stream.class);
 
 	// HTTP header fields
 	public String httpDisposition = null;

@@ -11,7 +11,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
@@ -21,7 +22,7 @@ import lodVader.threads.SplitAndStoreThread;
 
 public class NTriplesLODVaderParser extends RDFParserBase{
 	
-	final static Logger logger = Logger.getLogger(RDFParserBase.class);
+	final static Logger logger = LoggerFactory.getLogger(RDFParserBase.class);
 
 	Queue<String> bufferQueue = new ConcurrentLinkedQueue<String>();
 	boolean doneReading = false;

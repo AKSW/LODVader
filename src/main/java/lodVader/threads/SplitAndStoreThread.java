@@ -5,7 +5,8 @@ import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.openrdf.model.Statement;
 import org.openrdf.rio.helpers.RDFHandlerBase;
 
@@ -14,7 +15,7 @@ import lodVader.utils.Timer;
 
 public class SplitAndStoreThread extends RDFHandlerBase {
 
-	final static Logger logger = Logger.getLogger(SplitAndStoreThread.class);
+	final static Logger logger = LoggerFactory.getLogger(SplitAndStoreThread.class);
 
 	private String fileName;
 

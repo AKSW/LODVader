@@ -5,7 +5,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import lodVader.TuplePart;
 import lodVader.mongodb.collections.DistributionDB;
@@ -30,7 +31,7 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 		super(resourceQueue, uri);
 	}
 
-	final static Logger logger = Logger.getLogger(MakeLinksetsMasterThread.class);
+	final static Logger logger = LoggerFactory.getLogger(MakeLinksetsMasterThread.class);
 
 	ArrayList<DistributionDB> distributionsToCompare;
 	HashMap<String,String> resourcesToBeProcessedQueueCopy;

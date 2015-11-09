@@ -4,7 +4,8 @@ import java.io.File;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import lodVader.LODVaderProperties;
 import lodVader.Manager;
@@ -12,7 +13,7 @@ import lodVader.exceptions.LODVaderFormatNotAcceptedException;
 
 public class FileUtils {
 
-	final static Logger logger = Logger.getLogger(FileUtils.class);
+	final static Logger logger = LoggerFactory.getLogger(FileUtils.class);
 
 	public static void checkIfFolderExists() {
 

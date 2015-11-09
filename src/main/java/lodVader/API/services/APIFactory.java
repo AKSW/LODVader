@@ -1,6 +1,7 @@
 package lodVader.API.services;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import lodVader.API.core.APITasks;
 import lodVader.exceptions.LODVaderNoDatasetFoundException;
@@ -8,7 +9,7 @@ import lodVader.exceptions.api.DynamicLODAPINoLinksFoundException;
 
 public class APIFactory {
 	
-	final static Logger logger = Logger.getLogger(APIFactory.class);
+	final static Logger logger = LoggerFactory.getLogger(APIFactory.class);
 
 	public static APIDataset createDataset(String datasetURI, String format) {
 		

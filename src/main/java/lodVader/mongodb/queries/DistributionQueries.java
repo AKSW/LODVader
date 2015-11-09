@@ -7,7 +7,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Test;
 
 import com.mongodb.AggregationOptions;
@@ -36,7 +37,7 @@ import lodVader.utils.NSUtils;
 
 public class DistributionQueries {
 
-	final static Logger logger = Logger.getLogger(DistributionQueries.class);
+	final static Logger logger = LoggerFactory.getLogger(DistributionQueries.class);
 
 	public int getDistributionQuerySize;
 

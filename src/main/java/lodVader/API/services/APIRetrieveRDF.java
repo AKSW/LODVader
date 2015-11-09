@@ -2,7 +2,8 @@ package lodVader.API.services;
 
 import java.util.ArrayList;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -26,7 +27,7 @@ public class APIRetrieveRDF extends API {
 
 	public Model outModel = null;
 	
-	final static Logger logger = Logger.getLogger(APIRetrieveRDF.class);
+	final static Logger logger = LoggerFactory.getLogger(APIRetrieveRDF.class);
 
 	@Override
 	public void run() {
