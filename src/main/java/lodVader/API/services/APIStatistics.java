@@ -195,11 +195,13 @@ public class APIStatistics {
 
 			jsonArr.put(jsonObj);
 		}
+		
+		DecimalFormat formatter = new DecimalFormat("#,###,###,###,###");
 
 		msg.put("distributions", jsonArr);
 		msg.put("distributionTitle", dist.getTitle());
 		msg.put("datasetTitle", dist.getTopDatasetTitle());
-		msg.put("distributionTriples", dist.getTriples());
+		msg.put("distributionTriples", formatter.format(dist.getTriples()));
 		msg.put("isVocabulary", dist.getIsVocabulary());
 		msg.put("rdfURL",
 				lodVader.API.server.ServiceAPI.getServerURL() + "?retrieveDataset=" + dist.getDownloadUrl());

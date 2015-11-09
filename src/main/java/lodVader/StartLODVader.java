@@ -33,19 +33,35 @@ public class StartLODVader extends HttpServlet {
 			public void run() {
 
 				try {
+					
+					logger.info("==========================================================");
+					logger.info("");
+					logger.info("");
+					logger.info("====================================================");
+					logger.info("============== LODVader "+LODVaderProperties.VERSION+" Started ===============");
+					logger.info("====================================================");
+					logger.info("");
+					logger.info("");
+					
+					logger.info("Reading properties file.");
+					
 					LODVaderProperties properties = new LODVaderProperties();
 
 					if (LODVaderProperties.SUBJECT_FILE_DISTRIBUTION_PATH == null) {
 						properties.loadProperties();
 					}
 
+					logger.info("Creating folders..");
 					FileUtils.checkIfFolderExists();
 
 					// creating indexes
+					logger.info("Creating MondoDB indexes...");
+
 					new IndexesCreator().createIndexes();
 					
 					ArrayList<DistributionDB> distributions = new ArrayList<DistributionDB>();
 
+					logger.info("Resuming Downloads...");
 					if (LODVaderProperties.RESUME) {
 						
 						// re-download distributions with "Downloading" status
@@ -107,6 +123,8 @@ public class StartLODVader extends HttpServlet {
 						}
 					}
 
+					
+					logger.info("We will resume: "+distributions.size()+ " downloads(s).");
 					new Manager(distributions);
 
 				} catch (Exception e) {

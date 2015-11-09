@@ -68,6 +68,9 @@ public class ServiceAPI extends HttpServlet {
 
 			if (!hasOption)
 				throw new DynamicLODAPINoParametersFoundExceiption();
+			
+			logger.info("New API call: ");
+			logger.info(parameters.toString());
 
 			if (parameters.containsKey(ServiceAPIOptions.ADD_DATASET)) {
 				String format;

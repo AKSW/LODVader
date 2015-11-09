@@ -145,7 +145,7 @@ public class Manager {
 
 					distributionMongoDBObj.updateObject(true);
 
-					logger.info("Distribution "+distributionMongoDBObj.getDownloadUrl()+" saved! ");
+					logger.info("Distribution "+distributionMongoDBObj.getDownloadUrl()+" processed! ");
 
 				} catch (Exception e) {
 					// uptate status of distribution

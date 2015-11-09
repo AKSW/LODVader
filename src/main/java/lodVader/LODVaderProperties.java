@@ -161,6 +161,8 @@ public class LODVaderProperties {
 	public static int CHECK_LINKS_EACH = 10000;
 	
 	public static boolean ONLY_STREAM_DATASETS = false;
-	
+
+	public static String VERSION = "v1.0";
+
 
 }

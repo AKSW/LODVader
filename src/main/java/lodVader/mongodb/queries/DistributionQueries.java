@@ -19,6 +19,7 @@ import com.mongodb.Cursor;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
+import com.mongodb.DBRefBase;
 
 import lodVader.LODVaderProperties;
 import lodVader.LoadedBloomFiltersCache;
@@ -371,7 +372,8 @@ public class DistributionQueries {
 
 			DBCursor instances = collection.find(query);
 			getDistributionQuerySize = instances.size();
-			instances = collection.find(query).skip(skip).limit(limit);
+			BasicDBObject sort = new BasicDBObject(DistributionDB.TRIPLES, -1);
+			instances = collection.find(query).skip(skip).limit(limit).sort(sort);
 
 			for (DBObject instance : instances) {
 				list.add(new DistributionDB(instance));
