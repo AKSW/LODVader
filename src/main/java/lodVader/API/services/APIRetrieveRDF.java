@@ -76,8 +76,6 @@ public class APIRetrieveRDF extends API {
 	}
 	
 
-
-
 	private void outModelInit() {
 		outModel = ModelFactory.createDefaultModel();
 		outModel.setNsPrefix("rdfs", NS.RDFS_URI);
