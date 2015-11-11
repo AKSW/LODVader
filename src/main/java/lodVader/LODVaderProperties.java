@@ -164,5 +164,8 @@ public class LODVaderProperties {
 
 	public static String VERSION = "v1.0";
 
+	public static int MONGODB_MINIMUM_MAJOR_VERSION = 2;
+	public static int MONGODB_MINIMUM_MINOR_VERSION = 6;
+
 
 }
