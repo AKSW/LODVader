@@ -69,9 +69,9 @@ public class LinkStrength {
 		
 		link.setStrength(nLinks);
 		if(link.getDatasetSource()==0)
-			link.setDatasetSource(dist1.getTopDataset());
+			link.setDatasetSource(dist1.getTopDatasetID());
 		if(link.getDatasetTarget()==0)
-			link.setDatasetTarget(dist2.getTopDataset());
+			link.setDatasetTarget(dist2.getTopDatasetID());
 		
 		if(link.getDistributionSource()==0)
 			link.setDistributionSource(dist1.getLODVaderID());

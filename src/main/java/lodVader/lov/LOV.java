@@ -1,5 +1,6 @@
 package lodVader.lov;
 
+import java.io.IOException;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -12,9 +13,11 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
+import org.junit.Test;
+import org.openrdf.rio.RDFHandlerException;
+import org.openrdf.rio.RDFParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.junit.Test;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
@@ -30,6 +33,8 @@ import com.hp.hpl.jena.sparql.core.DatasetGraph;
 
 import lodVader.LODVaderProperties;
 import lodVader.TuplePart;
+import lodVader.exceptions.LODVaderFormatNotAcceptedException;
+import lodVader.exceptions.LODVaderLODGeneralException;
 import lodVader.links.similarity.JaccardSimilarity;
 import lodVader.links.similarity.LinkSimilarity;
 import lodVader.links.strength.LinkStrength;
@@ -46,11 +51,11 @@ import lodVader.mongodb.collections.RDFResources.rdfType.RDFTypeObjectDB;
 import lodVader.mongodb.collections.RDFResources.rdfType.RDFTypeObjectRelationDB;
 import lodVader.mongodb.collections.gridFS.ObjectsBucket;
 import lodVader.mongodb.collections.gridFS.SubjectsBucket;
-import lodVader.streaming.Stream;
+import lodVader.streaming.SuperStream;
 import lodVader.utils.FileUtils;
 import lodVader.utils.Timer;
 
-public class LOV extends Stream {
+public class LOV extends SuperStream {
 	final static Logger logger = LoggerFactory.getLogger(LOV.class);
 
 	DistributionDB distribution = null;
@@ -360,23 +365,23 @@ public class LOV extends Stream {
 
 		new AllPredicatesDB().insertSet(allPredicates.keySet());
 		new AllPredicatesRelationDB().insertSet(allPredicates, distribution.getLODVaderID(),
-				distribution.getTopDataset());
+				distribution.getTopDatasetID());
 
 		new RDFTypeObjectDB().insertSet(rdfTypeObjects.keySet());
 		new RDFSubClassOfDB().insertSet(rdfSubClassOf.keySet());
 		// new RDFTypeSubjectDB().insertSet(rdfTypeSubjects.keySet());
 
 		new RDFTypeObjectRelationDB().insertSet(rdfTypeObjects, distribution.getLODVaderID(),
-				distribution.getTopDataset());
+				distribution.getTopDatasetID());
 		new RDFSubClassOfRelationDB().insertSet(rdfSubClassOf, distribution.getLODVaderID(),
-				distribution.getTopDataset());
+				distribution.getTopDatasetID());
 		// new RDFTypeSubjectRelationDB().insertSet(rdfTypeSubjects,
 		// distribution.getDynLodID(), distribution.getTopDataset());
 
 		logger.info("Saving OWL classes...");
 		// Saving OWL classes
 		new OwlClassDB().insertSet(owlClasses.keySet());
-		new OwlClassRelationDB().insertSet(owlClasses, distribution.getLODVaderID(), distribution.getTopDataset());
+		new OwlClassRelationDB().insertSet(owlClasses, distribution.getLODVaderID(), distribution.getTopDatasetID());
 
 		// new OWLClassQueries().insertOWLClasses(owlClasses,
 		// distribution.getDynLodID(), distribution.getTopDataset());
@@ -401,6 +406,13 @@ public class LOV extends Stream {
 		if (map.get(value) != null)
 			n = map.get(value);
 		map.put(value, n + 1);
+	}
+
+	@Override
+	public void streamDistribution() throws IOException, LODVaderLODGeneralException, InterruptedException,
+			RDFHandlerException, RDFParseException, LODVaderFormatNotAcceptedException {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

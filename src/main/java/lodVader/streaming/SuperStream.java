@@ -13,14 +13,17 @@ import java.text.DecimalFormat;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.io.FilenameUtils;
+import org.openrdf.rio.RDFHandlerException;
+import org.openrdf.rio.RDFParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import lodVader.exceptions.LODVaderFormatNotAcceptedException;
 import lodVader.exceptions.LODVaderLODGeneralException;
 
-public class Stream {
+public abstract class SuperStream {
 
-	final static Logger logger = LoggerFactory.getLogger(Stream.class);
+	final static Logger logger = LoggerFactory.getLogger(SuperStream.class);
 
 	// HTTP header fields
 	public String httpDisposition = null;
@@ -40,6 +43,15 @@ public class Stream {
 	public String fileName = null;
 	public String extension = null;
 	public String RDFFormat = null;
+	
+	public String objectFilePath;
+	public String uri;
+
+	public String hashFileName = null;
+	public double contentLengthAfterDownloaded = 0;
+	public Integer subjectLines = 0;
+	public Integer objectLines = 0;
+	public Integer totalTriples;
 
 	HttpURLConnection httpConn = null;
 
@@ -182,6 +194,9 @@ public class Stream {
 	public void setUrl(URL url) {
 		this.url = url;
 	}
+	
+	public abstract void streamDistribution() throws IOException, LODVaderLODGeneralException, InterruptedException,
+	RDFHandlerException, RDFParseException, LODVaderFormatNotAcceptedException;
 
 	/**
 	 * Stream a file. 

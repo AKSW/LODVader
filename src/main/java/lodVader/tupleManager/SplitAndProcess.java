@@ -1,4 +1,4 @@
-package lodVader.threads;
+package lodVader.tupleManager;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -13,52 +13,16 @@ import org.openrdf.rio.helpers.RDFHandlerBase;
 import lodVader.LODVaderProperties;
 import lodVader.utils.Timer;
 
-public class SplitAndStoreThread extends RDFHandlerBase {
+public class SplitAndProcess extends SuperTupleManager {
 
-	final static Logger logger = LoggerFactory.getLogger(SplitAndStoreThread.class);
-
-	private String fileName;
-
-	private boolean doneReadingFile = false;
-
-	ConcurrentLinkedQueue<String> objectQueue = null;
-
-	ConcurrentLinkedQueue<String> subjectQueue = null;
-
-	// ArrayList<String> subjects = new ArrayList<String>();
-	//
-	// ArrayList<String> objects = new ArrayList<String>();
-
-	public Integer subjectLines = 0;
-
-	public Integer objectLines = 0;
-
-	public Integer totalTriplesRead = 0;
-
-	private String lastSubject = "";
-
-	public boolean isChain = true;
-
-	private int bufferSize = 100000;
-
-	private Timer t = new Timer();
-
-	int distributionID;
+	final static Logger logger = LoggerFactory.getLogger(SplitAndProcess.class);
 
 	BufferedWriter subjectFile = null;
 	BufferedWriter objectFile = null;
+	
+	private String lastSubject = "";
 
-	// saving all predicates
-	public HashMap<String, Integer> allPredicates = new HashMap<String, Integer>();
-
-	// saving all rdf type
-	public HashMap<String, Integer> rdfTypeSubjects = new HashMap<String, Integer>();
-	public HashMap<String, Integer> rdfTypeObjects = new HashMap<String, Integer>();
-
-	public HashMap<String, Integer> owlClasses = new HashMap<String, Integer>();
-	public HashMap<String, Integer> rdfSubClassOf = new HashMap<String, Integer>();
-
-	public SplitAndStoreThread(ConcurrentLinkedQueue<String> subjectQueue, ConcurrentLinkedQueue<String> objectQueue,
+	public SplitAndProcess(ConcurrentLinkedQueue<String> subjectQueue, ConcurrentLinkedQueue<String> objectQueue,
 			String fileName, int distributionID) {
 		this.objectQueue = objectQueue;
 		this.subjectQueue = subjectQueue;
@@ -68,7 +32,8 @@ public class SplitAndStoreThread extends RDFHandlerBase {
 		startFiles();
 	}
 
-	private void startFiles() {
+	@Override
+	public void startFiles() {
 		try {
 			if (subjectQueue != null)
 				subjectFile = new BufferedWriter(
@@ -82,7 +47,8 @@ public class SplitAndStoreThread extends RDFHandlerBase {
 		}
 	}
 
-	public void closeQueues() {
+	@Override
+	public void closeFiles() {
 		try {
 			if (objectFile != null)
 				objectFile.close();
@@ -117,13 +83,7 @@ public class SplitAndStoreThread extends RDFHandlerBase {
 		return totalTriplesRead;
 	}
 
-	private void addToMap(HashMap<String, Integer> map, String value) {
-		int n = 0;
-		if (map.get(value) != null)
-			n = map.get(value);
-		map.put(value, n + 1);
-	}
-
+	@Override
 	public void saveStatement(String stSubject, String stPredicate, String stObject) {
 
 		if (stObject.startsWith("<")) {
@@ -189,7 +149,7 @@ public class SplitAndStoreThread extends RDFHandlerBase {
 			}
 			// }
 			while (objectQueue.size() > bufferSize) {
-				Thread.sleep(5);
+				Thread.sleep(5); 
 			}
 			while (subjectQueue.size() > bufferSize) {
 				Thread.sleep(5);

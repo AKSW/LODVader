@@ -3,7 +3,6 @@ package lodVader;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -20,9 +19,11 @@ import lodVader.mongodb.collections.RDFResources.allPredicates.AllPredicatesRela
 import lodVader.mongodb.collections.RDFResources.owlClass.OwlClassRelationDB;
 import lodVader.mongodb.collections.RDFResources.rdfSubClassOf.RDFSubClassOfRelationDB;
 import lodVader.mongodb.collections.RDFResources.rdfType.RDFTypeObjectRelationDB;
-import lodVader.parsers.InputRDFParser;
+import lodVader.parsers.descriptionfileparser.DescriptionFileParser;
 import lodVader.streaming.CheckWhetherToStream;
-import lodVader.streaming.StreamDistribution;
+import lodVader.streaming.StreamAndProcess;
+import lodVader.streaming.StreamAndSaveDump;
+import lodVader.streaming.SuperStream;
 
 public class Manager {
 	final static Logger logger = LoggerFactory.getLogger(Manager.class);
@@ -32,7 +33,7 @@ public class Manager {
 	// list of subset and their distributions
 	public static Queue<DistributionDB> distributionsLinks = new LinkedBlockingQueue<DistributionDB>();
 
-	InputRDFParser fileInputParserModel = new InputRDFParser();
+	DescriptionFileParser fileInputParserModel = new DescriptionFileParser();
 
 	static boolean consumingQueue = false;
 
@@ -53,8 +54,8 @@ public class Manager {
 			}
 
 			// check is distribution need to be streamed
-//			boolean needDownload = checkDistributionStatus(distributionMongoDBObj);
-			boolean needDownload = true;
+			boolean needDownload = checkDistributionStatus(distributionMongoDBObj);
+			// boolean needDownload = true;
 
 			if (!needDownload) {
 				logger.info("Distribution is already in the last version. No needs to stream again. ");
@@ -72,7 +73,12 @@ public class Manager {
 					distributionMongoDBObj.updateObject(true);
 
 					// now we need to download the distribution
-					StreamDistribution streamFile = new StreamDistribution(distributionMongoDBObj);
+					SuperStream streamFile;
+					if(!LODVaderProperties.ONLY_STREAM_DATASETS_AND_SAVE_NT_FORMAT)
+						streamFile = new StreamAndProcess(distributionMongoDBObj);
+					else
+						streamFile = new StreamAndSaveDump(distributionMongoDBObj);
+						
 
 					logger.info("Streaming distribution.");
 
@@ -82,57 +88,43 @@ public class Manager {
 					distributionMongoDBObj.setStatus(DistributionDB.STATUS_STREAMED);
 					distributionMongoDBObj.updateObject(true);
 
-					if (!LODVaderProperties.ONLY_STREAM_DATASETS) {
+					logger.debug("Distribution streamed. ");
 
-						logger.debug("Distribution streamed. ");
+					logger.debug("Saving mongodb \"Distribution\" document.");
 
-						// uptate status of distribution
-						distributionMongoDBObj.setStatus(DistributionDB.STATUS_CREATING_BLOOM_FILTER);
-						distributionMongoDBObj.updateObject(true);
+					distributionMongoDBObj.setNumberOfObjectTriples(String.valueOf(streamFile.objectLines));
+					distributionMongoDBObj.setDownloadUrl(streamFile.url.toString());
+					distributionMongoDBObj.setFormat(streamFile.extension.toString());
+					distributionMongoDBObj.setHttpByteSize(String.valueOf((int) streamFile.httpContentLength));
+					distributionMongoDBObj.setHttpFormat(streamFile.httpContentType);
+					distributionMongoDBObj.setHttpLastModified(streamFile.httpLastModified);
+					distributionMongoDBObj.setObjectPath(streamFile.objectFilePath);
+					distributionMongoDBObj.setTriples(streamFile.totalTriples);
 
-						logger.debug("Creating bloom filter.");
+					distributionMongoDBObj.setSuccessfullyDownloaded(true);
+					distributionMongoDBObj.updateObject(true);
 
-						// createBloomFilters(downloadedFile,
-						// distributionMongoDBObj);
+					logger.debug("Checking Similarity among distributions...");
+					distributionMongoDBObj.setStatus(DistributionDB.STATUS_CREATING_JACCARD_SIMILARITY);
+					distributionMongoDBObj.updateObject(true);
+					// Saving link similarities
 
-						// save distribution in a mongodb object
+					logger.debug("Checking Jaccard Similarities...");
+					// Checking Jaccard Similarities...
+					LinkSimilarity linkSimilarity = new JaccardSimilarity();
+					linkSimilarity.updateLinks(distributionMongoDBObj, new AllPredicatesRelationDB());
+					linkSimilarity.updateLinks(distributionMongoDBObj, new RDFTypeObjectRelationDB());
+					linkSimilarity.updateLinks(distributionMongoDBObj, new RDFSubClassOfRelationDB());
+					linkSimilarity.updateLinks(distributionMongoDBObj, new OwlClassRelationDB());
 
-						logger.debug("Saving mongodb \"Distribution\" document.");
+					logger.debug("Updating link strength among distributions...");
+					distributionMongoDBObj.setStatus(DistributionDB.STATUS_UPDATING_LINK_STRENGTH);
+					distributionMongoDBObj.updateObject(true);
+					// Saving link similarities
+					// LinkStrength linkStrength = new LinkStrength();
+					// linkStrength.updateLinks(distributionMongoDBObj);
 
-						distributionMongoDBObj.setNumberOfObjectTriples(String.valueOf(streamFile.objectLines));
-						distributionMongoDBObj.setDownloadUrl(streamFile.url.toString());
-						distributionMongoDBObj.setFormat(streamFile.extension.toString());
-						distributionMongoDBObj.setHttpByteSize(String.valueOf((int) streamFile.httpContentLength));
-						distributionMongoDBObj.setHttpFormat(streamFile.httpContentType);
-						distributionMongoDBObj.setHttpLastModified(streamFile.httpLastModified);
-						distributionMongoDBObj.setObjectPath(streamFile.objectFilePath);
-						distributionMongoDBObj.setTriples(streamFile.totalTriples);
-
-						distributionMongoDBObj.setSuccessfullyDownloaded(true);
-						distributionMongoDBObj.updateObject(true);
-
-						logger.debug("Checking Similarity among distributions...");
-						distributionMongoDBObj.setStatus(DistributionDB.STATUS_CREATING_JACCARD_SIMILARITY);
-						distributionMongoDBObj.updateObject(true);
-						// Saving link similarities
-
-						logger.debug("Checking Jaccard Similarities...");
-						// Checking Jaccard Similarities...
-						LinkSimilarity linkSimilarity = new JaccardSimilarity();
-						linkSimilarity.updateLinks(distributionMongoDBObj, new AllPredicatesRelationDB());
-						linkSimilarity.updateLinks(distributionMongoDBObj, new RDFTypeObjectRelationDB());
-						linkSimilarity.updateLinks(distributionMongoDBObj, new RDFSubClassOfRelationDB());
-						linkSimilarity.updateLinks(distributionMongoDBObj, new OwlClassRelationDB());
-
-						logger.debug("Updating link strength among distributions...");
-						distributionMongoDBObj.setStatus(DistributionDB.STATUS_UPDATING_LINK_STRENGTH);
-						distributionMongoDBObj.updateObject(true);
-						// Saving link similarities
-						// LinkStrength linkStrength = new LinkStrength();
-						// linkStrength.updateLinks(distributionMongoDBObj);
-
-						logger.debug("Done streaming mongodb distribution object.");
-					}
+					logger.debug("Done streaming mongodb distribution object.");
 
 					// uptate status of distribution
 					distributionMongoDBObj.setStatus(DistributionDB.STATUS_DONE);
@@ -145,7 +137,7 @@ public class Manager {
 
 					distributionMongoDBObj.updateObject(true);
 
-					logger.info("Distribution "+distributionMongoDBObj.getDownloadUrl()+" processed! ");
+					logger.info("Distribution " + distributionMongoDBObj.getDownloadUrl() + " processed! ");
 
 				} catch (Exception e) {
 					// uptate status of distribution
@@ -164,12 +156,12 @@ public class Manager {
 	}
 
 	public Manager(List<DistributionDB> distributionsLinksToBeAdded) {
-		checkLOV();
+		if (LODVaderProperties.CHECK_LOV)
+			checkLOV();
 		try {
 			for (DistributionDB dist : distributionsLinksToBeAdded) {
 				distributionsLinks.add(dist);
-				logger.info("Adding new distribution to the queue: "+dist.getDownloadUrl());
-
+				logger.info("Adding new distribution to the queue: " + dist.getDownloadUrl());
 			}
 			if (!consumingQueue) {
 				streamAndCreateFilters();

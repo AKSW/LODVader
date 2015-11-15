@@ -132,8 +132,8 @@ abstract public class DBSuperClass {
 	public static DB getInstance() {
 		try {
 			if (mongo == null) {
-				LODVaderProperties p = new LODVaderProperties();
-				p.loadProperties();
+				if(LODVaderProperties.MONGODB_DB == null)
+					new LODVaderProperties().loadProperties();
 				if (LODVaderProperties.MONGODB_SECURE_MODE) {
 					MongoCredential credential = MongoCredential
 							.createMongoCRCredential(
@@ -202,9 +202,11 @@ abstract public class DBSuperClass {
 	
 	public boolean remove(){
 		DBCursor d = objectCollection.find(mongoDBObject); 
-		if(d.hasNext())
+		if(d.hasNext()){
 			objectCollection.remove(d.next());
-		return true;
+			return true;
+		}
+		return false;
 	}
 
 	protected DBObject search() {

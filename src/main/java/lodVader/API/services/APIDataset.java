@@ -10,7 +10,7 @@ import lodVader.API.core.APITasks;
 import lodVader.exceptions.LODVaderFormatNotAcceptedException;
 import lodVader.exceptions.LODVaderLODGeneralException;
 import lodVader.exceptions.LODVaderNoDatasetFoundException;
-import lodVader.parsers.InputRDFParser;
+import lodVader.parsers.descriptionfileparser.DescriptionFileParser;
 
 public class APIDataset extends API {
 
@@ -24,7 +24,7 @@ public class APIDataset extends API {
 
 	public void addDatasets() {
 
-		InputRDFParser inputRDFParser = new InputRDFParser();
+		DescriptionFileParser inputRDFParser = new DescriptionFileParser();
 		try {
 			apiMessage.setCoreMsgSuccess();
 
@@ -41,10 +41,6 @@ public class APIDataset extends API {
 				Manager m = new Manager(inputRDFParser.distributionsLinks);
 			} else {
 				apiMessage.setParserMsg("No datasets found.");
-
-//				APIStatusMongoDBObject apiStatus = new APIStatusMongoDBObject(
-//						datasetURI);
-//				apiStatus.setMessage("We didn't find any distributions!");
 
 			}
 		} catch (LODVaderNoDatasetFoundException e) {

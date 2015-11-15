@@ -150,8 +150,6 @@ public class LODVaderProperties {
 	public static String TYPE_PROPERTY = "property";
 	public static String TYPE_OBJECT = "object";
 	
-//	public static int CHUNK_SIZE = 10000;
-//	public static int MAX_CHUNK_SIZE = 54480;
 	public static int MAX_CHUNK_SIZE = 200000;
 	
 	public static int TOP_N_LINKS = 200;
@@ -160,7 +158,9 @@ public class LODVaderProperties {
 	
 	public static int CHECK_LINKS_EACH = 10000;
 	
-	public static boolean ONLY_STREAM_DATASETS = false;
+	public static boolean CHECK_LOV = true;
+
+	public static boolean ONLY_STREAM_DATASETS_AND_SAVE_NT_FORMAT = false;
 
 	public static String VERSION = "v1.0";
 

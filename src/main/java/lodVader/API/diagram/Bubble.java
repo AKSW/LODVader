@@ -68,7 +68,7 @@ public class Bubble {
 		if (source instanceof DistributionDB) {
 
 			DistributionDB tmp = (DistributionDB) source;
-			this.group = tmp.getTopDataset();
+			this.group = tmp.getTopDatasetID();
 			this.isVocab = tmp.getIsVocabulary();
 			if (tmp.getTitle() != null && !tmp.getTitle().equals(""))
 				setText(tmp.getTitle());

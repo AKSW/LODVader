@@ -24,12 +24,12 @@ public class IndexesCreator {
 	public void createIndexes(){
 		
 		// indexes for DistributionObjectDomainsMongoDBObject
-		addIndex(DistributionObjectNSDB.COLLECTION_NAME, DistributionObjectNSDB.DISTRIBUTION_ID, 1);
-		addIndex(DistributionObjectNSDB.COLLECTION_NAME, DistributionObjectNSDB.OBJECT_NS, 1);
+		addIndex(DistributionObjectNSDB.COLLECTION_NAME, DistributionObjectNSDB.DISTRIBUTION_ID, 1); 
+		addIndex(DistributionObjectNSDB.COLLECTION_NAME, DistributionObjectNSDB.NS, 1);
 		
 		// indexes for DistributionSubjectDomainsMongoDBObject
 		addIndex(DistributionSubjectNSDB.COLLECTION_NAME, DistributionSubjectNSDB.DISTRIBUTION_ID, 1);
-		addIndex(DistributionSubjectNSDB.COLLECTION_NAME, DistributionSubjectNSDB.SUBJECT_NS, 1);
+		addIndex(DistributionSubjectNSDB.COLLECTION_NAME, DistributionSubjectNSDB.NS, 1); 
 		
 		// indexes for datasets
 		addIndex(DatasetDB.COLLECTION_NAME, DatasetDB.PARENT_DATASETS, 1);
@@ -81,9 +81,9 @@ public class IndexesCreator {
 		addIndex(OwlClassRelationDB.COLLECTION_NAME, OwlClassRelationDB.DATASET_ID, 1);
 		
 		addIndex(DistributionSubjectNS0DB.COLLECTION_NAME, DistributionSubjectNS0DB.DISTRIBUTION_ID, 1);
-		addIndex(DistributionSubjectNS0DB.COLLECTION_NAME, DistributionSubjectNS0DB.SUBJECT_NS0, 1);
-		
-		addIndex(DistributionObjectNS0DB.COLLECTION_NAME, DistributionObjectNS0DB.OBJECT_NS0, 1);
+		addIndex(DistributionSubjectNS0DB.COLLECTION_NAME, DistributionSubjectNS0DB.NS, 1);
+		 
+		addIndex(DistributionObjectNS0DB.COLLECTION_NAME, DistributionObjectNS0DB.NS, 1);
 		addIndex(DistributionObjectNS0DB.COLLECTION_NAME, DistributionObjectNS0DB.DISTRIBUTION_ID, 1);
 		
 		addIndex(TopInvalidLinks.COLLECTION_NAME, TopInvalidLinks.SOURCE_DISTRIBUTION_ID, 1);

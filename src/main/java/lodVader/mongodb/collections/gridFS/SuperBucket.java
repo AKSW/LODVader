@@ -67,7 +67,6 @@ public class SuperBucket {
 	public void makeBucket(){
 		
 		// first we have to remove the old BFs for this distribution
-		
 		removeBFs(distributionID);
 		
 		// chunk
@@ -76,13 +75,11 @@ public class SuperBucket {
 		// take the chunks of chunkSize resources
 		for(String resource: resources){
 			chunk.add(resource);
-			
 			if(chunk.size() == chunkSize){
 				saveChunk((ArrayList<String>) chunk.clone());
 				chunk = new ArrayList<String>();
 			}
 		}
-		
 		if(chunk.size()>0)
 			saveChunk((ArrayList<String>) chunk.clone());
 	}

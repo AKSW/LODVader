@@ -193,6 +193,8 @@ public class DistributionDB extends ResourceDB {
 			mongoDBObject.put(LOD_VADER_ID, lodVaderID);
 
 			insert(checkBeforeInsert);
+			
+			return true;
 
 		} catch (Exception e2) {
 			// e2.printStackTrace();
@@ -206,7 +208,6 @@ public class DistributionDB extends ResourceDB {
 				return false;
 			}
 		}
-		return false;
 	}
 
 	protected void loadObject(int id) {
@@ -282,7 +283,7 @@ public class DistributionDB extends ResourceDB {
 		this.httpByteSize = httpByteSize;
 	}
 
-	public int getTopDataset() {
+	public int getTopDatasetID() {
 		return topDataset;
 	}
 

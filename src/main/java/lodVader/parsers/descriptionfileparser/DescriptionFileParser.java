@@ -1,4 +1,4 @@
-package lodVader.parsers;
+package lodVader.parsers.descriptionfileparser;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -38,9 +38,9 @@ import lodVader.utils.Formats;
  * @author ciro
  * parser for DataID, VoID and DCAT files
  */
-public class InputRDFParser {
+public class DescriptionFileParser {
 
-	final static Logger logger = LoggerFactory.getLogger(InputRDFParser.class);
+	final static Logger logger = LoggerFactory.getLogger(DescriptionFileParser.class);
 
 	private Model inModel = ModelFactory.createDefaultModel();
 	public List<DistributionDB> distributionsLinks = new ArrayList<DistributionDB>();

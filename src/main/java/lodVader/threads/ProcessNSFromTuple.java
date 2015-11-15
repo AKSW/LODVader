@@ -9,12 +9,11 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.bson.types.ObjectId;
 
 import lodVader.LODVaderProperties;
 import lodVader.TuplePart;
 import lodVader.bloomfilters.GoogleBloomFilter;
-import lodVader.exceptions.LODVaderLODGeneralException;
+import lodVader.exceptions.LODVaderMissingPropertiesException;
 import lodVader.linksets.DistributionFilter;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.LinksetDB;
@@ -68,7 +67,7 @@ public class ProcessNSFromTuple extends Thread {
 	// resource, NS
 	protected HashMap<String, String> resourcesToBeProcessedQueue = new HashMap<String, String>();
 	public DistributionDB distribution;
-	protected ConcurrentHashMap<Integer, DataModelThread> listOfWorkerThreads = new ConcurrentHashMap<Integer, DataModelThread>();
+	protected ConcurrentHashMap<Integer, DistributionDataSlaveThread> listOfWorkerThreads = new ConcurrentHashMap<Integer, DistributionDataSlaveThread>();
 	public ConcurrentHashMap<String, Integer> listLoadedNS = new ConcurrentHashMap<String, Integer>();
 	public ConcurrentHashMap<String, Integer> listLoadedNS0 = new ConcurrentHashMap<String, Integer>();
 
@@ -76,9 +75,6 @@ public class ProcessNSFromTuple extends Thread {
 	private ConcurrentHashMap<String, Integer> countTotalNS0 = null;
 
 	int numberOfReadedTriples = 0;
-
-	// int saveDomainsEach = 30000;
-	int makeLinksEach = LODVaderProperties.CHECK_LINKS_EACH;
 
 	public HashMap<Integer, Thread> threads = new HashMap<Integer, Thread>();
 
@@ -115,7 +111,7 @@ public class ProcessNSFromTuple extends Thread {
 			} catch (InterruptedException e1) {
 				e1.printStackTrace();
 			}
-			if (tuplePart.equals(LODVaderProperties.TYPE_OBJECT))
+			if (tuplePart.equals(LODVaderProperties.TYPE_OBJECT)){
 				while (resourceQueue.size() > 0) {
 					resource = resourceQueue.remove();
 					ns = nsUtils.getNSFromString(resource);
@@ -137,7 +133,7 @@ public class ProcessNSFromTuple extends Thread {
 							localNS.add(ns);
 							localNS0.add(ns0);
 							numberOfReadedTriples++;
-							if (numberOfReadedTriples % makeLinksEach == 0) {
+							if (numberOfReadedTriples % LODVaderProperties.CHECK_LINKS_EACH == 0) {
 								// if(tuplePart.equals(TuplePart.OBJECT))
 								try {
 									makeLinks();
@@ -149,8 +145,8 @@ public class ProcessNSFromTuple extends Thread {
 					}
 
 				}
-
-			else
+			}
+			else{
 				while (resourceQueue.size() > 0) {
 					resource = resourceQueue.remove();
 					ns = nsUtils.getNSFromString(resource);
@@ -171,7 +167,7 @@ public class ProcessNSFromTuple extends Thread {
 							localNS0.add(ns0);
 							numberOfReadedTriples++;
 
-							if (numberOfReadedTriples % makeLinksEach == 0) {
+							if (numberOfReadedTriples % LODVaderProperties.CHECK_LINKS_EACH == 0) {
 								// if(tuplePart.equals(TuplePart.OBJECT))
 								try {
 									makeLinks();
@@ -182,7 +178,7 @@ public class ProcessNSFromTuple extends Thread {
 						}
 					}
 				}
-
+			}
 		}
 
 		logger.info("Waiting all threads finish their jobs...");
@@ -208,13 +204,13 @@ public class ProcessNSFromTuple extends Thread {
 		saveNSs();
 		logger.debug("Time: " + t.stopTimer());
 
-		listOfWorkerThreads = new ConcurrentHashMap<Integer, DataModelThread>();
+		listOfWorkerThreads = new ConcurrentHashMap<Integer, DistributionDataSlaveThread>();
 
 		logger.debug("Ending GetDomainsFromTriplesThread class.");
 	}
 
 	private void saveLinks() {
-		for (DataModelThread dataThread : listOfWorkerThreads.values()) {
+		for (DistributionDataSlaveThread dataThread : listOfWorkerThreads.values()) {
 			logger.debug("Saving links for "+dataThread.targetDistributionTitle);
 			LinksetDB l;
 			
@@ -281,29 +277,27 @@ public class ProcessNSFromTuple extends Thread {
 
 	private boolean saveNSs() {
 		logger.debug("Saving NS0...");
-		ObjectId id = new ObjectId();
-
 		if (tuplePart.equals(TuplePart.SUBJECT)) {
 			for (String s : countTotalNS0.keySet()) {
-				id = new ObjectId();
-				DistributionSubjectNS0DB d = new DistributionSubjectNS0DB(id.get().toString());
+				DistributionSubjectNS0DB d = new DistributionSubjectNS0DB();
 				try {
 					d.setDistributionID(distribution.getLODVaderID());
-					d.setSubjectNS0(s);
+					d.setDatasetID(distribution.getTopDatasetID());
+					d.setNS(s);
 					d.updateObject(true);
-				} catch (LODVaderLODGeneralException e) {
+				} catch (LODVaderMissingPropertiesException e) {
 					e.printStackTrace();
 				}
 			}
 		} else {
 			for (String s : countTotalNS0.keySet()) {
-				id = new ObjectId();
-				DistributionObjectNS0DB d = new DistributionObjectNS0DB(id.get().toString());
+				DistributionObjectNS0DB d = new DistributionObjectNS0DB();
 				try {
 					d.setDistributionID(distribution.getLODVaderID());
-					d.setObjectNS0(s);
+					d.setNS(s);
+					d.setDatasetID(distribution.getTopDatasetID());
 					d.updateObject(true);
-				} catch (LODVaderLODGeneralException e) {
+				} catch (LODVaderMissingPropertiesException e) {
 					e.printStackTrace();
 				}
 			}
@@ -325,37 +319,36 @@ public class ProcessNSFromTuple extends Thread {
 			// distributionMongoDBObj.addAuthorityObjects(d);
 
 			if (count > threshold) {
-				id = new ObjectId();
 				if (tuplePart.equals(TuplePart.SUBJECT)) {
-					DistributionSubjectNSDB d2 = new DistributionSubjectNSDB(id.get().toString());
-					d2.setSubjectNS(d);
+					DistributionSubjectNSDB d2 = new DistributionSubjectNSDB();
+					d2.setNS(d);
+					d2.setDatasetID(distributionMongoDBObject.getTopDatasetID());
 					d2.setDistributionID(distributionMongoDBObject.getLODVaderID());
 					d2.setNumberOfResources(count);
 
 					try {
 						d2.updateObject(true);
 
-					} catch (LODVaderLODGeneralException e) {
+					} catch (LODVaderMissingPropertiesException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				} else {
 
 					DistributionObjectNSDB d2 = null;
-					d2 = new DistributionObjectNSDB(id.get().toString());
-					d2.setObjectNS(d);
+					d2 = new DistributionObjectNSDB();
+					d2.setNS(d);
 					d2.setNumberOfResources(count);
+					d2.setDatasetID(distributionMongoDBObject.getTopDatasetID());
 					d2.setDistributionID(distributionMongoDBObject.getLODVaderID());
 
 					try {
 						d2.updateObject(true);
-					} catch (LODVaderLODGeneralException e) {
+					} catch (LODVaderMissingPropertiesException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-
 				}
-
 			}
 		}
 

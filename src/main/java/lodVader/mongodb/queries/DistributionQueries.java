@@ -3,13 +3,11 @@ package lodVader.mongodb.queries;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.junit.Test;
 
 import com.mongodb.AggregationOptions;
 import com.mongodb.AggregationOutput;
@@ -19,7 +17,6 @@ import com.mongodb.Cursor;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
-import com.mongodb.DBRefBase;
 
 import lodVader.LODVaderProperties;
 import lodVader.LoadedBloomFiltersCache;
@@ -50,8 +47,7 @@ public class DistributionQueries {
 		try {
 
 			// query all NS
-			BasicDBObject query = new BasicDBObject(DistributionSubjectNS0DB.SUBJECT_NS0,
-					new BasicDBObject("$in", nsToSearch));
+			BasicDBObject query = new BasicDBObject(DistributionSubjectNS0DB.NS, new BasicDBObject("$in", nsToSearch));
 
 			DBCollection collection = DBSuperClass.getInstance()
 					.getCollection(DistributionSubjectNS0DB.COLLECTION_NAME);
@@ -83,10 +79,10 @@ public class DistributionQueries {
 		if (resourceType.equals(LODVaderProperties.TYPE_SUBJECT)) {
 			DBCollection collection = DBSuperClass.getInstance()
 					.getCollection(DistributionSubjectNS0DB.COLLECTION_NAME);
-			cursor = collection.distinct(DistributionSubjectNS0DB.SUBJECT_NS0);
+			cursor = collection.distinct(DistributionSubjectNS0DB.NS);
 		} else {
 			DBCollection collection = DBSuperClass.getInstance().getCollection(DistributionObjectNS0DB.COLLECTION_NAME);
-			cursor = collection.distinct(DistributionObjectNS0DB.OBJECT_NS0);
+			cursor = collection.distinct(DistributionObjectNS0DB.NS);
 		}
 		int size = cursor.size();
 		if (size < 5000)
@@ -99,23 +95,13 @@ public class DistributionQueries {
 		return g;
 	}
 
-//	@Test
-//	public void getDescribedNS() {
-		 public GoogleBloomFilter getDescribedNS(String resourceType){
-		// if(resourceType.equals(LODVaderProperties.TYPE_SUBJECT)){
-		// DBCollection collection = DBSuperClass.getInstance()
-		// .getCollection(DistributionSubjectNSDB.COLLECTION_NAME);
-		// cursor = collection.distinct(DistributionSubjectNSDB.SUBJECT_NS);
-		// }
-		// else{
-//		String resourceType = LODVaderProperties.TYPE_OBJECT;
-
+	public GoogleBloomFilter getDescribedNS(String resourceType) {
 		DBObject groupIdFields = null;
 
 		if (resourceType.equals(LODVaderProperties.TYPE_OBJECT))
-			groupIdFields = new BasicDBObject("_id", "$" + DistributionObjectNSDB.OBJECT_NS);
+			groupIdFields = new BasicDBObject("_id", "$" + DistributionObjectNSDB.NS);
 		else if (resourceType.equals(LODVaderProperties.TYPE_SUBJECT))
-			groupIdFields = new BasicDBObject("_id", "$" + DistributionSubjectNSDB.SUBJECT_NS);
+			groupIdFields = new BasicDBObject("_id", "$" + DistributionSubjectNSDB.NS);
 
 		// groupIdFields.put("count", new BasicDBObject("$sum", 1));
 		DBObject group = new BasicDBObject("$group", groupIdFields);
@@ -123,9 +109,9 @@ public class DistributionQueries {
 		DBObject projectFields = new BasicDBObject("_id", 0);
 
 		if (resourceType.equals(LODVaderProperties.TYPE_OBJECT))
-			projectFields.put(DistributionObjectNSDB.OBJECT_NS, "$_id");
+			projectFields.put(DistributionObjectNSDB.NS, "$_id");
 		else if (resourceType.equals(LODVaderProperties.TYPE_SUBJECT))
-			projectFields.put(DistributionSubjectNSDB.SUBJECT_NS, "$_id");
+			projectFields.put(DistributionSubjectNSDB.NS, "$_id");
 
 		// projectFields.put("count", new BasicDBObject("$sum", 1));
 		DBObject project = new BasicDBObject("$project", projectFields);
@@ -148,10 +134,9 @@ public class DistributionQueries {
 			Cursor aggregate = collection.aggregate(ag, options);
 			while (aggregate.hasNext()) {
 				DBObject d = aggregate.next();
-				g.add(d.get(DistributionObjectNSDB.OBJECT_NS).toString());
+				g.add(d.get(DistributionObjectNSDB.NS).toString());
 			}
-		}
-		else if (resourceType.equals(LODVaderProperties.TYPE_SUBJECT)) {
+		} else if (resourceType.equals(LODVaderProperties.TYPE_SUBJECT)) {
 
 			DBCollection collection = DBSuperClass.getInstance().getCollection(DistributionSubjectNSDB.COLLECTION_NAME);
 
@@ -160,29 +145,11 @@ public class DistributionQueries {
 			Cursor aggregate = collection.aggregate(ag, options);
 			while (aggregate.hasNext()) {
 				DBObject d = aggregate.next();
-				g.add(d.get(DistributionSubjectNSDB.SUBJECT_NS).toString());
+				g.add(d.get(DistributionSubjectNSDB.NS).toString());
 			}
 		}
-		
 
-//		if (resourceType.equals(LODVaderProperties.TYPE_SUBJECT))
-//			while (aggregate.hasNext()) {
-//				DBObject d = aggregate.next();
-//				System.out.println(d.get(DistributionSubjectNSDB.SUBJECT_NS));
-//			}
-
-		// for(DBObject b:aggregate.g){
-		// System.out.println(b.get(DistributionObjectNSDB.OBJECT_NS));
-		// }
-
-		// }
-		// int size = cursor.size();
-		// if(size<5000) size = 5000;
-		//
-		// for(String s: cursor){
-		// g.add(s);
-		// }
-		 return g;
+		return g;
 	}
 
 	public ArrayList<DistributionDB> getDistributionsByIndegree(ArrayList<String> fqdnToSearch,
@@ -194,8 +161,7 @@ public class DistributionQueries {
 			// BasicDBObject query = new
 			// BasicDBObject(DistributionObjectNSDB.OBJECT_NS,
 			// new BasicDBObject("$in", fqdnToSearch));
-			BasicDBObject query = new BasicDBObject(DistributionObjectNS0DB.OBJECT_NS0,
-					new BasicDBObject("$in", fqdnToSearch));
+			BasicDBObject query = new BasicDBObject(DistributionObjectNS0DB.NS, new BasicDBObject("$in", fqdnToSearch));
 
 			DBCollection collection = DBSuperClass.getInstance().getCollection(DistributionObjectNS0DB.COLLECTION_NAME);
 
@@ -345,22 +311,20 @@ public class DistributionQueries {
 				and.add(new BasicDBObject(DistributionDB.IS_VOCABULARY, false));
 				query = new BasicDBObject("$and", and);
 			}
-			
+
 			if (searchStatus == 0) {
 				BasicDBList and = new BasicDBList();
 				if (query != null)
 					and.add(query);
 				and.add(new BasicDBObject(DistributionDB.STATUS, DistributionDB.STATUS_DONE));
 				query = new BasicDBObject("$and", and);
-			}
-			else if (searchStatus == 1) {
+			} else if (searchStatus == 1) {
 				BasicDBList and = new BasicDBList();
 				if (query != null)
 					and.add(query);
 				and.add(new BasicDBObject(DistributionDB.STATUS, DistributionDB.STATUS_WAITING_TO_STREAM));
 				query = new BasicDBObject("$and", and);
-			}
-			else if (searchStatus == 2) {
+			} else if (searchStatus == 2) {
 				BasicDBList and = new BasicDBList();
 				if (query != null)
 					and.add(query);
@@ -461,10 +425,10 @@ public class DistributionQueries {
 			DBCollection collection = DBSuperClass.getInstance().getCollection(DistributionSubjectNSDB.COLLECTION_NAME);
 
 			DBObject query;
-			query = new BasicDBObject(DistributionSubjectNSDB.SUBJECT_NS, ns);
+			query = new BasicDBObject(DistributionSubjectNSDB.NS, ns);
 
 			DBCursor instances = collection.find(query);
-			
+
 			ArrayList<LoadedBloomFiltersCache> cache = new ArrayList<LoadedBloomFiltersCache>();
 
 			for (DBObject instance : instances) {
@@ -474,7 +438,7 @@ public class DistributionQueries {
 				l.start();
 				cache.add(l);
 			}
-			for(LoadedBloomFiltersCache l : cache){
+			for (LoadedBloomFiltersCache l : cache) {
 				try {
 					l.join();
 				} catch (InterruptedException e) {
@@ -482,12 +446,11 @@ public class DistributionQueries {
 					e.printStackTrace();
 				}
 			}
-			
-			for(LoadedBloomFiltersCache l : cache)
-			{
+
+			for (LoadedBloomFiltersCache l : cache) {
 				if (l.found)
 					setOfDistributionNS.add(l.distribution);
-				
+
 			}
 		}
 
@@ -495,7 +458,7 @@ public class DistributionQueries {
 			DBCollection collection = DBSuperClass.getInstance().getCollection(DistributionObjectNSDB.COLLECTION_NAME);
 
 			DBObject query;
-			query = new BasicDBObject(DistributionObjectNSDB.OBJECT_NS, ns);
+			query = new BasicDBObject(DistributionObjectNSDB.NS, ns);
 
 			DBCursor instances = collection.find(query);
 
@@ -508,19 +471,18 @@ public class DistributionQueries {
 				l.start();
 				cache.add(l);
 			}
-			for(LoadedBloomFiltersCache l : cache){
+			for (LoadedBloomFiltersCache l : cache) {
 				try {
 					l.join();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 			}
-			
-			for(LoadedBloomFiltersCache l : cache)
-			{
+
+			for (LoadedBloomFiltersCache l : cache) {
 				if (l.found)
 					setOfDistributionNS.add(l.distribution);
-				
+
 			}
 		}
 

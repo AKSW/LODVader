@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import lodVader.TuplePart;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.queries.DistributionQueries;
-import lodVader.threads.DataModelThread;
+import lodVader.threads.DistributionDataSlaveThread;
 import lodVader.threads.JobThread;
 import lodVader.threads.ProcessNSFromTuple;
 import lodVader.utils.NSUtils;
@@ -87,7 +87,7 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 								// check if distributions had already been
 								// compared
 								if (!(distributionToCompare.getLODVaderID() == distribution.getLODVaderID())) {
-									DataModelThread workerThread = new DataModelThread(distribution,
+									DistributionDataSlaveThread workerThread = new DistributionDataSlaveThread(distribution,
 											distributionToCompare,
 											distributionFilter.get(distributionToCompare.getLODVaderID()), tuplePart);
 									if (workerThread.datasetID != 0) {
@@ -170,7 +170,7 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 //						System.out.println(numberOfOpenThreads);
 						
 						// for (Integer in : listOfWorkerThreads.keySet())
-						for (DataModelThread dataThread : listOfWorkerThreads.values()) {
+						for (DistributionDataSlaveThread dataThread : listOfWorkerThreads.values()) {
 							if (dataThread.targetDistributionID != distribution.getLODVaderID())
 								if (dataThread.active) {
 									if (threads[threadIndex] == null) { 
@@ -199,7 +199,7 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 					}
 
 					// save linksets into mongodb
-					for (DataModelThread dataThread : listOfWorkerThreads.values()) {
+					for (DistributionDataSlaveThread dataThread : listOfWorkerThreads.values()) {
 						dataThread.active = false;
 					}				
 				}				

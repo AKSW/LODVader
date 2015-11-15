@@ -12,7 +12,7 @@ import lodVader.TuplePart;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.LinksetDB;
 import lodVader.mongodb.queries.DistributionQueries;
-import lodVader.threads.DataModelThread;
+import lodVader.threads.DistributionDataSlaveThread;
 import lodVader.threads.ProcessNSFromTuple;
 import lodVader.threads.JobThread;
 

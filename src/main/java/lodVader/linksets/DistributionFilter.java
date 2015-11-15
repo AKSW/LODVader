@@ -121,7 +121,7 @@ public class DistributionFilter {
 		filterSubjectsNS = new GoogleBloomFilter(cursor.size(),0.0000001);
 		
 		while (cursor.hasNext()) {
-			resource = cursor.next().get(DistributionSubjectNSDB.SUBJECT_NS).toString();
+			resource = cursor.next().get(DistributionSubjectNSDB.NS).toString();
 			subjectsNS.add(resource);
 			filterSubjectsNS.add(resource);
 		}
@@ -136,11 +136,11 @@ public class DistributionFilter {
 		HashSet<String> objectsNS = new HashSet<String>();
 		filterObjectsNS = new GoogleBloomFilter(cursor.size(),0.0000001);
 		while (cursor.hasNext()) {
-			resource = cursor.next().get(DistributionObjectNSDB.OBJECT_NS).toString();
+			resource = cursor.next().get(DistributionObjectNSDB.NS).toString();
 			objectsNS.add(resource);
 			filterObjectsNS.add(resource);
 		}
-
+ 
 		addObjectsNS(objectsNS);
 		addSubjectsNS(subjectsNS);
 //		System.out.println("o "+objectsNS.size());
