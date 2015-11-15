@@ -4,7 +4,7 @@
 
 	<groupId>LODVader</groupId>
 	<artifactId>LODVader</artifactId>
-	<version>0.0.2-SNAPSHOT</version>
+	<version>1.0.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>LODVader</name>
@@ -52,21 +52,17 @@
 			<version>2.12.0</version>
 		</dependency>
 
-<dependency>
-	<groupId>org.mongodb</groupId>
-	<artifactId>mongo-java-driver</artifactId>
-	<version>2.13.2</version>
-</dependency>
-
-
-
+		<dependency>
+			<groupId>org.mongodb</groupId>
+			<artifactId>mongo-java-driver</artifactId>
+			<version>2.13.2</version>
+		</dependency>
 
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.4</version>
+			<version>4.12</version>
 		</dependency>
-
 
 		<dependency>
 			<groupId>log4j</groupId>
@@ -146,7 +142,6 @@
 
 	<build>
 		<plugins>
-
 			<plugin>
 				<groupId>org.mortbay.jetty</groupId>
 				<artifactId>jetty-maven-plugin</artifactId>
@@ -164,6 +159,14 @@
 							<requestBufferSize>209734152</requestBufferSize>
 						</connector>
 					</connectors>
+
+					<systemProperties>
+						<systemProperty>
+							<name>log4j.configuration</name>
+							<value>file:./src/main/java/log4j.properties</value>
+						</systemProperty>
+					</systemProperties>
+
 				</configuration>
 			</plugin>
 			<plugin>
@@ -192,8 +195,6 @@
 				<configuration>
 					<source>1.7</source>
 					<target>1.7</target>
-					<debug>true</debug>
-					<debuglevel>lines,vars,source</debuglevel>
 					<compilerArgument></compilerArgument>
 				</configuration>
 			</plugin>
