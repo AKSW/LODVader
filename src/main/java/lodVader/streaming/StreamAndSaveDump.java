@@ -234,7 +234,7 @@ public class StreamAndSaveDump extends SuperStream {
 
 		logger.debug("Saving predicates NS ...");
 		
-		String typeFileName = filePath + ".type";
+		String typeFileName = filePath + ".ns";
 		BufferedWriter b = new BufferedWriter(new FileWriter(new File(typeFileName)));
 		for(String predicate:splitThread.allPredicates.keySet()){
 			b.write(predicate+ "\n");
