@@ -56,6 +56,12 @@ public class SplitAndStoreNT extends SuperTupleManager {
 	@Override
 	public void saveStatement(String stSubject, String stPredicate, String stObject) {
 
+		addToMap(allPredicates,  nsUtils.getNSFromString(stPredicate));
+		
+		if (stPredicate.equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")) {
+			addToMap(rdfTypeObjects, nsUtils.getNSFromString(stObject));
+		}
+		
 		if (stSubject.startsWith("http")) {
 			stSubject = "<" + stSubject + ">";
 		}
@@ -65,18 +71,7 @@ public class SplitAndStoreNT extends SuperTupleManager {
 		if (stObject.startsWith("http")) {
 			stObject = "<" + stObject + ">";
 		}
-		
-		addToMap(allPredicates,  nsUtils.getNSFromString(stPredicate));
 
-//		if (stObject.equals("<http://www.w3.org/2002/07/owl#Class>")) {
-//			addToMap(owlClasses, stSubject);
-//		} else if (stPredicate.equals("<http://www.w3.org/2000/01/rdf-schema#subClassOf>")) {
-//			addToMap(rdfSubClassOf, stObject);
-//		} else 
-		
-		if (stPredicate.equals("<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>")) {
-			addToMap(rdfTypeObjects, nsUtils.getNSFromString(stObject));
-		}
 
 		try {
 
