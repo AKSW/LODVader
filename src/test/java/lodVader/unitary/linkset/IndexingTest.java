@@ -31,7 +31,6 @@ public class IndexingTest {
 		new LODVaderProperties().loadProperties();
 		FileUtils.checkIfFolderExists();
 		LODVaderProperties.MONGODB_DB = LODVaderProperties.MONGODB_DB + "Test";
-		DBSuperClass.getInstance().dropDatabase();
 
 		for (int i = 0; i < 10; i++) {
 			DatasetDB dataset = new DatasetDB("http://lodvader.aksw.org/" + i);
@@ -106,7 +105,7 @@ public class IndexingTest {
 
 	@Test
 	public void testZRemoveDatabase() {
-		// DBSuperClass.getInstance().dropDatabase();
+		 DBSuperClass.getInstance().dropDatabase();
 	}
 
 }
