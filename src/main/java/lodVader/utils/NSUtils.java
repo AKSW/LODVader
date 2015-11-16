@@ -18,6 +18,17 @@ public class NSUtils {
 		return url;
 	}
 
+	
+	public String getNSFromString(String url) {
+
+		int index = url.lastIndexOf("#");
+		if (index == -1)
+			index = url.lastIndexOf("/");
+
+		return url.substring(0, index+1);
+
+	}
+
 	/**
 	 * Get namespace from a URL
 	 * 
@@ -25,7 +36,8 @@ public class NSUtils {
 	 *            the URL to be checked
 	 * @return the namespace
 	 */
-	public String getNSFromString(String url) {
+	@Deprecated
+	public String getNSFromString2(String url) {
 		try {
 			String[] split = url.split("/");
 
@@ -70,7 +82,7 @@ public class NSUtils {
 				url = "";
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {
-			url =  url.split("#")[0]+"#";
+			url = url.split("#")[0] + "#";
 		}
 		return url;
 	}

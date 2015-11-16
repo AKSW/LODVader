@@ -1,18 +1,13 @@
 package lodVader.streaming;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.TreeSet;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -20,8 +15,6 @@ import java.util.zip.ZipInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.io.FilenameUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.openrdf.rio.ParserConfig;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
@@ -31,25 +24,14 @@ import org.openrdf.rio.jsonld.JSONLDParser;
 import org.openrdf.rio.n3.N3ParserFactory;
 import org.openrdf.rio.rdfxml.RDFXMLParser;
 import org.openrdf.rio.turtle.TurtleParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import lodVader.LODVaderProperties;
-import lodVader.TuplePart;
 import lodVader.exceptions.LODVaderFormatNotAcceptedException;
 import lodVader.exceptions.LODVaderLODGeneralException;
-import lodVader.linksets.MakeLinksetsMasterThread;
 import lodVader.mongodb.collections.DistributionDB;
-import lodVader.mongodb.collections.RDFResources.allPredicates.AllPredicatesDB;
-import lodVader.mongodb.collections.RDFResources.allPredicates.AllPredicatesRelationDB;
-import lodVader.mongodb.collections.RDFResources.owlClass.OwlClassDB;
-import lodVader.mongodb.collections.RDFResources.owlClass.OwlClassRelationDB;
-import lodVader.mongodb.collections.RDFResources.rdfSubClassOf.RDFSubClassOfDB;
-import lodVader.mongodb.collections.RDFResources.rdfSubClassOf.RDFSubClassOfRelationDB;
-import lodVader.mongodb.collections.RDFResources.rdfType.RDFTypeObjectDB;
-import lodVader.mongodb.collections.RDFResources.rdfType.RDFTypeObjectRelationDB;
-import lodVader.mongodb.collections.gridFS.ObjectsBucket;
-import lodVader.mongodb.collections.gridFS.SubjectsBucket;
 import lodVader.parsers.tripleParsers.NTriplesLODVaderParser;
-import lodVader.tupleManager.SplitAndProcess;
 import lodVader.tupleManager.SplitAndStoreNT;
 import lodVader.tupleManager.SuperTupleManager;
 import lodVader.utils.FileUtils;
@@ -134,7 +116,7 @@ public class StreamAndSaveDump extends SuperStream {
 
 		metaWriter.close();
 
-		splitThread = new SplitAndStoreNT(subjectQueue, objectQueue, filePath, distribution.getLODVaderID());
+		splitThread = new SplitAndStoreNT(subjectQueue, objectQueue, filePath+ ".nt", distribution.getLODVaderID());
 
 		try {
 
@@ -250,35 +232,40 @@ public class StreamAndSaveDump extends SuperStream {
 
 		splitThread.closeFiles();
 
-		logger.debug("Saving rdf:type objects...");
+		logger.debug("Saving predicates NS ...");
 		
 		String typeFileName = filePath + ".type";
 		BufferedWriter b = new BufferedWriter(new FileWriter(new File(typeFileName)));
-		for(String type:splitThread.rdfTypeObjects.keySet()){
-			b.write(type+ "\n");
+		for(String predicate:splitThread.allPredicates.keySet()){
+			b.write(predicate+ "\n");
 		}
 		b.close();
+//		
+//		logger.debug("Saving rdfs:subclass objects...");
+//		String subclassFileName = filePath + ".subclass";
+//		b = new BufferedWriter(new FileWriter(new File(subclassFileName)));
+//		for(String subclass:splitThread.rdfSubClassOf.keySet()){
+//			b.write(subclass+ "\n");
+//		}
+//		b.close();
+//		
+//		logger.debug("Saving owl:Class objects...");
+//		String owlClassFileName = filePath + ".owlClass";
+//		b = new BufferedWriter(new FileWriter(new File(owlClassFileName)));
+//		for(String owlClass:splitThread.owlClasses.keySet()){
+//			b.write(owlClass+ "\n");
+//		}
+//		b.close();
 		
-		logger.debug("Saving rdfs:subclass objects...");
-		String subclassFileName = filePath + ".subclass";
-		b = new BufferedWriter(new FileWriter(new File(subclassFileName)));
-		for(String subclass:splitThread.rdfSubClassOf.keySet()){
-			b.write(subclass+ "\n");
+		String graphFileName = directoryPath + "global.graph";
+		File file = new File(graphFileName);
+		if(!file.exists()){
+			b = new BufferedWriter(new FileWriter(file));		
+			b.write(FileUtils.getASCIIFormat(distribution.getTopDatasetTitle() + "_"
+					+ distribution.getTopDatasetID()));
+			b.close();			
 		}
-		b.close();
 		
-		logger.debug("Saving owl:Class objects...");
-		String owlClassFileName = filePath + ".owlClass";
-		b = new BufferedWriter(new FileWriter(new File(owlClassFileName)));
-		for(String owlClass:splitThread.owlClasses.keySet()){
-			b.write(owlClass+ "\n");
-		}
-		b.close();
-		
-		String graphFileName = filePath + ".graph";
-		b = new BufferedWriter(new FileWriter(new File(graphFileName)));		
-		b.write(distribution.getDownloadUrl());
-		b.close();
 
 	}
 

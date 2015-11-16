@@ -11,6 +11,7 @@ import org.openrdf.model.Statement;
 import org.openrdf.rio.helpers.RDFHandlerBase;
 
 import lodVader.LODVaderProperties;
+import lodVader.utils.NSUtils;
 import lodVader.utils.Timer;
 
 public class SplitAndStoreNT extends SuperTupleManager {
@@ -18,6 +19,8 @@ public class SplitAndStoreNT extends SuperTupleManager {
 	final static Logger logger = LoggerFactory.getLogger(SplitAndStoreNT.class);
 
 	BufferedWriter dumpNTFile = null;
+	
+	NSUtils nsUtils = new NSUtils();
 
 	public SplitAndStoreNT(ConcurrentLinkedQueue<String> subjectQueue, ConcurrentLinkedQueue<String> objectQueue,
 			String fileName, int distributionID) {
@@ -62,17 +65,17 @@ public class SplitAndStoreNT extends SuperTupleManager {
 		if (stObject.startsWith("http")) {
 			stObject = "<" + stObject + ">";
 		}
-//		stObject = stObject + " .";
+		
+		addToMap(allPredicates,  nsUtils.getNSFromString(stPredicate));
 
-		addToMap(allPredicates, stPredicate);
-
-		if (stObject.equals("<http://www.w3.org/2002/07/owl#Class>")) {
-			addToMap(owlClasses, stSubject);
-		} else if (stPredicate.equals("<http://www.w3.org/2000/01/rdf-schema#subClassOf>")) {
-			addToMap(rdfSubClassOf, stObject);
-		} else if (stPredicate.equals("<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>")) {
-			// addToMap(rdfTypeSubjects, triple.getSubject().toString());
-			addToMap(rdfTypeObjects, stObject);
+//		if (stObject.equals("<http://www.w3.org/2002/07/owl#Class>")) {
+//			addToMap(owlClasses, stSubject);
+//		} else if (stPredicate.equals("<http://www.w3.org/2000/01/rdf-schema#subClassOf>")) {
+//			addToMap(rdfSubClassOf, stObject);
+//		} else 
+		
+		if (stPredicate.equals("<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>")) {
+			addToMap(rdfTypeObjects, nsUtils.getNSFromString(stObject));
 		}
 
 		try {

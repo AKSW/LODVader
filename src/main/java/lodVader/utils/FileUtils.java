@@ -102,5 +102,9 @@ public class FileUtils {
 			e.printStackTrace();
 		}
 	}
+	
+	public static String getASCIIFormat(String str){
+		return str.replaceAll("[^A-Za-z0-9]", "");
+	}
 
 }
