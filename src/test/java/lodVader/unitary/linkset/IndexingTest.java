@@ -82,15 +82,15 @@ public class IndexingTest {
 		LODVaderProperties.ONLY_STREAM_DATASETS_AND_SAVE_NT_FORMAT = true;
 
 		ArrayList<String> listOfURL = new ArrayList<String>();
-		listOfURL.add("http://localhost/dbpedia/dataid.ttl");
-//		listOfURL.add(
-//				"https://raw.githubusercontent.com/cirola2000/DynamicLOD/master/src/main/webapp/dataids_example/dataid-datasetTest.ttl");
-//		listOfURL.add(
-//				"https://raw.githubusercontent.com/cirola2000/DynamicLOD/master/src/main/webapp/dataids_example/dataid-reuters128.ttl");
-//		listOfURL.add(
-//				"https://raw.githubusercontent.com/cirola2000/DynamicLOD/master/src/main/webapp/dataids_example/dataid-news100.ttl");
-//		listOfURL.add(
-//				"https://raw.githubusercontent.com/cirola2000/DynamicLOD/master/src/main/webapp/dataids_example/dataid-rss500.ttl");
+//		listOfURL.add("http://localhost/dbpedia/dataid.ttl");
+		listOfURL.add(
+				"https://raw.githubusercontent.com/cirola2000/DynamicLOD/master/src/main/webapp/dataids_example/dataid-datasetTest.ttl");
+		listOfURL.add(
+				"https://raw.githubusercontent.com/cirola2000/DynamicLOD/master/src/main/webapp/dataids_example/dataid-reuters128.ttl");
+		listOfURL.add(
+				"https://raw.githubusercontent.com/cirola2000/DynamicLOD/master/src/main/webapp/dataids_example/dataid-news100.ttl");
+		listOfURL.add(
+				"https://raw.githubusercontent.com/cirola2000/DynamicLOD/master/src/main/webapp/dataids_example/dataid-rss500.ttl");
 		
 
 		for (String url : listOfURL) {
