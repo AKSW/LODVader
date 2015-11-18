@@ -38,6 +38,9 @@ public class JobThread implements Runnable {
 
 	public void run() {
 		boolean found = false;
+		boolean sameDataset = false;
+		if(dataThread.sourceDatasetID == dataThread.targetDatasetID)
+			sameDataset = true;
 		try {
 			if (dataThread.distributionFilters.size() == 1) {
 				GoogleBloomFilter filter = dataThread.distributionFilters.iterator().next().filter;
@@ -45,7 +48,7 @@ public class JobThread implements Runnable {
 					for (String resource : listOfResources.keySet()) {
 						if (filter.compare(resource)) {
 							saveValidLink(resource);
-						} else {
+						} else if(!sameDataset){
 							String obj = nsUtils.getNSFromString(resource);
 							if (dataThread.targetNSSet.contains(obj)) {
 								saveInvalidLink(resource);
@@ -74,7 +77,7 @@ public class JobThread implements Runnable {
 										break;
 									}
 							}
-							if (!found) {
+							if (!found && !sameDataset) {
 								String obj = nsUtils.getNSFromString(resource);
 								if (dataThread.targetNSSet.contains(obj)) {
 									saveInvalidLink(resource);
