@@ -2,8 +2,6 @@ package lodVader.threads;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -13,8 +11,8 @@ import org.slf4j.LoggerFactory;
 import lodVader.LODVaderProperties;
 import lodVader.TuplePart;
 import lodVader.bloomfilters.GoogleBloomFilter;
-import lodVader.exceptions.LODVaderMissingPropertiesException;
-import lodVader.linksets.DistributionFilter;
+import lodVader.linksets.DatasetResourcesData;
+import lodVader.linksets.DistributionResourcesData;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.LinksetDB;
 import lodVader.mongodb.collections.namespaces.DistributionObjectNS0DB;
@@ -27,64 +25,63 @@ import lodVader.mongodb.queries.DistributionQueries;
 import lodVader.utils.NSUtils;
 import lodVader.utils.Timer;
 
-public class ProcessNSFromTuple extends Thread {
+public abstract class ProcessNSFromTuple extends Thread {
 	final static Logger logger = LoggerFactory.getLogger(ProcessNSFromTuple.class);
 
-	// public boolean isSubject = false;
-
+	// tuple part identifies whether we are working with subject or object
 	public String tuplePart;
 
-	public int threshold = 1;
+	// map of distributions with all NS and resources (subject or object)
+	public ConcurrentHashMap<Integer, DistributionResourcesData> distributionsResourceData = new ConcurrentHashMap<Integer, DistributionResourcesData>();
 
-	// contains all NF described by distribution
-	// <NS, <list of distribution that describes this NS>>
-	public ConcurrentHashMap<Integer, DistributionFilter> distributionFilter = new ConcurrentHashMap<Integer, DistributionFilter>();
+	// map of dataset with all resources (subject or object)
+	public ConcurrentHashMap<Integer, DatasetResourcesData> datasetResourceData = new ConcurrentHashMap<Integer, DatasetResourcesData>();
 
 	protected int threadNumber = 0;
 
-	protected ConcurrentHashMap<String, Thread> listOfThreads = new ConcurrentHashMap<String, Thread>();
+	// map of threads used to compare the source distribution with target distributions
+	protected ConcurrentHashMap<String, Thread> mapOfThreads = new ConcurrentHashMap<String, Thread>();
 
-	private String uri;
-	public DistributionDB distributionMongoDBObject = null;
+	// namespaces of the processed resources (max value is LODVaderProperties.CHECK_LINKS_EACH)
+	public HashSet<String> chunkOfNS = new HashSet<String>();
+	public HashSet<String> chunkOfNS0 = new HashSet<String>(); 
 
-	public HashSet<String> localNS = new HashSet<String>();
-	public HashSet<String> localNS0 = new HashSet<String>();
-
-	// public GoogleBloomFilter describedSubjectsNS0 = new DistributionQueries()
-	// .getDescribedNS0(LODVaderProperties.TYPE_SUBJECT);
-	// public GoogleBloomFilter describedObjectsNS0 = new DistributionQueries()
-	// .getDescribedNS0(LODVaderProperties.TYPE_OBJECT);
-
+	// get all namespaces described in LODVader
 	public GoogleBloomFilter describedSubjectsNS = new DistributionQueries()
 			.getDescribedNS(LODVaderProperties.TYPE_SUBJECT);
 	public GoogleBloomFilter describedObjectsNS = new DistributionQueries()
 			.getDescribedNS(LODVaderProperties.TYPE_OBJECT);
 
+	// control whether the thread is still working or not
 	private boolean doneSplittingString;
 
+	// queue of resources (objects OR subjects)
 	private ConcurrentLinkedQueue<String> resourceQueue = null;
 
 	// resource, NS
 	protected HashMap<String, String> resourcesToBeProcessedQueue = new HashMap<String, String>();
+	
+	// current distribution being processed
 	public DistributionDB distribution;
-	protected ConcurrentHashMap<Integer, DistributionDataSlaveThread> listOfWorkerThreads = new ConcurrentHashMap<Integer, DistributionDataSlaveThread>();
-	public ConcurrentHashMap<String, Integer> listLoadedNS = new ConcurrentHashMap<String, Integer>();
-	public ConcurrentHashMap<String, Integer> listLoadedNS0 = new ConcurrentHashMap<String, Integer>();
+	
+	// map containing the distribution ID (key) and the thread (value)
+	protected ConcurrentHashMap<Integer, DistributionDataSlaveThread> mapOfWorkerThreads = new ConcurrentHashMap<Integer, DistributionDataSlaveThread>();
+	
+	// map containing all namespaces processed
+	public ConcurrentHashMap<String, Integer> mapOfAllLoadedNS = new ConcurrentHashMap<String, Integer>(); 
+	public ConcurrentHashMap<String, Integer> mapOfAllLoadedNS0 = new ConcurrentHashMap<String, Integer>();
 
+	// namespace counter
 	private ConcurrentHashMap<String, Integer> countTotalNS = null;
 	private ConcurrentHashMap<String, Integer> countTotalNS0 = null;
 
-	int numberOfReadedTriples = 0;
-
-	public HashMap<Integer, Thread> threads = new HashMap<Integer, Thread>();
+	int numberOfReadedResources = 0;
 
 	public ProcessNSFromTuple(ConcurrentLinkedQueue<String> resourceQueue, String uri) {
 		this.resourceQueue = resourceQueue;
 		this.countTotalNS = new ConcurrentHashMap<String, Integer>();
 		this.countTotalNS0 = new ConcurrentHashMap<String, Integer>();
-		this.uri = uri;
 		this.distribution = new DistributionDB(uri);
-
 	}
 
 	public boolean isDoneSplittingString() {
@@ -99,97 +96,30 @@ public class ProcessNSFromTuple extends Thread {
 
 		logger.debug("Starting GetDomainsFromTriplesThread class.");
 
-		NSUtils nsUtils = new NSUtils();
-
-		String ns = "";
-		String ns0 = "";
-		String resource = "";
-		Integer value;
 		while (!doneSplittingString) {
 			try {
 				Thread.sleep(1);
 			} catch (InterruptedException e1) {
 				e1.printStackTrace();
 			}
-			if (tuplePart.equals(LODVaderProperties.TYPE_OBJECT)){
-				while (resourceQueue.size() > 0) {
-					resource = resourceQueue.remove();
-					ns = nsUtils.getNSFromString(resource);
-					ns0 = nsUtils.getNS0(resource);
+			if (tuplePart.equals(LODVaderProperties.TYPE_OBJECT)) {
+				processResource(describedSubjectsNS);
 
-					if (!ns.equals("")) {
-						value = countTotalNS.get(ns);
-						
-						if(value==null)
-							countTotalNS.put(ns, 0);
-						else
-							countTotalNS.put(ns, value + 1);
-
-						countTotalNS0.put(ns0, 0);
-
-						if (describedSubjectsNS.compare(ns)) {
-							
-							resourcesToBeProcessedQueue.put(resource, ns);
-							localNS.add(ns);
-							localNS0.add(ns0);
-							numberOfReadedTriples++;
-							if (numberOfReadedTriples % LODVaderProperties.CHECK_LINKS_EACH == 0) {
-								// if(tuplePart.equals(TuplePart.OBJECT))
-								try {
-									makeLinks();
-								} catch (Exception e) {
-									e.printStackTrace();
-								}
-							}
-						}
-					}
-
-				}
-			}
-			else{
-				while (resourceQueue.size() > 0) {
-					resource = resourceQueue.remove();
-					ns = nsUtils.getNSFromString(resource);
-					ns0 = nsUtils.getNS0(resource);
-
-					if (!ns.equals("")) {
-						value = countTotalNS.get(ns);
-						
-						if(value==null)
-							countTotalNS.put(ns, 0);
-						else
-							countTotalNS.put(ns, value + 1);
-												
-						countTotalNS0.put(ns0, 0);
-						if (describedObjectsNS.compare(ns)) {
-							resourcesToBeProcessedQueue.put(resource, ns);
-							localNS.add(ns);
-							localNS0.add(ns0);
-							numberOfReadedTriples++;
-
-							if (numberOfReadedTriples % LODVaderProperties.CHECK_LINKS_EACH == 0) {
-								// if(tuplePart.equals(TuplePart.OBJECT))
-								try {
-									makeLinks();
-								} catch (Exception e) {
-									e.printStackTrace();
-								}
-							}
-						}
-					}
-				}
+			} else {
+				processResource(describedObjectsNS);
 			}
 		}
 
-		logger.info("Waiting all threads finish their jobs...");
+		
 		try {
-			// if(tuplePart.equals(TuplePart.OBJECT))
 			makeLinks();
-			for (Thread t : listOfThreads.values()) {
+			
+			logger.info("Waiting all threads finish their jobs...");
+			for (Thread t : mapOfThreads.values()) {
 				t.join();
 			}
+			
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -201,162 +131,158 @@ public class ProcessNSFromTuple extends Thread {
 
 		logger.info("Saving namespaces...");
 		t.startTimer();
-		saveNSs();
+		saveNamespaces();
 		logger.debug("Time: " + t.stopTimer());
 
-		listOfWorkerThreads = new ConcurrentHashMap<Integer, DistributionDataSlaveThread>();
+		mapOfWorkerThreads = new ConcurrentHashMap<Integer, DistributionDataSlaveThread>();
 
 		logger.debug("Ending GetDomainsFromTriplesThread class.");
 	}
 
-	private void saveLinks() {
-		for (DistributionDataSlaveThread dataThread : listOfWorkerThreads.values()) {
-			logger.debug("Saving links for "+dataThread.targetDistributionTitle);
-			LinksetDB l;
+	private void processResource(GoogleBloomFilter describedNSFilter) {
+
+		NSUtils nsUtils = new NSUtils();
+		String ns;
+		String ns0;
+		String resource;
+		Integer value;
+
+		while (resourceQueue.size() > 0) {
+			resource = resourceQueue.remove();
+			ns = nsUtils.getNSFromString(resource);
+			ns0 = nsUtils.getNS0(resource);
+			value = countTotalNS.get(ns);
 			
+			if (value == null)
+				countTotalNS.put(ns, 1);
+			else
+				countTotalNS.put(ns, value + 1);
+			
+			countTotalNS0.put(ns0, 0);
+
+			if (describedNSFilter.compare(ns)) {
+				resourcesToBeProcessedQueue.put(resource, ns);
+				chunkOfNS.add(ns);
+				chunkOfNS0.add(ns0);
+				numberOfReadedResources++;
+
+				if (numberOfReadedResources % LODVaderProperties.CHECK_LINKS_EACH == 0) {
+					try {
+						makeLinks();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+	}
+
+	private void saveLinks() {
+		for (DistributionDataSlaveThread dataThread : mapOfWorkerThreads.values()) {
+			logger.debug("Saving links for " + dataThread.targetDistributionTitle);
+			LinksetDB l;
+			new LinksetDB().removeAllLinks(distribution.getLODVaderID());
+
 			Timer t = new Timer();
 			t.startTimer();
 
 			String mongoDBURL;
 
-			// System.out.println(" Links working: "+positive + "
-
 			if (tuplePart.equals(TuplePart.SUBJECT)) {
-				mongoDBURL = dataThread.targetDistributionID + "-" + dataThread.distributionID;
+				mongoDBURL = dataThread.targetDistributionID + "-" + dataThread.dourceDistributionID;
 				l = new LinksetDB(mongoDBURL);
 				l.setDistributionSource(dataThread.targetDistributionID);
-				l.setDistributionTarget(dataThread.distributionID);
+				l.setDistributionTarget(dataThread.dourceDistributionID);
 				l.setDatasetSource(dataThread.targetDatasetID);
-				l.setDatasetTarget(dataThread.datasetID);
-				
+				l.setDatasetTarget(dataThread.sourceDatasetID);
+
 				// save top N valid and invalid links
 				TopValidLinks validLinks = new TopValidLinks();
 				validLinks.saveAll(dataThread.getAllValidLinks(), dataThread.targetDistributionID,
-						dataThread.distributionID);
+						dataThread.dourceDistributionID);
 				l.setLinks(dataThread.getAllValidLinks().size());
 				dataThread.setValidLinks(null);
 
 				TopInvalidLinks invalidLinks = new TopInvalidLinks();
-				invalidLinks.saveAll(dataThread.getAllInvalidLinks(), dataThread.targetDistributionID,
-						dataThread.distributionID);
+
+				// check wheter links are described in the target dataset
+				HashMap<String, Integer> invalidLinksMap = dataThread.getAllInvalidLinks();
+				HashMap<String, Integer> invalidLinksMapFinal = new HashMap<String, Integer>();
+				for(String link: invalidLinksMap.keySet()){
+					if(!datasetResourceData.get(dataThread.targetDatasetID).queryObject(link))
+						invalidLinksMapFinal.put(link, invalidLinksMap.get(link));
+				}
+				
+				invalidLinks.saveAll(invalidLinksMapFinal, dataThread.targetDistributionID,
+						dataThread.dourceDistributionID);
 				l.setInvalidLinks(dataThread.getAllInvalidLinks().size());
 				dataThread.setInvalidLinks(null);
-				
 
 			} else {
-				mongoDBURL = dataThread.distributionID + "-" + dataThread.targetDistributionID;
+				mongoDBURL = dataThread.dourceDistributionID + "-" + dataThread.targetDistributionID;
 				l = new LinksetDB(mongoDBURL);
 
-				l.setDistributionSource(dataThread.distributionID);
+				l.setDistributionSource(dataThread.dourceDistributionID);
 				l.setDistributionTarget(dataThread.targetDistributionID);
-				l.setDatasetSource(dataThread.datasetID);
+				l.setDatasetSource(dataThread.sourceDatasetID);
 				l.setDatasetTarget(dataThread.targetDatasetID);
-								
+
 				// save top N valid and invalid links
 				TopValidLinks validLinks = new TopValidLinks();
-				validLinks.saveAll(dataThread.getAllValidLinks(), dataThread.distributionID,
+				validLinks.saveAll(dataThread.getAllValidLinks(), dataThread.dourceDistributionID,
 						dataThread.targetDistributionID);
 				l.setLinks(dataThread.getAllValidLinks().size());
 				dataThread.setValidLinks(null);
 
 				TopInvalidLinks invalidLinks = new TopInvalidLinks();
-				invalidLinks.saveAll(dataThread.getAllInvalidLinks(), dataThread.distributionID,
+				// check wheter links are described in the target dataset
+				HashMap<String, Integer> invalidLinksMap = dataThread.getAllInvalidLinks();
+				HashMap<String, Integer> invalidLinksMapFinal = new HashMap<String, Integer>();
+				for(String link: invalidLinksMap.keySet()){
+					if(!datasetResourceData.get(dataThread.targetDatasetID).querySubject(link)){
+						invalidLinksMapFinal.put(link, invalidLinksMap.get(link));
+//						System.out.println(link);
+					}
+				}
+				
+//				System.out.println(dataThread.);
+//				System.out.println();
+				invalidLinks.saveAll(invalidLinksMapFinal, dataThread.dourceDistributionID,
 						dataThread.targetDistributionID);
 				l.setInvalidLinks(dataThread.getAllInvalidLinks().size());
 				dataThread.setInvalidLinks(null);
-				
+
 			}
 
 			if (l.getLinks() > 0 || l.getInvalidLinks() > 0)
 				l.updateObject(true);
 
-			logger.debug("Saved links: "+l.getLinks()+" (good) "+l.getInvalidLinks()+" (bad) in "+ t.stopTimer()+"s");			
-			
+			logger.debug("Saved links: " + l.getLinks() + " (good) " + l.getInvalidLinks() + " (bad) in "
+					+ t.stopTimer() + "s");
 		}
 	}
 
-	private boolean saveNSs() {
+	private boolean saveNamespaces() {
 		logger.debug("Saving NS0...");
 		if (tuplePart.equals(TuplePart.SUBJECT)) {
-			for (String s : countTotalNS0.keySet()) {
-				DistributionSubjectNS0DB d = new DistributionSubjectNS0DB();
-				try {
-					d.setDistributionID(distribution.getLODVaderID());
-					d.setDatasetID(distribution.getTopDatasetID());
-					d.setNS(s);
-					d.updateObject(true);
-				} catch (LODVaderMissingPropertiesException e) {
-					e.printStackTrace();
-				}
-			}
+			DistributionSubjectNS0DB d = new DistributionSubjectNS0DB();
+			d.bulkSave(countTotalNS0.keySet(), distribution, d);
 		} else {
-			for (String s : countTotalNS0.keySet()) {
-				DistributionObjectNS0DB d = new DistributionObjectNS0DB();
-				try {
-					d.setDistributionID(distribution.getLODVaderID());
-					d.setNS(s);
-					d.setDatasetID(distribution.getTopDatasetID());
-					d.updateObject(true);
-				} catch (LODVaderMissingPropertiesException e) {
-					e.printStackTrace();
-				}
-			}
+			DistributionObjectNS0DB d = new DistributionObjectNS0DB();
+			d.bulkSave(countTotalNS0.keySet(), distribution, d);
 		}
 
 		logger.debug("Saving NS...");
-
-		Iterator it = countTotalNS.entrySet().iterator();
-
-		if (distributionMongoDBObject == null)
-			distributionMongoDBObject = new DistributionDB(uri);
-
-		NSUtils nsUtils = new NSUtils();
-
-		while (it.hasNext()) {
-			Map.Entry pair = (Map.Entry) it.next();
-			String d = (String) pair.getKey();
-			int count = (Integer) pair.getValue();
-			// distributionMongoDBObj.addAuthorityObjects(d);
-
-			if (count > threshold) {
-				if (tuplePart.equals(TuplePart.SUBJECT)) {
-					DistributionSubjectNSDB d2 = new DistributionSubjectNSDB();
-					d2.setNS(d);
-					d2.setDatasetID(distributionMongoDBObject.getTopDatasetID());
-					d2.setDistributionID(distributionMongoDBObject.getLODVaderID());
-					d2.setNumberOfResources(count);
-
-					try {
-						d2.updateObject(true);
-
-					} catch (LODVaderMissingPropertiesException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				} else {
-
-					DistributionObjectNSDB d2 = null;
-					d2 = new DistributionObjectNSDB();
-					d2.setNS(d);
-					d2.setNumberOfResources(count);
-					d2.setDatasetID(distributionMongoDBObject.getTopDatasetID());
-					d2.setDistributionID(distributionMongoDBObject.getLODVaderID());
-
-					try {
-						d2.updateObject(true);
-					} catch (LODVaderMissingPropertiesException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-			}
+		if (tuplePart.equals(TuplePart.SUBJECT)) {
+			DistributionSubjectNSDB d = new DistributionSubjectNSDB();
+			d.bulkSave(countTotalNS, distribution);
+		} else {
+			DistributionObjectNSDB d = new DistributionObjectNSDB();
+			d.bulkSave(countTotalNS, distribution);
 		}
-
 		return true;
 	}
 
-	public void makeLinks() throws Exception {
-		throw new Exception("You have to implement this method.");
-	}
+	public abstract void makeLinks() throws Exception;
 
 }

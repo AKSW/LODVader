@@ -203,8 +203,6 @@ public class LOV extends SuperStream {
 			//
 			MakeLinksetsMasterThread makeLinksets = new MakeLinksetsMasterThread(subjectsQueue, node.getNameSpace());
 			MakeLinksetsMasterThread makeLinksets2 = new MakeLinksetsMasterThread(objectsQueue, node.getNameSpace());
-			makeLinksets.threshold = 0;
-			makeLinksets2.threshold = 0;
 			makeLinksets2.tuplePart = TuplePart.OBJECT;
 			makeLinksets.tuplePart = TuplePart.SUBJECT;
 			makeLinksets.start();

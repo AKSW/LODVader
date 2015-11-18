@@ -5,9 +5,12 @@ import java.util.Date;
 import java.util.List;
 
 import com.mongodb.BasicDBList;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
 import lodVader.exceptions.LODVaderLODGeneralException;
+import lodVader.mongodb.DBSuperClass;
 import lodVader.mongodb.queries.DatasetQueries;
 
 public class DatasetDB extends ResourceDB {
@@ -261,6 +264,21 @@ public class DatasetDB extends ResourceDB {
 		if(lodVaderID == 0)
 			lodVaderID = new LODVaderCounterDB().incrementAndGetID();
 		return lodVaderID;
+	}
+	
+	public int getDatasetSize(){
+		BasicDBObject query = new BasicDBObject(DistributionDB.TOP_DATASET, getLODVaderID());
+		DBCursor list = DBSuperClass.getInstance().getCollection(DistributionDB.COLLECTION_NAME).find(query);
+		int triples = 0;
+		for(DBObject d : list){
+//			System.out.println(d.get(DistributionDB.TRIPLES).toString() );
+			
+			if(d.get(DistributionDB.TRIPLES).toString() != null)
+				triples= triples + 
+						((Number) d.get(DistributionDB.TRIPLES)).intValue();
+		}
+		return triples;
+		
 	}
 
 }

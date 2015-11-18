@@ -24,9 +24,8 @@ public class NSUtils {
 		int index = url.lastIndexOf("#");
 		if (index == -1)
 			index = url.lastIndexOf("/");
-
+		
 		return url.substring(0, index+1);
-
 	}
 
 	/**

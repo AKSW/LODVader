@@ -21,7 +21,7 @@ import com.mongodb.DBObject;
 import lodVader.LODVaderProperties;
 import lodVader.LoadedBloomFiltersCache;
 import lodVader.bloomfilters.GoogleBloomFilter;
-import lodVader.linksets.DistributionFilter;
+import lodVader.linksets.DistributionResourcesData;
 import lodVader.mongodb.DBSuperClass;
 import lodVader.mongodb.collections.DatasetDB;
 import lodVader.mongodb.collections.DistributionDB;
@@ -42,7 +42,7 @@ public class DistributionQueries {
 	NSUtils nsUtils = new NSUtils();
 
 	public ArrayList<DistributionDB> getDistributionsByOutdegree(ArrayList<String> nsToSearch,
-			ConcurrentHashMap<Integer, DistributionFilter> distributionFilter) {
+			ConcurrentHashMap<Integer, DistributionResourcesData> distributionFilter) {
 		ArrayList<DistributionDB> list = new ArrayList<DistributionDB>();
 		try {
 
@@ -63,7 +63,7 @@ public class DistributionQueries {
 
 				if (!distributionFilter.containsKey(distribution.getLODVaderID())) {
 					distributionFilter.put(distribution.getLODVaderID(),
-							new DistributionFilter(distribution.getLODVaderID()));
+							new DistributionResourcesData(distribution.getLODVaderID()));
 
 				}
 			}
@@ -153,7 +153,7 @@ public class DistributionQueries {
 	}
 
 	public ArrayList<DistributionDB> getDistributionsByIndegree(ArrayList<String> fqdnToSearch,
-			ConcurrentHashMap<Integer, DistributionFilter> fqdnPerDistribution) {
+			ConcurrentHashMap<Integer, DistributionResourcesData> fqdnPerDistribution) {
 		ArrayList<DistributionDB> list = new ArrayList<DistributionDB>();
 		try {
 
@@ -176,7 +176,7 @@ public class DistributionQueries {
 
 				if (!fqdnPerDistribution.containsKey(distribution.getUri())) {
 					fqdnPerDistribution.put(distribution.getLODVaderID(),
-							new DistributionFilter(distribution.getLODVaderID()));
+							new DistributionResourcesData(distribution.getLODVaderID()));
 				}
 
 			}

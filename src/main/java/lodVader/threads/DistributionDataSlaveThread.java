@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import lodVader.LODVaderProperties;
 import lodVader.TuplePart;
-import lodVader.linksets.DistributionFilter;
+import lodVader.linksets.DistributionResourcesData;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.gridFS.SuperBucket;
 
@@ -47,8 +47,8 @@ public class DistributionDataSlaveThread extends Thread {
 	public String targetDistributionTitle;
 
 
-	public int distributionID = 0;
-	public int datasetID = 0;
+	public int dourceDistributionID = 0;
+	public int sourceDatasetID = 0;
 
 	public int targetDistributionID = 0;
 	public int targetDatasetID = 0;
@@ -75,20 +75,20 @@ public class DistributionDataSlaveThread extends Thread {
 	public boolean active = false;
 
 	public DistributionDataSlaveThread(DistributionDB sourceDistribution, DistributionDB targetDistribution,
-			DistributionFilter distributionFilter, String tuplePart) {
+			DistributionResourcesData distributionFilter, String tuplePart) {
 
 		this.tuplePart = tuplePart;
-		this.datasetID = sourceDistribution.getTopDatasetID();
-		this.distributionID = sourceDistribution.getLODVaderID();
+		this.sourceDatasetID = sourceDistribution.getTopDatasetID();
+		this.dourceDistributionID = sourceDistribution.getLODVaderID();
 		this.targetDistributionID = targetDistribution.getLODVaderID();
 		this.targetDatasetID = targetDistribution.getTopDatasetID();
 		this.targetDistributionTitle = targetDistribution.getTitle();
 
 		try {
 			validLinksWriter = new BufferedWriter(new FileWriter(LODVaderProperties.TMP_LINKS_PATH + "valid_"
-					+ this.distributionID + "_" + this.targetDistributionID));
+					+ this.dourceDistributionID + "_" + this.targetDistributionID));
 			invalidLinksWriter = new BufferedWriter(new FileWriter(LODVaderProperties.TMP_LINKS_PATH + "invalid_"
-					+ this.distributionID + "_" + this.targetDistributionID));
+					+ this.dourceDistributionID + "_" + this.targetDistributionID));
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -134,7 +134,7 @@ public class DistributionDataSlaveThread extends Thread {
 			e.printStackTrace();
 		}
 		if (validLinks == null)
-			validLinks = getLinks(LODVaderProperties.TMP_LINKS_PATH + "valid_" + this.distributionID + "_"
+			validLinks = getLinks(LODVaderProperties.TMP_LINKS_PATH + "valid_" + this.dourceDistributionID + "_"
 					+ this.targetDistributionID);
 
 		return validLinks;
@@ -148,7 +148,7 @@ public class DistributionDataSlaveThread extends Thread {
 			e.printStackTrace();
 		}
 		if (invalidLinks == null)
-			invalidLinks = getLinks(LODVaderProperties.TMP_LINKS_PATH + "invalid_" + this.distributionID + "_"
+			invalidLinks = getLinks(LODVaderProperties.TMP_LINKS_PATH + "invalid_" + this.dourceDistributionID + "_"
 					+ this.targetDistributionID);
 
 		return invalidLinks;
@@ -161,7 +161,6 @@ public class DistributionDataSlaveThread extends Thread {
 		Integer n = null;
 		try {
 			br = new BufferedReader(new FileReader(fileName));
-
 			while ((resource = br.readLine()) != null) {
 				n = links.get(resource);
 				if (n != null)

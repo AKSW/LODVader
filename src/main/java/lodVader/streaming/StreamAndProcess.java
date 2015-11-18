@@ -214,16 +214,7 @@ public class StreamAndProcess extends SuperStream {
 					if (!entry.isDirectory()) {
 						logger.debug(++nf + " zip file uncompressed.");
 						logger.debug("File name: " + entry.getName());
-
-						// byte[] content = new byte[(int) entry.getSize()];
-
-						// zip.read(content, 0, (int) entry.getSize());
-
 						rdfParser.parse(zip, url.toString());
-
-						// BufferedReader in=new BufferedReader(new
-						// InputStreamReader(entry));
-
 					}
 
 					entry = zip.getNextEntry();

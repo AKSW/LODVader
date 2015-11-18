@@ -1,19 +1,21 @@
 package lodVader.mongodb.collections.namespaces;
 
+import java.util.Set;
+
 import org.bson.types.ObjectId;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 
-import lodVader.exceptions.LODVaderLODGeneralException;
 import lodVader.exceptions.LODVaderMissingPropertiesException;
 import lodVader.mongodb.DBSuperClass;
+import lodVader.mongodb.collections.DistributionDB;
 
 public class SuperNS {
 
 	// Collection name
-	public static String COLLECTION_NAME = null;
+	public String COLLECTION_NAME = null;
 
 	// class properties
 	public static final String DISTRIBUTION_ID = "distributionID";
@@ -91,6 +93,20 @@ public class SuperNS {
 		if (!mongoDBObject.containsKey(key))
 			throw new LODVaderMissingPropertiesException("Missing property: " + key.toString());
 		return true;
+	}
+	
+	public void bulkSave(Set<String> nsSet, DistributionDB distribution, SuperNS d){
+		for (String s : nsSet) {
+//			DistributionObjectNS0DB d = new DistributionObjectNS0DB();
+			try {
+				d.setDistributionID(distribution.getLODVaderID());
+				d.setNS(s);
+				d.setDatasetID(distribution.getTopDatasetID());
+				d.updateObject(true);
+			} catch (LODVaderMissingPropertiesException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 }

@@ -53,7 +53,7 @@ public class StreamAndSaveDump extends SuperStream {
 	boolean doneReadingFile = false;
 	boolean doneSplittingString = false;
 
-	private DistributionDB distribution = null;
+	private DistributionDB distribution = null; 
 
 	public StreamAndSaveDump(DistributionDB distributionMongoDBObj) throws MalformedURLException {
 		this.distribution = distributionMongoDBObj;
@@ -234,7 +234,7 @@ public class StreamAndSaveDump extends SuperStream {
 
 		logger.debug("Saving predicates NS ...");
 		
-		String typeFileName = filePath + ".type";
+		String typeFileName = filePath + ".ns";
 		BufferedWriter b = new BufferedWriter(new FileWriter(new File(typeFileName)));
 		for(String predicate:splitThread.allPredicates.keySet()){
 			b.write(predicate+ "\n");

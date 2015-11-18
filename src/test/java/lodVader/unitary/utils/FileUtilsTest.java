@@ -9,8 +9,8 @@ public class FileUtilsTest {
 
 	@Test
 	public void getASCIIFormatTest(){
-		String str = "LODVader @ 1 _ $ 2 3";
-		String expected = "LODVader123";
+		String str = "DBpedia Core_1";
+		String expected = "DBpediaCore1";
 		Assert.assertEquals(expected, FileUtils.getASCIIFormat(str));
 	}
 	

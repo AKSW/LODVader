@@ -1,9 +1,11 @@
 package lodVader.threads;
 
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import lodVader.TuplePart;
 import lodVader.bloomfilters.GoogleBloomFilter;
+import lodVader.linksets.DatasetResourcesData;
 import lodVader.mongodb.collections.gridFS.SuperBucket;
 import lodVader.utils.NSUtils;
 
@@ -13,15 +15,21 @@ public class JobThread implements Runnable {
 
 	NSUtils nsUtils = new NSUtils();
 	Integer n;
+	 ConcurrentHashMap<Integer, DatasetResourcesData> datasetResourceData;
 
-	public JobThread(DistributionDataSlaveThread dataThread, HashMap<String, String> resources) {
+	public JobThread(DistributionDataSlaveThread dataThread, HashMap<String, String> resources,  ConcurrentHashMap<Integer, DatasetResourcesData> datasetResourceData ) {
 		this.listOfResources = resources;
 		this.dataThread = dataThread;
-
+		this.datasetResourceData = datasetResourceData;
 	}
 
 	public void saveValidLink(String resource) {
 		dataThread.addValidLink(resource);
+		if (dataThread.tuplePart.equals(TuplePart.SUBJECT)) 
+			datasetResourceData.get(dataThread.targetDatasetID).addObject(resource);
+		else
+			datasetResourceData.get(dataThread.targetDatasetID).addSubject(resource);
+			
 	}
 
 	public void saveInvalidLink(String resource) {

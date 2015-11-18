@@ -29,20 +29,7 @@ public class SuperTop {
 	}
 
 	public void saveAll(HashMap<String, Integer> values, int sourceDistributionID, int targetDistributionID) {
-		// public void saveAll(){
-		// int distributionID = 1;
-		// HashMap<String, Integer> values = new HashMap<String, Integer> ();
-		// values.put("um", 1);
-		// values.put("2", 3);
-		// values.put("3", 2);
-		// values.put("4m", 6);
-		// values.put("5m", 5);
-		// values.put("6m", 4);
-		// values.put("7m", 8);
-		// values.put("8m", 23);
-		if(sourceDistributionID==2 && targetDistributionID==31684)
-			System.out.println("oi");
-
+		
 		removeAll(sourceDistributionID, targetDistributionID);
 
 		DBCollection collection = DBSuperClass.getInstance().getCollection(COLLECTION_NAME);

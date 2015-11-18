@@ -16,7 +16,7 @@ import lodVader.mongodb.collections.gridFS.SubjectsBucket;
 import lodVader.mongodb.collections.namespaces.DistributionObjectNSDB;
 import lodVader.mongodb.collections.namespaces.DistributionSubjectNSDB;
 
-public class DistributionFilter {
+public class DistributionResourcesData {
 
 	public int distributionID;
 
@@ -30,30 +30,29 @@ public class DistributionFilter {
 	 
 	public GoogleBloomFilter filterObjectsNS;
 	
+	protected GoogleBloomFilter singleSubject = null;
+	
+	protected GoogleBloomFilter singleObject = null;
 	
 
 	public ArrayList<ObjectsBucket> objectBuckets = new ArrayList<ObjectsBucket>();
 
 	public ArrayList<SubjectsBucket> subjectBuckets = new ArrayList<SubjectsBucket>();
 	
-	public DistributionFilter(int distributionID) {
+	public DistributionResourcesData(int distributionID) {
 		this.distributionMongoDBObject = new DistributionDB(distributionID);
 		this.distributionID = distributionID;
 		loadObjectBuckets();
 		loadSubjectBuckets();
-		loadNS();
+		loadNamespaces();
 	}
 
 	public boolean querySubjectNS(String fqdn) {
-//		return subjectsNS.contains(fqdn);
-
 		return filterSubjectsNS.compare(fqdn);
 
 	}
 
 	public boolean queryObjectNS(String fqdn) {
-//		return objectsNS.contains(fqdn);
-		
 		return filterObjectsNS.compare(fqdn);
 	}
 
@@ -67,21 +66,25 @@ public class DistributionFilter {
 
 	public void loadObjectBuckets() {
 		this.objectBuckets = new ObjectsBucket().createAllBuckets(distributionID);
+		if(this.objectBuckets.size() == 1)
+			singleObject = this.objectBuckets.iterator().next().filter;
 	}
 
 	public void loadSubjectBuckets() {
 		this.subjectBuckets = new SubjectsBucket().createAllBuckets(distributionID);
+		if(this.subjectBuckets.size() == 1)
+			singleSubject = this.subjectBuckets.iterator().next().filter;
 	}
 
-	public boolean queryObject(String resources) {
+	public boolean queryObject(String resource) {
 		try {
-			if (objectBuckets.size() == 1) {
-				return objectBuckets.iterator().next().filter.compare(resources);
-			}
-			else for (ObjectsBucket o : objectBuckets) {
-				if(o.filter.compare(resources))
+			if (singleObject != null) 
+				return singleObject.compare(resource);
+			
+			else for (ObjectsBucket o : objectBuckets) 
+				if(o.filter.compare(resource))
 					return true;
-			}
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -89,15 +92,15 @@ public class DistributionFilter {
 		return false;
 	}
 
-	public boolean querySubject(String resources) {
+	public boolean querySubject(String resource) {
 		try {
-			if (subjectBuckets.size() == 1) {
-				return subjectBuckets.iterator().next().filter.compare(resources);
-			}
-			else for (SubjectsBucket o : subjectBuckets) {
-				if(o.filter.compare(resources))
+			if (singleSubject!=null) 
+				return singleSubject.compare(resource);
+				
+			else for (SubjectsBucket o : subjectBuckets) 
+				if(o.filter.compare(resource))
 					return true;
-			}
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -105,7 +108,7 @@ public class DistributionFilter {
 		return false;
 	}
 	
-	public void loadNS(){
+	public void loadNamespaces(){
 
 		// query all subjects ns for the distribution
 		BasicDBObject subjectQuery = new BasicDBObject(DistributionSubjectNSDB.DISTRIBUTION_ID, distributionID);

@@ -1,11 +1,19 @@
 package lodVader.mongodb.collections;
 
+import com.mongodb.BasicDBList;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
+import lodVader.API.diagram.Link;
 import lodVader.exceptions.LODVaderLODGeneralException;
 import lodVader.mongodb.DBSuperClass;
 
 public class LinksetDB extends DBSuperClass {
+	
+	public LinksetDB() {
+		// TODO Auto-generated constructor stub
+	}
 
 	// Collection name
 	public static final String COLLECTION_NAME = "Linkset";
@@ -303,7 +311,15 @@ public class LinksetDB extends DBSuperClass {
 		this.strength = strength;
 	}
 
-	
+	public void removeAllLinks(int distributionID){
+		BasicDBObject query = new BasicDBObject(LinksetDB.DISTRIBUTION_SOURCE, distributionID);
+		BasicDBObject query2 = new BasicDBObject(LinksetDB.DISTRIBUTION_TARGET, distributionID);
+		BasicDBList or = new BasicDBList();
+		or.add(query);
+		or.add(query2);
+		DBSuperClass.getInstance().getCollection(DistributionDB.COLLECTION_NAME).remove(new BasicDBObject("$or", or));
+		
+	}
 	
 	
 }
