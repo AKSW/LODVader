@@ -87,10 +87,7 @@ public class SplitAndProcess extends SuperTupleManager {
 	public void saveStatement(String stSubject, String stPredicate, String stObject) {
 
 		if (stObject.startsWith("<")) {
-			// System.out.println(stObject);
 			stObject = stObject.substring(1, stObject.length() - 1);
-			// System.out.println(stObject);
-
 		}
 
 		// http://www.w3.org/1999/02/22-rdf-syntax-ns#
@@ -123,55 +120,35 @@ public class SplitAndProcess extends SuperTupleManager {
 				if (stSubject.startsWith("htt")) {
 					// get subject and save to file
 					subjectFile.write(stSubject + "\n");
-					// subjects.add(stSubject);
-
 					subjectLines++;
-					lastSubject = stSubject;
-//					if (isChain)
 					subjectQueue.add(stSubject);
+					lastSubject = stSubject;
 				}
 
 			}
 
 			// get object (make sure that its a resource and not a literal), add
 			// to queue and save to file
-			if (!stObject.startsWith("\"")) {
+			if (stObject.startsWith("htt")) {
 				objectFile.write(stObject + "\n");
-				// objects.add(stObject);
-
-				// add object to object queue (the queue is read by another
-				// thread)
-//				if (isChain)
-					objectQueue.add(stObject);
+				objectQueue.add(stObject);
 				objectLines++;
-
-				// System.out.println(stSubject+ " "+ stPredicate+" "+stObject);
 			}
-			// }
 			while (objectQueue.size() > bufferSize) {
 				Thread.sleep(5); 
 			}
 			while (subjectQueue.size() > bufferSize) {
 				Thread.sleep(5);
-
-				// System.out.println(subjectQueue.size());
 			}
-
-			// if(totalTriplesRead % 500000== 0){
-
-			// if(objects.size()>0)
-			// new TmpObjectResourcesDB().save(objects, distributionID );
-			// if(subjects.size()>0)
-			// new TmpSubjectResourcesDB().save(subjects, distributionID);
-			// subjects = new ArrayList<String>();
-			// objects = new ArrayList<String>();
 
 			if (totalTriplesRead % 1000000 == 0) {
 				logger.info("Triples read: " + totalTriplesRead + ", time: " + t.stopTimer());
 				t = new Timer();
 				t.startTimer();
-				System.out.println(stSubject+ " "+ stObject);
-				// }
+				logger.info("Sample subject: "+ stSubject);
+				logger.info("Sample predcate: "+ stPredicate);
+				logger.info("Sample object: "+ stObject);
+				
 			}
 
 		} catch (Exception e) {
