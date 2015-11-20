@@ -117,7 +117,7 @@ public class SplitAndProcess extends SuperTupleManager {
 			// compare the current subject with the previous one
 			if (!stSubject.equals(lastSubject)) {
 
-				if (stSubject.startsWith("htt")) {
+				if (stSubject.startsWith("h")) {
 					// get subject and save to file
 					subjectFile.write(stSubject + "\n");
 					subjectLines++;
@@ -129,7 +129,7 @@ public class SplitAndProcess extends SuperTupleManager {
 
 			// get object (make sure that its a resource and not a literal), add
 			// to queue and save to file
-			if (stObject.startsWith("htt")) {
+			if (stObject.startsWith("h")) {
 				objectFile.write(stObject + "\n");
 				objectQueue.add(stObject);
 				objectLines++;

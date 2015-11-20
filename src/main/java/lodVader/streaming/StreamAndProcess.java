@@ -274,24 +274,24 @@ public class StreamAndProcess extends SuperStream {
 		new AllPredicatesRelationDB().insertSet(splitThread.allPredicates, distribution.getLODVaderID(),
 				distribution.getTopDatasetID());
 
-		logger.debug("Saving rdf:type objects...");
+		logger.info("Saving rdf:type objects...");
 		// Saving RDF Type classes
 		new RDFTypeObjectDB().insertSet(splitThread.rdfTypeObjects.keySet());
 		new RDFTypeObjectRelationDB().insertSet(splitThread.rdfTypeObjects, distribution.getLODVaderID(),
 				distribution.getTopDatasetID());
 
-		logger.debug("Saving rdfs:subclass objects...");
+		logger.info("Saving rdfs:subclass objects...");
 		new RDFSubClassOfDB().insertSet(splitThread.rdfSubClassOf.keySet());
 		new RDFSubClassOfRelationDB().insertSet(splitThread.rdfSubClassOf, distribution.getLODVaderID(),
 				distribution.getTopDatasetID());
 
-		logger.debug("Saving owl:Class objects...");
+		logger.info("Saving owl:Class objects...");
 		new OwlClassDB().insertSet(splitThread.owlClasses.keySet());
 		new OwlClassRelationDB().insertSet(splitThread.owlClasses, distribution.getLODVaderID(),
 				distribution.getTopDatasetID());
 
 		// create BFs
-		logger.debug("Creating subjects BF");
+		logger.info("Creating subjects BF");
 		logger.debug("Reading resources from file system...");
 		SubjectsBucket subjectBucket = new SubjectsBucket(
 				getUniqueItemsFromFile(LODVaderProperties.SUBJECT_FILE_DISTRIBUTION_PATH + hashFileName),
