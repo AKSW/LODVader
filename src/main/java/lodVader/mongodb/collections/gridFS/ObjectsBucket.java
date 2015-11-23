@@ -1,5 +1,6 @@
 package lodVader.mongodb.collections.gridFS;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,15 +22,21 @@ public class ObjectsBucket  extends SuperBucket{
 		this.COLLECTION_NAME = OBJECTS_BUCKET_COLLECTION_NAME;
 	}
 	
-	public ObjectsBucket(TreeSet<String> resources, int distributionID) {
+	public ObjectsBucket(File resourceFile, int distributionID) {
 		this.COLLECTION_NAME = OBJECTS_BUCKET_COLLECTION_NAME;		
-		this.resources = resources;
+		this.resourcesFile = resourceFile;
 		this.distributionID = distributionID;
 	}
 	
 	public ObjectsBucket(String resource, int distributionID) {
 		this.COLLECTION_NAME = OBJECTS_BUCKET_COLLECTION_NAME;		
 		this.resource = resource;
+		this.distributionID = distributionID;
+	}
+	
+	public ObjectsBucket(TreeSet<String> resources, int distributionID) {
+		this.COLLECTION_NAME = OBJECTS_BUCKET_COLLECTION_NAME;		
+		this.resources = resources;
 		this.distributionID = distributionID;
 	}
 	

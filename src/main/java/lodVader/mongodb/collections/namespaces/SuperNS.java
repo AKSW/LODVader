@@ -96,6 +96,7 @@ public class SuperNS {
 	}
 	
 	public void bulkSave(Set<String> nsSet, DistributionDB distribution, SuperNS d){
+		getCollection().remove(new BasicDBObject(DISTRIBUTION_ID, distribution.getLODVaderID()));
 		for (String s : nsSet) {
 			try {
 				d.setDistributionID(distribution.getLODVaderID());

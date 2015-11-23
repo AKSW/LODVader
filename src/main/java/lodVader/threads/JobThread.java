@@ -50,7 +50,8 @@ public class JobThread implements Runnable {
 							saveValidLink(resource);
 						} else if(!sameDataset){
 							String obj = nsUtils.getNSFromString(resource);
-							if (dataThread.targetNSSet.contains(obj)) {
+							if (dataThread.targetNSSet.compare(obj)) {
+//								if (dataThread.dis) {
 								saveInvalidLink(resource);
 							}
 						}
@@ -67,7 +68,7 @@ public class JobThread implements Runnable {
 			else if (dataThread.distributionFilters.size() > 1) {
 				if (!dataThread.tuplePart.equals(TuplePart.SUBJECT)) {
 					for (String resource : listOfResources.keySet()) { 
-						if (dataThread.targetNSSet.contains(listOfResources.get(resource))) {
+						if (dataThread.targetNSSet.compare(listOfResources.get(resource))) {
 							found = false;
 							for (SuperBucket s : dataThread.distributionFilters) {
 								if (resource.compareTo(s.firstResource) >= 0 && resource.compareTo(s.lastResource) <= 0)
@@ -79,7 +80,7 @@ public class JobThread implements Runnable {
 							}
 							if (!found && !sameDataset) {
 								String obj = nsUtils.getNSFromString(resource);
-								if (dataThread.targetNSSet.contains(obj)) {
+								if (dataThread.targetNSSet.compare(obj)) {
 									saveInvalidLink(resource);
 								}
 							}
@@ -88,7 +89,7 @@ public class JobThread implements Runnable {
 				} else {
 					for (String resource : listOfResources.keySet()) {
 						found = false;
-						if (dataThread.targetNSSet.contains(listOfResources.get(resource)))
+						if (dataThread.targetNSSet.compare(listOfResources.get(resource)))
 							for (SuperBucket s : dataThread.distributionFilters) {
 								if (resource.compareTo(s.firstResource) >= 0 && resource.compareTo(s.lastResource) <= 0)
 									if (s.filter.compare(resource)) {

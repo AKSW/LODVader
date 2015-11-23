@@ -1,5 +1,6 @@
 package lodVader;
 
+import lodVader.bloomfilters.GoogleBloomFilter;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.gridFS.ObjectsBucket;
 import lodVader.mongodb.collections.gridFS.SubjectsBucket;
@@ -15,6 +16,14 @@ public class LoadedBloomFiltersCache extends Thread{
 	String query;
 	
 	public boolean found;
+	
+	// get all namespaces described in LODVader
+	public static GoogleBloomFilter describedSubjectsNS = null;
+	public static GoogleBloomFilter describedObjectsNS = null;
+	
+	// size of the bloom filters
+	public static int describedSubjectsNSCurrentSize = 0;
+	public static int describedObjectsNSCurrentSize = 0;
 	
 	
 	public LoadedBloomFiltersCache(DistributionDB distribution, String query, String type) {

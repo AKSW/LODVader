@@ -4,9 +4,11 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.mongodb.BasicDBObject;
+
+import lodVader.LoadedBloomFiltersCache;
 import lodVader.exceptions.LODVaderMissingPropertiesException;
 import lodVader.mongodb.collections.DistributionDB;
-import lodVader.utils.NSUtils;
 
 public class DistributionObjectNSDB extends SuperNS {
 
@@ -27,16 +29,24 @@ public class DistributionObjectNSDB extends SuperNS {
 	
 	public void bulkSave(ConcurrentHashMap<String, Integer> map, DistributionDB distribution) {
 		Iterator it = map.entrySet().iterator();
-		NSUtils nsUtils = new NSUtils();
+		getCollection().remove(new BasicDBObject(DISTRIBUTION_ID, distribution.getLODVaderID()));
+		DistributionObjectNSDB d2 = null;
+		
 		while (it.hasNext()) {
 			Map.Entry pair = (Map.Entry) it.next();
 			String d = (String) pair.getKey();
 			int count = (Integer) pair.getValue();
-			DistributionObjectNSDB d2 = new DistributionObjectNSDB();
+			d2 = new DistributionObjectNSDB();
 			d2.setNS(d);
 			d2.setNumberOfResources(count);
 			d2.setDatasetID(distribution.getTopDatasetID());
 			d2.setDistributionID(distribution.getLODVaderID());
+			
+			// add to current BF
+			if(!LoadedBloomFiltersCache.describedObjectsNS.compare(d)){
+				LoadedBloomFiltersCache.describedObjectsNS.add(d);
+				LoadedBloomFiltersCache.describedObjectsNSCurrentSize ++;
+			}
 
 			try {
 				d2.updateObject(true);

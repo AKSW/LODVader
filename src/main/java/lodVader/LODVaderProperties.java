@@ -154,6 +154,8 @@ public class LODVaderProperties {
 	
 	public static int TOP_N_LINKS = 200;
 
+	public static int BF_BUFFER_RANGE = 500000;
+
 	public static int LINKSET_TRESHOLD = 1;
 	
 	public static int CHECK_LINKS_EACH = 10000;

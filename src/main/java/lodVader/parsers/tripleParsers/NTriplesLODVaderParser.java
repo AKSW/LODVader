@@ -39,7 +39,8 @@ public class NTriplesLODVaderParser extends RDFParserBase {
 					try {
 
 						int nRead;
-						byte[] data = new byte[655360];
+//						byte[] data = new byte[655360];
+						byte[] data = new byte[1024*16];
 						int sleeping = 0;
 
 						while ((nRead = new BufferedInputStream(inputStream).read(data, 0, data.length)) != -1) {
@@ -47,11 +48,11 @@ public class NTriplesLODVaderParser extends RDFParserBase {
 							// StandardCharsets.UTF_8));
 							bufferQueue.add(new String(data, 0, nRead, StandardCharsets.UTF_8));
 
-							while (bufferQueue.size() > 400) {
+							while (bufferQueue.size() > 20000) {
 								Thread.sleep(3);
-								sleeping++;
 								if (sleeping % 5000 == 0)
-									System.out.println("Streaming thread is sleeping for a long time...");
+									System.out.println("Streaming thread is sleeping...");
+								sleeping++;
 							}
 						}
 						doneReading = true;

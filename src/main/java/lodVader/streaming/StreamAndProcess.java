@@ -1,17 +1,11 @@
 package lodVader.streaming;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.TreeSet;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -19,8 +13,6 @@ import java.util.zip.ZipInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.io.FilenameUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.openrdf.rio.ParserConfig;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
@@ -30,6 +22,8 @@ import org.openrdf.rio.jsonld.JSONLDParser;
 import org.openrdf.rio.n3.N3ParserFactory;
 import org.openrdf.rio.rdfxml.RDFXMLParser;
 import org.openrdf.rio.turtle.TurtleParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import lodVader.LODVaderProperties;
 import lodVader.TuplePart;
@@ -49,7 +43,6 @@ import lodVader.mongodb.collections.gridFS.ObjectsBucket;
 import lodVader.mongodb.collections.gridFS.SubjectsBucket;
 import lodVader.parsers.tripleParsers.NTriplesLODVaderParser;
 import lodVader.tupleManager.SplitAndProcess;
-import lodVader.tupleManager.SplitAndStoreNT;
 import lodVader.tupleManager.SuperTupleManager;
 import lodVader.utils.FileUtils;
 import lodVader.utils.Formats;
@@ -293,40 +286,41 @@ public class StreamAndProcess extends SuperStream {
 		// create BFs
 		logger.info("Creating subjects BF");
 		logger.debug("Reading resources from file system...");
+//		SubjectsBucket subjectBucket = new SubjectsBucket(
+//				getUniqueItemsFromFile(LODVaderProperties.SUBJECT_FILE_DISTRIBUTION_PATH + hashFileName),
+//				distribution.getLODVaderID());
 		SubjectsBucket subjectBucket = new SubjectsBucket(
-				getUniqueItemsFromFile(LODVaderProperties.SUBJECT_FILE_DISTRIBUTION_PATH + hashFileName),
+				new File(LODVaderProperties.SUBJECT_FILE_DISTRIBUTION_PATH + hashFileName),
 				distribution.getLODVaderID());
+		
 		logger.debug("Creating bucket.");
 		subjectBucket.makeBucket();
 
 		logger.debug("Creating objects BF");
 		logger.debug("Reading resources from file system...");
 		ObjectsBucket objectBucket = new ObjectsBucket(
-				getUniqueItemsFromFile(LODVaderProperties.OBJECT_FILE_DISTRIBUTION_PATH + hashFileName),
+				new File(LODVaderProperties.OBJECT_FILE_DISTRIBUTION_PATH + hashFileName),
 				distribution.getLODVaderID());
 		logger.debug("Creating bucket.");
 		objectBucket.makeBucket();
 
 	}
 
-	public TreeSet<String> getUniqueItemsFromFile(String fileName) {
-		BufferedReader br;
-		String sCurrentLine;
-		TreeSet<String> items = new TreeSet<String>();
-
-		try {
-			br = new BufferedReader(new FileReader(fileName));
-
-			while ((sCurrentLine = br.readLine()) != null) {
-				items.add(sCurrentLine);
-			}
-
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		return items;
-	}
+//	public TreeSet<String> getUniqueItemsFromFile1(String fileName) {
+//		BufferedReader br;
+//		String sCurrentLine;
+//		TreeSet<String> items = new TreeSet<String>();
+//		try {
+//			br = new BufferedReader(new FileReader(fileName));
+//
+//			while ((sCurrentLine = br.readLine()) != null) {
+//				items.add(sCurrentLine);
+//			}
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		return items;
+//	}
 
 }

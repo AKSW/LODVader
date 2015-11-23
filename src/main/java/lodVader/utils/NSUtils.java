@@ -1,16 +1,18 @@
 package lodVader.utils;
 
+import org.apache.commons.lang.StringUtils;
+
 public class NSUtils {
 
 	public String getNS0(String url) {
 		String[] split = url.split("/");
 		if (split.length > 3)
 			url = split[0] + "//" + split[2] + "/";
-		else
-			if(!url.endsWith("/"))
-				url = url+"/";
+		else if (!url.endsWith("/"))
+			url = url + "/";
 		return url;
 	}
+	
 
 	public String getNS1(String url) {
 		String[] split = url.split("/");
@@ -19,14 +21,23 @@ public class NSUtils {
 		return url;
 	}
 
-	
 	public String getNSFromString(String url) {
 
-		int index = url.lastIndexOf("#");
-		if (index == -1)
-			index = url.lastIndexOf("/");
+		String[] split =url.split("/");
+		int total = split.length;
 		
-		return url.substring(0, index+1);
+		if (total < 7) {
+			int index = url.lastIndexOf("#");
+			if (index == -1)
+				index = url.lastIndexOf("/");
+
+			return url.substring(0, index + 1);
+		}
+		else{
+			int index = StringUtils.ordinalIndexOf(url, "/", 7);
+			return url.substring(0, index + 1); 
+		}
+
 	}
 
 	/**
@@ -36,8 +47,7 @@ public class NSUtils {
 	 *            the URL to be checked
 	 * @return the namespace
 	 */
-	@Deprecated
-	public String getNSFromString2(String url) {
+	public String getNSFromString1(String url) {
 		try {
 			String[] split = url.split("/");
 

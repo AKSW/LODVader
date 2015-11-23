@@ -13,6 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import lodVader.LODVaderProperties;
 import lodVader.TuplePart;
+import lodVader.bloomfilters.GoogleBloomFilter;
 import lodVader.linksets.DistributionResourcesData;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.gridFS.SuperBucket;
@@ -67,7 +68,8 @@ public class DistributionDataSlaveThread extends Thread {
 	
 	public ArrayList<? extends SuperBucket> distributionFilters = null;
 
-	public HashSet<String> targetNSSet = new HashSet<String>(); 
+//	public HashSet<String> targetNSSet = new HashSet<String>(); 
+	public GoogleBloomFilter targetNSSet;
 
 	public String tuplePart;
 
@@ -96,10 +98,12 @@ public class DistributionDataSlaveThread extends Thread {
 
 		if (tuplePart.equals(TuplePart.SUBJECT)) {
 			this.distributionFilters = distributionFilter.objectBuckets;
-			this.targetNSSet = distributionFilter.objectsNS;
+//			this.targetNSSet = distributionFilter.objectsNS;
+			this.targetNSSet = distributionFilter.filterObjectsNS;
 		} else if ((tuplePart.equals(TuplePart.OBJECT))) {
 			this.distributionFilters = distributionFilter.subjectBuckets;
-			this.targetNSSet = distributionFilter.subjectsNS;
+//			this.targetNSSet = distributionFilter.subjectsNS;
+			this.targetNSSet = distributionFilter.filterSubjectsNS;
 		}
 	}
 
@@ -121,7 +125,7 @@ public class DistributionDataSlaveThread extends Thread {
 
 	public void setValidLinks(HashMap<String, Integer> l){
 		validLinks = l;
-	}
+	} 
 
 	public void setInvalidLinks(HashMap<String, Integer> l){
 		invalidLinks = l;

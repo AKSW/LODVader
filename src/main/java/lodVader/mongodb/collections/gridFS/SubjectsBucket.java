@@ -1,5 +1,6 @@
 package lodVader.mongodb.collections.gridFS;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,17 +24,24 @@ public class SubjectsBucket extends SuperBucket {
 		this.COLLECTION_NAME = SUBJECTS_BUCKET_COLLECTION_NAME;
 	}
 
-	public SubjectsBucket(TreeSet<String> resources, int distributionID) {
-		this.COLLECTION_NAME = SUBJECTS_BUCKET_COLLECTION_NAME;
-		this.resources = resources;
-		this.distributionID = distributionID;
-	}
-
 	public SubjectsBucket(String resource, int distributionID) {
 		this.COLLECTION_NAME = SUBJECTS_BUCKET_COLLECTION_NAME;
 		this.resource = resource;
 		this.distributionID = distributionID;
 	}
+	
+	public SubjectsBucket(File resourcesFile, int distributionID) { 
+		this.COLLECTION_NAME = SUBJECTS_BUCKET_COLLECTION_NAME;
+		this.resourcesFile = resourcesFile;
+		this.distributionID = distributionID;
+	}
+	
+	public SubjectsBucket(TreeSet<String> resources, int distributionID) { 
+		this.COLLECTION_NAME = SUBJECTS_BUCKET_COLLECTION_NAME;
+		this.resources = resources;
+		this.distributionID = distributionID;
+	}
+	
 	
 	public SubjectsBucket(GoogleBloomFilter filter, String firstResource, String lastResource){
 		this.filter = filter;

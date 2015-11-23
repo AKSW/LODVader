@@ -71,7 +71,7 @@ public class SuperTop {
 
 	public void removeAll(int distributionSourceID, int targetDistributionID) {
 		DBCollection collection = DBSuperClass.getInstance().getCollection(COLLECTION_NAME);
-
+		
 		BasicDBList list = new BasicDBList();
 		list.add(new BasicDBObject(SOURCE_DISTRIBUTION_ID, distributionSourceID));
 		list.add(new BasicDBObject(TARGET_DISTRIBUTION_ID, targetDistributionID));

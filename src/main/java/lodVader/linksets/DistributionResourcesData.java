@@ -22,23 +22,22 @@ public class DistributionResourcesData {
 
 	public DistributionDB distributionMongoDBObject;
 
-	public HashSet<String> subjectsNS = new HashSet<String>();
-	 
-	public HashSet<String> objectsNS = new HashSet<String>();
-	
+	// public HashSet<String> subjectsNS = new HashSet<String>();
+	//
+	// public HashSet<String> objectsNS = new HashSet<String>();
+
 	public GoogleBloomFilter filterSubjectsNS;
-	 
+
 	public GoogleBloomFilter filterObjectsNS;
-	
+
 	protected GoogleBloomFilter singleSubject = null;
-	
+
 	protected GoogleBloomFilter singleObject = null;
-	
 
 	public ArrayList<ObjectsBucket> objectBuckets = new ArrayList<ObjectsBucket>();
 
 	public ArrayList<SubjectsBucket> subjectBuckets = new ArrayList<SubjectsBucket>();
-	
+
 	public DistributionResourcesData(int distributionID) {
 		this.distributionMongoDBObject = new DistributionDB(distributionID);
 		this.distributionID = distributionID;
@@ -56,35 +55,36 @@ public class DistributionResourcesData {
 		return filterObjectsNS.compare(fqdn);
 	}
 
-	public void addSubjectsNS(HashSet<String> list) {
-		this.subjectsNS = list;
-	}
-
-	public void addObjectsNS(HashSet<String> list) {
-		this.objectsNS = list;
-	}
+	// public void addSubjectsNS(HashSet<String> list) {
+	// this.subjectsNS = list;
+	// }
+	//
+	// public void addObjectsNS(HashSet<String> list) {
+	// this.objectsNS = list;
+	// }
 
 	public void loadObjectBuckets() {
 		this.objectBuckets = new ObjectsBucket().createAllBuckets(distributionID);
-		if(this.objectBuckets.size() == 1)
+		if (this.objectBuckets.size() == 1)
 			singleObject = this.objectBuckets.iterator().next().filter;
 	}
 
 	public void loadSubjectBuckets() {
 		this.subjectBuckets = new SubjectsBucket().createAllBuckets(distributionID);
-		if(this.subjectBuckets.size() == 1)
+		if (this.subjectBuckets.size() == 1)
 			singleSubject = this.subjectBuckets.iterator().next().filter;
 	}
 
 	public boolean queryObject(String resource) {
 		try {
-			if (singleObject != null) 
+			if (singleObject != null)
 				return singleObject.compare(resource);
-			
-			else for (ObjectsBucket o : objectBuckets) 
-				if(o.filter.compare(resource))
-					return true;
-			
+
+			else
+				for (ObjectsBucket o : objectBuckets)
+					if (o.filter.compare(resource))
+						return true;
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -94,38 +94,40 @@ public class DistributionResourcesData {
 
 	public boolean querySubject(String resource) {
 		try {
-			if (singleSubject!=null) 
+			if (singleSubject != null)
 				return singleSubject.compare(resource);
-				
-			else for (SubjectsBucket o : subjectBuckets) 
-				if(o.filter.compare(resource))
-					return true;
-			
+
+			else
+				for (SubjectsBucket o : subjectBuckets)
+					if (o.filter.compare(resource))
+						return true;
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
 		return false;
 	}
-	
-	public void loadNamespaces(){
+
+	public void loadNamespaces() {
 
 		// query all subjects ns for the distribution
 		BasicDBObject subjectQuery = new BasicDBObject(DistributionSubjectNSDB.DISTRIBUTION_ID, distributionID);
 
-		DBCollection collection = DBSuperClass.getInstance()
-				.getCollection(DistributionSubjectNSDB.COLLECTION_NAME);
+		DBCollection collection = DBSuperClass.getInstance().getCollection(DistributionSubjectNSDB.COLLECTION_NAME);
 
 		DBCursor cursor = collection.find(subjectQuery);
 
-		HashSet<String> subjectsNS = new HashSet<String>();
+		// HashSet<String> subjectsNS = new HashSet<String>();
 		String resource;
+		if (cursor.size() < 10000)
+			filterSubjectsNS = new GoogleBloomFilter(10000, 0.0000001);
+		else
+			filterSubjectsNS = new GoogleBloomFilter(cursor.size(), 0.0000001);
 
-		filterSubjectsNS = new GoogleBloomFilter(cursor.size(),0.0000001);
-		
 		while (cursor.hasNext()) {
 			resource = cursor.next().get(DistributionSubjectNSDB.NS).toString();
-			subjectsNS.add(resource);
+			// subjectsNS.add(resource);
 			filterSubjectsNS.add(resource);
 		}
 
@@ -136,18 +138,21 @@ public class DistributionResourcesData {
 
 		cursor = collection.find(objectQuery);
 
-		HashSet<String> objectsNS = new HashSet<String>();
-		filterObjectsNS = new GoogleBloomFilter(cursor.size(),0.0000001);
+		// HashSet<String> objectsNS = new HashSet<String>();
+		if (cursor.size() < 10000)
+			filterObjectsNS = new GoogleBloomFilter(10000, 0.0000001);
+		else
+			filterObjectsNS = new GoogleBloomFilter(cursor.size(), 0.0000001);
 		while (cursor.hasNext()) {
 			resource = cursor.next().get(DistributionObjectNSDB.NS).toString();
-			objectsNS.add(resource);
+			// objectsNS.add(resource);
 			filterObjectsNS.add(resource);
 		}
- 
-		addObjectsNS(objectsNS);
-		addSubjectsNS(subjectsNS);
-//		System.out.println("o "+objectsNS.size());
-//		System.out.println("s "+subjectsNS.size());
+
+		// addObjectsNS(objectsNS);
+		// addSubjectsNS(subjectsNS);
+		// System.out.println("o "+objectsNS.size());
+		// System.out.println("s "+subjectsNS.size());
 	}
 
 }

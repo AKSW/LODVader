@@ -31,6 +31,7 @@ import lodVader.mongodb.collections.namespaces.DistributionObjectNS0DB;
 import lodVader.mongodb.collections.namespaces.DistributionObjectNSDB;
 import lodVader.mongodb.collections.namespaces.DistributionSubjectNS0DB;
 import lodVader.mongodb.collections.namespaces.DistributionSubjectNSDB;
+import lodVader.threads.ProcessNSFromTuple;
 import lodVader.utils.NSUtils;
 
 public class DistributionQueries {
@@ -129,24 +130,35 @@ public class DistributionQueries {
 
 			DBCollection collection = DBSuperClass.getInstance().getCollection(DistributionObjectNSDB.COLLECTION_NAME);
 
-			g = new GoogleBloomFilter(collection.find().size(), 0.0001);
+			g = new GoogleBloomFilter(collection.find().size() + LODVaderProperties.BF_BUFFER_RANGE, 0.0001);
 
+			int size = 0;
 			Cursor aggregate = collection.aggregate(ag, options);
 			while (aggregate.hasNext()) {
 				DBObject d = aggregate.next();
 				g.add(d.get(DistributionObjectNSDB.NS).toString());
+				size++;
 			}
+			
+			logger.info("Loaded "+size+ " object namespaces.");
+
+		
+
 		} else if (resourceType.equals(LODVaderProperties.TYPE_SUBJECT)) {
 
 			DBCollection collection = DBSuperClass.getInstance().getCollection(DistributionSubjectNSDB.COLLECTION_NAME);
 
-			g = new GoogleBloomFilter(collection.find().size(), 0.0001);
+			g = new GoogleBloomFilter(collection.find().size() + LODVaderProperties.BF_BUFFER_RANGE, 0.0001);
 
 			Cursor aggregate = collection.aggregate(ag, options);
+			int size = 0;
 			while (aggregate.hasNext()) {
 				DBObject d = aggregate.next();
 				g.add(d.get(DistributionSubjectNSDB.NS).toString());
+				size++;
 			}
+			logger.info("Loaded "+size+ " subject namespaces.");
+
 		}
 
 		return g;

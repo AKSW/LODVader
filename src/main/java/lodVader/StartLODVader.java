@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import lodVader.mongodb.IndexesCreator;
 import lodVader.mongodb.collections.DistributionDB;
+import lodVader.mongodb.queries.DistributionQueries;
 import lodVader.mongodb.queries.GeneralQueries;
 import lodVader.utils.FileUtils;
 
@@ -123,6 +124,20 @@ public class StartLODVader extends HttpServlet {
 						}
 					}
 
+					
+					// load BF for namespaces
+					logger.info("Loading nasmespaces... ");
+
+					
+					if (LoadedBloomFiltersCache.describedSubjectsNSCurrentSize > LODVaderProperties.BF_BUFFER_RANGE
+							|| LoadedBloomFiltersCache.describedSubjectsNS == null)
+						LoadedBloomFiltersCache.describedSubjectsNS = new DistributionQueries()
+								.getDescribedNS(LODVaderProperties.TYPE_SUBJECT);
+					
+					if (LoadedBloomFiltersCache.describedObjectsNSCurrentSize > LODVaderProperties.BF_BUFFER_RANGE
+							|| LoadedBloomFiltersCache.describedObjectsNS == null)
+						LoadedBloomFiltersCache.describedObjectsNS = new DistributionQueries()
+								.getDescribedNS(LODVaderProperties.TYPE_OBJECT);
 					
 					logger.info("We will resume: "+distributions.size()+ " downloads(s).");
 					new Manager(distributions);

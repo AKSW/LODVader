@@ -105,11 +105,7 @@ public class SplitAndProcess extends SuperTupleManager {
 			addToMap(rdfTypeObjects, stObject);
 		}
 
-		// if(stPredicate.equals("<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>")){
-		// addToMap(rdfTypeSubjects, stSubject);
-		// addToMap(rdfTypeObjects, stObject);
-		// }
-
+		
 		// save predicate
 
 		try {
