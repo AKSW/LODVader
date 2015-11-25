@@ -28,8 +28,6 @@ import lodVader.streaming.SuperStream;
 public class Manager {
 	final static Logger logger = LoggerFactory.getLogger(Manager.class);
 
-	private String someDatasetURI = null;
-
 	// list of subset and their distributions
 	public static Queue<DistributionDB> distributionsLinks = new LinkedBlockingQueue<DistributionDB>();
 

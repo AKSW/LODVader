@@ -30,7 +30,7 @@ public class FileUtils {
 		if (!f.exists())
 			f.mkdirs();
 		
-		f = new File(LODVaderProperties.TMP_LINKS_PATH);
+		f = new File(LODVaderProperties.TMP_FOLDER);
 		if (!f.exists())
 			f.mkdirs();
 

@@ -27,6 +27,9 @@ public class NTriplesLODVaderParser extends RDFParserBase {
 
 	Queue<String> bufferQueue = new ConcurrentLinkedQueue<String>();
 	boolean doneReading = false;
+	
+//	private int BUFFER_SIZE = 655360;
+	private int BUFFER_SIZE = 1024*16;
 
 	public void stream(InputStream inStream) {
 
@@ -39,8 +42,7 @@ public class NTriplesLODVaderParser extends RDFParserBase {
 					try {
 
 						int nRead;
-//						byte[] data = new byte[655360];
-						byte[] data = new byte[1024*16];
+						byte[] data = new byte[BUFFER_SIZE];
 						int sleeping = 0;
 
 						while ((nRead = new BufferedInputStream(inputStream).read(data, 0, data.length)) != -1) {

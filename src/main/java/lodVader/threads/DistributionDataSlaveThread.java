@@ -87,9 +87,9 @@ public class DistributionDataSlaveThread extends Thread {
 		this.targetDistributionTitle = targetDistribution.getTitle();
 
 		try {
-			validLinksWriter = new BufferedWriter(new FileWriter(LODVaderProperties.TMP_LINKS_PATH + "valid_"
+			validLinksWriter = new BufferedWriter(new FileWriter(LODVaderProperties.TMP_FOLDER + "valid_"
 					+ this.dourceDistributionID + "_" + this.targetDistributionID));
-			invalidLinksWriter = new BufferedWriter(new FileWriter(LODVaderProperties.TMP_LINKS_PATH + "invalid_"
+			invalidLinksWriter = new BufferedWriter(new FileWriter(LODVaderProperties.TMP_FOLDER + "invalid_"
 					+ this.dourceDistributionID + "_" + this.targetDistributionID));
 
 		} catch (IOException e) {
@@ -138,7 +138,7 @@ public class DistributionDataSlaveThread extends Thread {
 			e.printStackTrace();
 		}
 		if (validLinks == null)
-			validLinks = getLinks(LODVaderProperties.TMP_LINKS_PATH + "valid_" + this.dourceDistributionID + "_"
+			validLinks = getLinks(LODVaderProperties.TMP_FOLDER + "valid_" + this.dourceDistributionID + "_"
 					+ this.targetDistributionID);
 
 		return validLinks;
@@ -152,7 +152,7 @@ public class DistributionDataSlaveThread extends Thread {
 			e.printStackTrace();
 		}
 		if (invalidLinks == null)
-			invalidLinks = getLinks(LODVaderProperties.TMP_LINKS_PATH + "invalid_" + this.dourceDistributionID + "_"
+			invalidLinks = getLinks(LODVaderProperties.TMP_FOLDER + "invalid_" + this.dourceDistributionID + "_"
 					+ this.targetDistributionID);
 
 		return invalidLinks;

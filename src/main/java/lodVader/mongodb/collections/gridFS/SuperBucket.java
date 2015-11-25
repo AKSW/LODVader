@@ -6,9 +6,16 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.TreeSet;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.code.externalsorting.ExternalSort;
 import com.google.common.hash.BloomFilter;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
@@ -22,6 +29,8 @@ import lodVader.exceptions.LODVaderLODGeneralException;
 import lodVader.mongodb.DBSuperClass;
 
 public class SuperBucket {
+
+	final static Logger logger = LoggerFactory.getLogger(SuperBucket.class);
 
 	static double time = 0;
 
@@ -50,6 +59,8 @@ public class SuperBucket {
 	public TreeSet<String> resources;
 
 	protected File resourcesFile = null;
+
+	protected File resourcesFileSorted = null;
 
 	public SuperBucket() {
 	}
@@ -89,9 +100,22 @@ public class SuperBucket {
 						chunk = new ArrayList<String>();
 					}
 				}
-			} else if( resourcesFile!= null){
+			} else if (resourcesFile != null) {
 				String resource;
-				BufferedReader f = new BufferedReader(new FileReader(resourcesFile));
+				// use external sort tool
+
+				resourcesFileSorted = new File(LODVaderProperties.TMP_FOLDER+"sorted_tmp");
+				
+				File tmpFolder = new File(LODVaderProperties.TMP_FOLDER);
+				
+				Comparator<String> comparator = ExternalSort.defaultcomparator;
+				List<File> l = ExternalSort.sortInBatch(resourcesFile, comparator, ExternalSort.DEFAULTMAXTEMPFILES, Charset.defaultCharset(), 
+						tmpFolder, true,
+						0, false);
+				logger.info("created " + l.size() + " tmp files");
+				ExternalSort.mergeSortedFiles(l, resourcesFileSorted, comparator, Charset.defaultCharset(), true, false, false);
+
+				BufferedReader f = new BufferedReader(new FileReader(resourcesFileSorted));
 				// for(String resource: resources){
 				while ((resource = f.readLine()) != null) {
 					chunk.add(resource);
@@ -100,8 +124,8 @@ public class SuperBucket {
 						chunk = new ArrayList<String>();
 					}
 				}
-			}
-			else{
+				resourcesFileSorted.delete();
+			} else {
 				throw new LODVaderLODGeneralException("No items to load in BF!");
 			}
 			if (chunk.size() > 0)
