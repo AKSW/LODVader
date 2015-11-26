@@ -100,6 +100,7 @@ public abstract class SuperStream {
 					"No file to download. Server replied HTTP code: "
 							+ responseCode);
 		}
+		
 		logger.debug("Successfuly connected with HTTP OK status.");
 
 	}

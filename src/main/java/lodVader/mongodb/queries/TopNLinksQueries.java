@@ -1,6 +1,5 @@
 package lodVader.mongodb.queries;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 import com.mongodb.BasicDBList;

@@ -224,7 +224,7 @@ public abstract class ProcessNSFromTuple extends Thread {
 
 				invalidLinks.saveAll(invalidLinksMapFinal, dataThread.targetDistributionID,
 						dataThread.dourceDistributionID);
-				l.setInvalidLinks(dataThread.getAllInvalidLinks().size());
+				l.setInvalidLinks(invalidLinksMapFinal.size());
 				dataThread.setInvalidLinks(null);
 
 			} else {
@@ -258,7 +258,7 @@ public abstract class ProcessNSFromTuple extends Thread {
 				// System.out.println();
 				invalidLinks.saveAll(invalidLinksMapFinal, dataThread.dourceDistributionID,
 						dataThread.targetDistributionID);
-				l.setInvalidLinks(dataThread.getAllInvalidLinks().size());
+				l.setInvalidLinks(invalidLinksMapFinal.size());
 				dataThread.setInvalidLinks(null);
 
 			}
