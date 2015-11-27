@@ -92,8 +92,6 @@ public class SplitAndProcess extends SuperTupleManager {
 				stObject = stObject.substring(0, stObject.length() - 1);
 
 		}
-		if(stObject.endsWith(" "))
-			stObject = stObject.substring(0, stObject.length() - 1);
 
 		// http://www.w3.org/1999/02/22-rdf-syntax-ns#
 		// if(stPredicate.equals("<http://www.w3.org/1999/02/22-rdf-syntax-ns#>")){
