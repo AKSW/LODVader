@@ -171,6 +171,8 @@ public class DistributionDataSlaveThread extends Thread {
 					links.put(resource, n + 1);
 				else
 					links.put(resource, 1);
+				if(links.size()>10000000)
+					break;
 			}
 
 			br.close();
@@ -179,7 +181,7 @@ public class DistributionDataSlaveThread extends Thread {
 			f.delete();
 
 		} catch (Exception e) {
-//			e.printStackTrace();
+			e.printStackTrace();
 		}
 		return links;
 	}
