@@ -234,7 +234,10 @@ public class APIStatistics {
 			if (type.equals(ServiceAPIOptions.DATASET_TYPE_LINKS))
 				jsonObj.put(formatterLinks.format(d.getLinks()));
 			else if (type.equals(ServiceAPIOptions.DATASET_TYPE_TOP_BAD_LINKS))
-				jsonObj.put(formatterLinks.format(d.getInvalidLinks()));
+				if (d.getInvalidLinks() > 10000000)
+					jsonObj.put(">10000000");
+				else
+					jsonObj.put(formatterLinks.format(d.getInvalidLinks()));
 			else if (type.equals(ServiceAPIOptions.DATASET_TYPE_STRENGTH))
 				jsonObj.put(formatterDecimal.format(d.getStrength()));
 			else if (type.equals(ServiceAPIOptions.DATASET_TYPE_CLASSES))
