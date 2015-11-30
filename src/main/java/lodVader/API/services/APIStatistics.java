@@ -195,7 +195,7 @@ public class APIStatistics {
 
 			jsonArr.put(jsonObj);
 		}
-		
+
 		DecimalFormat formatter = new DecimalFormat("#,###,###,###,###");
 
 		msg.put("distributions", jsonArr);
@@ -203,8 +203,7 @@ public class APIStatistics {
 		msg.put("datasetTitle", dist.getTopDatasetTitle());
 		msg.put("distributionTriples", formatter.format(dist.getTriples()));
 		msg.put("isVocabulary", dist.getIsVocabulary());
-		msg.put("rdfURL",
-				lodVader.API.server.ServiceAPI.getServerURL() + "?retrieveDataset=" + dist.getDownloadUrl());
+		msg.put("rdfURL", lodVader.API.server.ServiceAPI.getServerURL() + "?retrieveDataset=" + dist.getDownloadUrl());
 		msg.put("distributionDownloadURL", dist.getDownloadUrl());
 		apimessage.addListMsg(msg);
 
@@ -222,13 +221,15 @@ public class APIStatistics {
 		DistributionDB dist = new DistributionDB(distribution);
 
 		// get how many vocabs and datasets are in the database
-		ArrayList<LinksetDB> links = new LinksetQueries().getLinksetsByDistribution(distribution, topN, type);
+		ArrayList<LinksetDB> links = new LinksetQueries().getLinksets(distribution, topN, type);
 
 		for (LinksetDB d : links) {
-			DistributionDB datasetDB = new DistributionDB(d.getDistributionTarget());
+			DistributionDB distributionDB = new DistributionDB(d.getDistributionTarget());
 			JSONArray jsonObj = new JSONArray();
-			// jsonObj.put(d.getDistributionTarget());
-			jsonObj.put(datasetDB.getTitle());
+			if (type.equals(ServiceAPIOptions.DATASET_TYPE_TOP_BAD_LINKS))
+				jsonObj.put(distributionDB.getTopDatasetTitle());
+			else
+				jsonObj.put(distributionDB.getTitle());
 
 			if (type.equals(ServiceAPIOptions.DATASET_TYPE_LINKS))
 				jsonObj.put(formatterLinks.format(d.getLinks()));
@@ -245,9 +246,9 @@ public class APIStatistics {
 			else
 				jsonObj.put(formatterDecimal.format(d.getPredicateSimilarity()));
 
-			jsonObj.put(datasetDB.getDownloadUrl());
-			jsonObj.put(datasetDB.getIsVocabulary());
-			jsonObj.put(datasetDB.getLODVaderID());
+			jsonObj.put(distributionDB.getDownloadUrl());
+			jsonObj.put(distributionDB.getIsVocabulary());
+			jsonObj.put(distributionDB.getLODVaderID());
 
 			jsonArr.put(jsonObj);
 		}
