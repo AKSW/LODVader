@@ -45,7 +45,7 @@ public class APIStatistics {
 
 		int vocabularies = new DatasetQueries().getDatasetsVocab().size();
 
-		int triples = new DistributionQueries().getNumberOfTriples();
+		Double triples = new DistributionQueries().getNumberOfTriples();
 
 		NumberFormat formatter = new DecimalFormat("###,###,###,###");
 

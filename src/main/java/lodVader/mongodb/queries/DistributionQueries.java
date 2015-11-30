@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +32,6 @@ import lodVader.mongodb.collections.namespaces.DistributionObjectNS0DB;
 import lodVader.mongodb.collections.namespaces.DistributionObjectNSDB;
 import lodVader.mongodb.collections.namespaces.DistributionSubjectNS0DB;
 import lodVader.mongodb.collections.namespaces.DistributionSubjectNSDB;
-import lodVader.threads.ProcessNSFromTuple;
 import lodVader.utils.NSUtils;
 
 public class DistributionQueries {
@@ -198,13 +198,13 @@ public class DistributionQueries {
 		}
 		return list;
 	}
-
+	
 	/**
 	 * 
 	 * @return number of total triples read
 	 */
-	public int getNumberOfTriples() {
-		int numberOfTriples = 0;
+	public Double getNumberOfTriples() {
+		Double numberOfTriples = 0.0;
 		try {
 			DBCollection collection = DBSuperClass.getInstance().getCollection(DistributionDB.COLLECTION_NAME);
 
@@ -222,7 +222,7 @@ public class DistributionQueries {
 			AggregationOutput output = collection.aggregate(pipeline);
 
 			for (DBObject result : output.results()) {
-				numberOfTriples = Integer.valueOf(result.get("sum").toString());
+				numberOfTriples = Double.valueOf(result.get("sum").toString());
 			}
 
 		} catch (Exception e) {
