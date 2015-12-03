@@ -174,8 +174,6 @@ public class SuperBucket {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		if(filter.filter.mightContain("http://aksw.org/N3/News-100/96#char=950,958".getBytes()))
-			System.out.println("OK!");
 
 		GridFS gfs = new GridFS(DBSuperClass2.getDBInstance(), COLLECTION_NAME);
 		GridFSInputFile gfsFile;
@@ -219,11 +217,7 @@ public class SuperBucket {
 			try {
 				filter.filter = BloomFilter.readFrom(file.getInputStream(), filter.funnel);
 				result = filter.filter.mightContain(resource.getBytes());
-				System.out.println("http://aksw.org/N3/News-100");
-				System.out.println(filter.filter.mightContain("http://aksw.org/N3/News-100".getBytes()));
-				System.out.println("http://aksw.org/N3/News-100/96#char=950,958");
-				System.out.println(filter.filter.mightContain("http://aksw.org/N3/News-100/96#char=950,958".getBytes()));
-
+			
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

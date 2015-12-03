@@ -26,7 +26,7 @@ public class DatasetDB extends ResourceDB {
 
 	public static final String ACCESS_URL = "accessUrl";
 
-	public DatasetDB(String uri) {
+	public DatasetDB(String uri) { 
 		super(COLLECTION_NAME);
 		setKeys();
 		setUri(uri);
