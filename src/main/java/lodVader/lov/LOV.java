@@ -74,7 +74,6 @@ public class LOV extends SuperStream {
 
 	HashMap<String, Integer> rdfSubClassOf = new HashMap<String, Integer>();
 
-	@Test
 	public void loadLOVVocabularies() throws Exception {
 
 		logger.info("Loading LOV vocabulary.");
@@ -141,12 +140,18 @@ public class LOV extends SuperStream {
 				dataset.setTitle(stmt.next().getObject().toString());
 
 			stmt = tmpModel.listStatements(r, p2, (RDFNode) null);
-			if (stmt.hasNext())
-				dataset.setLabel(stmt.next().getObject().toString());
+			if (stmt.hasNext()) {
+				String label = stmt.next().getObject().toString();
+				dataset.setLabel(label);
+
+				if (dataset.getTitle() == null)
+					dataset.setTitle(label);
+			}
 
 			dataset.setIsVocabulary(true);
-
-			dataset.updateObject(true);
+			dataset.setSubsetIds(new ArrayList<Integer>());
+			dataset.setDistributionsIds(new ArrayList<Integer>());
+			dataset.update(true);
 
 			StmtIterator triples = m.listStatements(null, null, (RDFNode) null);
 
@@ -197,31 +202,38 @@ public class LOV extends SuperStream {
 
 				}
 			}
-			distribution = new DistributionDB(node.getNameSpace());
-			distribution.setTopDataset(dataset.getLODVaderID());
-			distribution.updateObject(true);
-			//
-			MakeLinksetsMasterThread makeLinksets = new MakeLinksetsMasterThread(subjectsQueue, node.getNameSpace());
-			MakeLinksetsMasterThread makeLinksets2 = new MakeLinksetsMasterThread(objectsQueue, node.getNameSpace());
-			makeLinksets2.tuplePart = TuplePart.OBJECT;
-			makeLinksets.tuplePart = TuplePart.SUBJECT;
-			makeLinksets.start();
-			makeLinksets2.start();
+			if (node.getNameSpace().startsWith("http")) {
+				distribution = new DistributionDB(node.getNameSpace());
+				distribution.setTopDataset(dataset.getLODVaderID());
+				distribution.setUri(node.getNameSpace());
+				if (dataset.getTitle() != null)
+					distribution.setTitle(dataset.getTitle());
+				else if (dataset.getLabel() != null)
+					distribution.setTitle(dataset.getLabel());
+				
+				distribution.setStatus(DistributionDB.STATUS_WAITING_TO_STREAM);
+				distribution.update(true);
 
-			Thread.sleep(50);
+				MakeLinksetsMasterThread makeLinksets = new MakeLinksetsMasterThread(subjectsQueue,
+						node.getNameSpace());
+				MakeLinksetsMasterThread makeLinksets2 = new MakeLinksetsMasterThread(objectsQueue,
+						node.getNameSpace());
+				makeLinksets2.tuplePart = TuplePart.OBJECT;
+				makeLinksets.tuplePart = TuplePart.SUBJECT;
+				makeLinksets.start();
+				makeLinksets2.start();
 
-			makeLinksets.setDoneSplittingString(true);
-			makeLinksets2.setDoneSplittingString(true);
-			makeLinksets.join();
-			makeLinksets2.join();
+				Thread.sleep(50);
 
-			if (dataset.getTitle() != null)
-				distribution.setTitle(dataset.getTitle());
-			else if (dataset.getLabel() != null)
-				distribution.setTitle(dataset.getLabel());
+				makeLinksets.setDoneSplittingString(true);
+				makeLinksets2.setDoneSplittingString(true);
+				makeLinksets.join();
+				makeLinksets2.join();
 
-			SaveDist(node.getNameSpace(), subjects, objects, dataset.getLODVaderID(), dataset.getTitle());
+				// distribution.update(true);
 
+				SaveDist(node.getNameSpace(), subjects, objects, dataset.getLODVaderID(), dataset.getTitle());
+			}
 		}
 
 	}
@@ -241,99 +253,22 @@ public class LOV extends SuperStream {
 		o.makeBucket();
 		String timer2 = t2.stopTimer();
 
-		// File fout = new File(
-		// LODVaderProperties.SUBJECT_FILE_DISTRIBUTION_PATH
-		// + FileUtils.stringToHash(nameSpace));
-		// FileOutputStream fos = new FileOutputStream(fout);
-		//
-		// BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
-		//
-		// for (String string : subjects) {
-		// bw.write(string);
-		// bw.newLine();
-		// }
-		//
-		// bw.close();
-		//
-		// fout = new File(LODVaderProperties.OBJECT_FILE_DISTRIBUTION_PATH
-		// + FileUtils.stringToHash(nameSpace));
-		// fos = new FileOutputStream(fout);
-		// bw = new BufferedWriter(new OutputStreamWriter(fos));
-		//
-		// for (String string : objects) {
-		// bw.write(string);
-		// bw.newLine();
-		// }
-		// bw.close();
-		//
-		// // make a filter with subjects and objects
-		// GoogleBloomFilter subjectFilter;
-		// GoogleBloomFilter objectFilter;
-		//
-		// if (subjects.size() > 1000000){
-		// subjectFilter = new GoogleBloomFilter((int) subjects.size(),
-		// (0.9) / subjects.size());
-		// objectFilter = new GoogleBloomFilter((int) objects.size(),
-		// (0.9) / objects.size());
-		// }
-		// else{
-		// subjectFilter = new GoogleBloomFilter((int) subjects.size(),
-		// 0.0000001);
-		// objectFilter = new GoogleBloomFilter((int) objects.size(),
-		// 0.0000001);
-		// }
-		//
-		// // creating filter for subjects
-		// Timer t = new Timer();
-		// t.startTimer();
-		// // load file to filter and take the process time
-		//// FileToFilter f = new FileToFilter();
-		//
-		// // Loading file to filter
-		// subjectFilter.loadFileToFilter(LODVaderProperties.SUBJECT_FILE_DISTRIBUTION_PATH+FileUtils.stringToHash(nameSpace));
-		//
-		// subjectFilter.saveFilter(LODVaderProperties.SUBJECT_FILE_FILTER_PATH+FileUtils.stringToHash(nameSpace));
-		// // save filter
-		// String timer = t.stopTimer();
-		//
-		//
-		// // creating filter for objects
-		// t = new Timer();
-		// t.startTimer();
-		// // load file to filter and take the process time
-		//// f = new FileToFilter();
-		//
-		// // Loading file to filter
-		// objectFilter.loadFileToFilter(LODVaderProperties.OBJECT_FILE_DISTRIBUTION_PATH+
-		// FileUtils.stringToHash(nameSpace));
-		//
-		// objectFilter.saveFilter(LODVaderProperties.OBJECT_FILE_FILTER_PATH+FileUtils.stringToHash(nameSpace));
-		// // save filter
-		// String timer2 = t.stopTimer();
-
 		ArrayList<Integer> parentDataset = new ArrayList<Integer>();
 		parentDataset.add(parentDynID);
 
 		distribution.setDownloadUrl(nameSpace);
+		distribution.setUri(nameSpace);
 		distribution.setDefaultDatasets(parentDataset);
 		distribution.setTopDataset(parentDynID);
 		distribution.setTriples(numberOfTriples);
-		distribution.setTimeToCreateSubjectFilter(timer1);
-		distribution.setTimeToCreateObjectFilter(timer2);
 		distribution.setFormat("nq");
 		distribution.setTopDatasetTitle(parentTitle);
 		distribution.setIsVocabulary(true);
-		distribution.setNumberOfObjectTriples(String.valueOf(objects.size()));
-		distribution.setNumberOfSubjectTriples(String.valueOf(subjects.size()));
+		distribution.setNumberOfObjectTriples(objects.size());
+		distribution.setNumberOfSubjectTriples(subjects.size());
 		distribution.setSuccessfullyDownloaded(true);
 		// distribution.setStatus(DistributionMongoDBObject.STATUS_WAITING_TO_CREATE_LINKSETS);
 		distribution.setStatus(DistributionDB.STATUS_DONE);
-		distribution
-				.setSubjectFilterPath(LODVaderProperties.SUBJECT_FILE_FILTER_PATH + FileUtils.stringToHash(nameSpace));
-		distribution
-				.setObjectFilterPath(LODVaderProperties.OBJECT_FILE_FILTER_PATH + FileUtils.stringToHash(nameSpace));
-		distribution
-				.setObjectPath(LODVaderProperties.OBJECT_FILE_DISTRIBUTION_PATH + FileUtils.stringToHash(nameSpace));
 
 		DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss dd/MM/yyyy");
 		// get current date time with Date()
@@ -341,25 +276,11 @@ public class LOV extends SuperStream {
 
 		distribution.setLastTimeStreamed(dateFormat.format(date).toString());
 
-		distribution.updateObject(true);
+		distribution.update(true);
 
 		numberOfTriples = 0;
 
-		// ObjectId id = new ObjectId();
-		// DistributionSubjectDomainsMongoDBObject ds = new
-		// DistributionSubjectDomainsMongoDBObject(
-		// id.get().toString());
-		// ds.setDistributionID(distribution.getDynLodID());
-		// ds.setSubjectFQDN(obj);
-		// ds.updateObject(true);
-
 		logger.info("Saving predicates...");
-		// save predicates
-		// new PredicatesQueries().insertPredicates(predicates,
-		// distribution.getDynLodID(), distribution.getTopDataset());
-		// new AllPredicatesDB().insertSet(predicates.allPredicates.keySet());
-		// new AllPredicatesRelationDB().insertSet(splitThread.allPredicates,
-		// distribution.getDynLodID(), distribution.getTopDataset());
 
 		new AllPredicatesDB().insertSet(allPredicates.keySet());
 		new AllPredicatesRelationDB().insertSet(allPredicates, distribution.getLODVaderID(),
@@ -410,7 +331,7 @@ public class LOV extends SuperStream {
 	public void streamDistribution() throws IOException, LODVaderLODGeneralException, InterruptedException,
 			RDFHandlerException, RDFParseException, LODVaderFormatNotAcceptedException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

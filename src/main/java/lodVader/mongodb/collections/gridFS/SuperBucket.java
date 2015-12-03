@@ -27,12 +27,13 @@ import lodVader.LODVaderProperties;
 import lodVader.bloomfilters.GoogleBloomFilter;
 import lodVader.exceptions.LODVaderLODGeneralException;
 import lodVader.mongodb.DBSuperClass;
+import lodVader.mongodb.DBSuperClass2;
 
 public class SuperBucket {
 
 	final static Logger logger = LoggerFactory.getLogger(SuperBucket.class);
 
-	static double time = 0;
+//	static double time = 0;
 
 	int chunkSize = LODVaderProperties.MAX_CHUNK_SIZE;
 
@@ -65,10 +66,6 @@ public class SuperBucket {
 	public SuperBucket() {
 	}
 
-	// public SuperBucket(TreeSet<String> resources, int distributionID) {
-	// this.resources = resources;
-	// this.distributionID = distributionID;
-	// }
 
 	public SuperBucket(File resourcesFile, int distributionID) {
 		this.resourcesFile = resourcesFile;
@@ -81,7 +78,7 @@ public class SuperBucket {
 		this.lastResource = lastResource;
 	}
 
-	@SuppressWarnings("unchecked")
+//	@SuppressWarnings("unchecked")
 	public void makeBucket() {
 
 		// first we have to remove the old BFs for this distribution
@@ -142,18 +139,18 @@ public class SuperBucket {
 
 	private void saveChunk(final ArrayList<String> chunk) {
 		final int distributionID = this.distributionID;
-		Thread t = new Thread() {
-			public void run() {
+//		Thread t = new Thread() {
+//			public void run() {
 				makeBloomFilter(chunk, distributionID);
-			};
-		};
-		t.start();
-		try {
-			t.join();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//			};
+//		};
+//		t.start();
+//		try {
+//			t.join();
+//		} catch (InterruptedException e) {
+//			 TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 
 	}
 
@@ -177,8 +174,10 @@ public class SuperBucket {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+		if(filter.filter.mightContain("http://aksw.org/N3/News-100/96#char=950,958".getBytes()))
+			System.out.println("OK!");
 
-		GridFS gfs = new GridFS(DBSuperClass.getInstance(), COLLECTION_NAME);
+		GridFS gfs = new GridFS(DBSuperClass2.getDBInstance(), COLLECTION_NAME);
 		GridFSInputFile gfsFile;
 		try {
 			gfsFile = gfs.createFile(new ByteArrayInputStream(out.toByteArray()));
@@ -198,7 +197,7 @@ public class SuperBucket {
 	// public void query(){
 	public boolean query(int distributionID) {
 
-		GridFS gfsPhoto = new GridFS(DBSuperClass.getInstance(), COLLECTION_NAME);
+		GridFS gfsFile = new GridFS(DBSuperClass2.getDBInstance(), COLLECTION_NAME);
 
 		boolean result = false;
 
@@ -211,7 +210,7 @@ public class SuperBucket {
 		and.add(lastResource);
 		and.add(distribution);
 
-		GridFSDBFile file = gfsPhoto.findOne(new BasicDBObject("$and", and));
+		GridFSDBFile file = gfsFile.findOne(new BasicDBObject("$and", and));
 
 		// Timer t = new Timer();
 		// t.startTimer();
@@ -220,6 +219,11 @@ public class SuperBucket {
 			try {
 				filter.filter = BloomFilter.readFrom(file.getInputStream(), filter.funnel);
 				result = filter.filter.mightContain(resource.getBytes());
+				System.out.println("http://aksw.org/N3/News-100");
+				System.out.println(filter.filter.mightContain("http://aksw.org/N3/News-100".getBytes()));
+				System.out.println("http://aksw.org/N3/News-100/96#char=950,958");
+				System.out.println(filter.filter.mightContain("http://aksw.org/N3/News-100/96#char=950,958".getBytes()));
+
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -249,6 +253,7 @@ public class SuperBucket {
 		GoogleBloomFilter filter = null;
 		if (file != null)
 			try {
+				System.out.println(file.get(FIRST_RESOURCE));
 				filter = new GoogleBloomFilter();
 				filter.filter = BloomFilter.readFrom(file.getInputStream(), filter.funnel);
 				this.lastResource = file.get(LAST_RESOURCE).toString();

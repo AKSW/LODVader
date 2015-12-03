@@ -1,5 +1,6 @@
 package lodVader.linksets;
 
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,8 +27,9 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 	 *            string queue of objects or subjects resources
 	 * @param uri
 	 *            of the distribution (usually the distribution URL)
+	 * @throws MalformedURLException 
 	 */
-	public MakeLinksetsMasterThread(ConcurrentLinkedQueue<String> resourceQueue, String uri) {
+	public MakeLinksetsMasterThread(ConcurrentLinkedQueue<String> resourceQueue, String uri) throws MalformedURLException {
 		super(resourceQueue, uri);
 	}
 
@@ -100,7 +102,7 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 									}
 								}
 							} catch (Exception e) {
-								logger.error("Error: " + e.getMessage());
+								e.printStackTrace();
 //								System.out.println(distributionToCompare);
 								e.printStackTrace();
 							}

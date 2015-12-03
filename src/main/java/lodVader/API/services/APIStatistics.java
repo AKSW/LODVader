@@ -77,7 +77,7 @@ public class APIStatistics {
 
 		if (searchSubject != null) {
 			HashSet<Integer> i = new HashSet<Integer>();
-			for (DistributionDB n : new DistributionQueries().getDistributionsByResource(searchSubject,
+			for (DistributionDB n : new DistributionQueries().queryDistribution(searchSubject,
 					LODVaderProperties.TYPE_SUBJECT)) {
 				i.add(n.getLODVaderID());
 			}
@@ -87,7 +87,7 @@ public class APIStatistics {
 		}
 		if (searchObject != null) {
 			HashSet<Integer> i = new HashSet<Integer>();
-			for (DistributionDB n : new DistributionQueries().getDistributionsByResource(searchObject,
+			for (DistributionDB n : new DistributionQueries().queryDistribution(searchObject,
 					LODVaderProperties.TYPE_OBJECT)) {
 				i.add(n.getLODVaderID());
 			}
@@ -97,7 +97,7 @@ public class APIStatistics {
 		}
 		if (searchProperty != null) {
 			HashSet<Integer> i = new HashSet<Integer>();
-			for (DistributionDB n : new DistributionQueries().getDistributionsByResource(searchProperty,
+			for (DistributionDB n : new DistributionQueries().queryDistribution(searchProperty,
 					LODVaderProperties.TYPE_PROPERTY)) {
 				i.add(n.getLODVaderID());
 			}

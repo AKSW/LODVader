@@ -1,57 +1,16 @@
 package lodVader.mongodb.collections;
 
-import java.net.MalformedURLException;
-import java.util.ArrayList;
-
-import com.mongodb.DBObject;
-
-import lodVader.mongodb.queries.DatasetQueries;
-import lodVader.utils.URLUtils;
-
-public class DistributionDB extends ResourceDB {
+public class DistributionDB2 extends ResourceDB {
 
 	// Collection name
 	public static final String COLLECTION_NAME = "Distribution";
 
-	public DistributionDB() {
+	public DistributionDB2() {
 		super(COLLECTION_NAME);
-		setKeys();
-		setLodVaderID(new LODVaderCounterDB().incrementAndGetID());
-	}
-
-	public DistributionDB(DBObject object) {
-		super(COLLECTION_NAME);
-		mongoDBObject = object;
-		setKeys();
-	}
-
-	public DistributionDB(int id) {
-		super(COLLECTION_NAME);
-		setKeys();
-		setLodVaderID(id);
-		find(true);
-		if (getLODVaderID() == null)
-			setLodVaderID(new LODVaderCounterDB().incrementAndGetID());
-	}
-
-	public DistributionDB(String uri) throws MalformedURLException {
-		super(COLLECTION_NAME);
-		setKeys();
-		setUri(uri);
-		setDownloadUrl(uri);
-		find(true);
-		if (getLODVaderID() == null)
-			setLodVaderID(new LODVaderCounterDB().incrementAndGetID());
-	}
-
-	private void setKeys() {
-		addPK(URI);
 		addPK(DOWNLOAD_URL);
-		addPK(LOD_VADER_ID);
+		
 		addMandatoryField(DOWNLOAD_URL);
-		addMandatoryField(URI);
-		addMandatoryField(LOD_VADER_ID);
-		addMandatoryField(STATUS);
+		addMandatoryField(TOP_DATASET);		
 	}
 
 	// Distributions possible status
@@ -76,45 +35,41 @@ public class DistributionDB extends ResourceDB {
 	public static final String STATUS_UPDATING_LINK_STRENGTH = "UPDATING_LINK_STRENGTH";
 
 	// collection properties
-	public static final String DOWNLOAD_URL = "downloadUrl";
+	private static final String DOWNLOAD_URL = "downloadUrl";
 
-	public static final String TOP_DATASET = "topDataset";
+	private static final String TOP_DATASET = "topDataset";
 
-	public static final String TOP_DATASET_TITLE = "topDatasetTitle";
+	private static final String TOP_DATASET_TITLE = "topDatasetTitle";
 
-	public static final String NUMBER_OF_SUBJECT_TRIPLES = "numberOfSubjectTriples";
+	private static final String NUMBER_OF_SUBJECT_TRIPLES = "numberOfSubjectTriples";
 
-	public static final String NUMBER_OF_OBJECTS_TRIPLES = "numberOfObjectTriples";
+	private static final String NUMBER_OF_OBJECTS_TRIPLES = "numberOfObjectTriples";
 
-	public static final String STATUS = "status";
+	private static final String STATUS = "status";
 
-	public static final String SUCCESSFULLY_DOWNLOADED = "successfullyDownloaded";
+	private static final String SUCCESSFULLY_DOWNLOADED = "successfullyDownloaded";
 
-	public static final String LAST_MSG = "lastMsg";
+	private static final String LAST_MSG = "lastMsg";
 
-	public static final String HTTP_BYTE_SIZE = "httpByteSize";
+	private static final String HTTP_BYTE_SIZE = "httpByteSize";
 
-	public static final String HTTP_FORMAT = "httpFormat";
+	private static final String HTTP_FORMAT = "httpFormat";
 
-	public static final String HTTP_LAST_MODIFIED = "httpLastModified";
+	private static final String HTTP_LAST_MODIFIED = "httpLastModified";
 
-	public static final String TRIPLES = "triples";
+	private static final String TRIPLES = "triples";
 
-	public static final String FORMAT = "format";
+	private static final String FORMAT = "format";
 
-	public static final String RESOURCE_URI = "resourceUri";
+	private static final String RESOURCE_URI = "resourceUri";
 
-	public static final String DEFAULT_DATASETS = "defaultDatasets";
-
-	public static final String LAST_TIME_STREAMED = "lastTimeStreamed";
+	private static final String LAST_TIME_STREAMED = "lastTimeStreamed";
 
 	public String getDownloadUrl() {
 		return getField(DOWNLOAD_URL).toString();
 	}
 
-	public void setDownloadUrl(String downloadUrl) throws MalformedURLException {
-		URLUtils utils = new URLUtils();
-		utils.validateURL(downloadUrl);
+	public void setDownloadUrl(String downloadUrl) {
 		addField(DOWNLOAD_URL, downloadUrl);
 	}
 
@@ -191,9 +146,6 @@ public class DistributionDB extends ResourceDB {
 	}
 
 	public String getLastMsg() {
-		
-		if(getField(LAST_MSG) == null)
-			return "";
 		return getField(LAST_MSG).toString();
 	}
 
@@ -202,11 +154,6 @@ public class DistributionDB extends ResourceDB {
 	}
 
 	public String getStatus() {
-		try {
-			getField(STATUS).toString();
-		} catch (NullPointerException e) {
-			return null;
-		}
 		return getField(STATUS).toString();
 	}
 
@@ -215,7 +162,7 @@ public class DistributionDB extends ResourceDB {
 	}
 
 	public boolean getIsVocabulary() {
-		return Boolean.parseBoolean(getField(IS_VOCABULARY).toString());
+		return Boolean.getBoolean(getField(IS_VOCABULARY).toString());
 	}
 
 	public String getResourceUri() {
@@ -240,32 +187,6 @@ public class DistributionDB extends ResourceDB {
 
 	public void setTopDatasetTitle(String topDatasetTitle) {
 		addField(TOP_DATASET_TITLE, topDatasetTitle);
-	}
-
-	public void setDefaultDatasets(ArrayList<Integer> defaultDatasets) {
-		addField(DEFAULT_DATASETS, defaultDatasets);
-	}
-
-	public void addDefaultDatasets(int datasetID) {
-		ArrayList<Integer> ids = (ArrayList<Integer>) getField(DEFAULT_DATASETS);
-		if (ids != null) {
-			if (!ids.contains(datasetID)) {
-				ids.add(datasetID);
-				addField(DEFAULT_DATASETS, ids);
-			}
-		} else {
-			ids = new ArrayList<Integer>();
-			ids.add(datasetID);
-			addField(DEFAULT_DATASETS, ids);
-		}
-	}
-
-	public ArrayList<Integer> getDefaultDatasets() {
-		return (ArrayList<Integer>) getField(DEFAULT_DATASETS);
-	}
-
-	public ArrayList<DatasetDB> getDefaultDatasetsAsResources() {
-		return new DatasetQueries().getDatasets((ArrayList<Integer>) getField(DEFAULT_DATASETS));
 	}
 
 }

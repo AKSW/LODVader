@@ -3,6 +3,7 @@ package lodVader.threads;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -180,7 +181,11 @@ public class DistributionDataSlaveThread extends Thread {
 			File f = new File(fileName);
 			f.delete();
 
-		} catch (Exception e) {
+		} catch (FileNotFoundException e){
+			
+		}
+		
+		catch (Exception e) {
 			e.printStackTrace();
 		}
 		return links;

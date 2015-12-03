@@ -32,7 +32,7 @@ public abstract class SuperStream {
 	public String httpLastModified = "0";
 
 	protected static final int BUFFER_SIZE = 1024*256;
-	public URL url = null;
+	public URL downloadUrl = null;
 
 	protected InputStream inputStream = null;
 
@@ -85,13 +85,13 @@ public abstract class SuperStream {
 	}
 
 	private void openConnection() throws IOException, LODVaderLODGeneralException  {
-		httpConn = (HttpURLConnection) url.openConnection();
+		httpConn = (HttpURLConnection) downloadUrl.openConnection();
 
 		httpConn.setReadTimeout(5000);
 		httpConn.setConnectTimeout(5000);
 		int responseCode = httpConn.getResponseCode();
 
-		logger.debug("Open HTTP connection for URL: " + url.toString());
+		logger.debug("Open HTTP connection for URL: " + downloadUrl.toString());
 
 		// check HTTP response code
 		if (responseCode != HttpURLConnection.HTTP_OK) {
@@ -121,7 +121,7 @@ public abstract class SuperStream {
 		// check whether file is bz2 type
 		if (getExtension().equals("bz2")) {
 			logger.info("File extension is bz2, creating BZip2CompressorInputStream...");
-			httpConn = (HttpURLConnection) url.openConnection();
+			httpConn = (HttpURLConnection) downloadUrl.openConnection();
 			inputStream = new BZip2CompressorInputStream(new BufferedInputStream(
 					httpConn.getInputStream()), true);
 			setFileName(getFileName().replace(".bz2", ""));
@@ -139,8 +139,8 @@ public abstract class SuperStream {
 			logger.info("File extension is " + getExtension()
 					+ ", creating GzipCompressorInputStream...");
 			logger.debug(new FileNameFromURL().getFileName(
-					url.toString(), httpDisposition));
-			httpConn = (HttpURLConnection) url.openConnection();
+					downloadUrl.toString(), httpDisposition));
+			httpConn = (HttpURLConnection) downloadUrl.openConnection();
 			inputStream = new GzipCompressorInputStream(
 					new BufferedInputStream(httpConn.getInputStream()), true);
 			setFileName(getFileName().replace(".gz", ""));
@@ -164,7 +164,7 @@ public abstract class SuperStream {
 	public String getFileName() {
 		if (fileName == null) {
 			// extracts file name from header field
-			fileName = new FileNameFromURL().getFileName(url.toString(),
+			fileName = new FileNameFromURL().getFileName(downloadUrl.toString(),
 					httpDisposition);
 			logger.debug("Found file name: " + fileName);
 		}
@@ -189,11 +189,11 @@ public abstract class SuperStream {
 	}
 
 	public URL getUrl() {
-		return url;
+		return downloadUrl;
 	}
 
 	public void setUrl(URL url) {
-		this.url = url;
+		this.downloadUrl = url;
 	}
 	
 	public abstract void streamDistribution() throws IOException, LODVaderLODGeneralException, InterruptedException,

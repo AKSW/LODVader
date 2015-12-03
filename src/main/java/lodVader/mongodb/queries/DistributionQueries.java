@@ -24,6 +24,7 @@ import lodVader.LoadedBloomFiltersCache;
 import lodVader.bloomfilters.GoogleBloomFilter;
 import lodVader.linksets.DistributionResourcesData;
 import lodVader.mongodb.DBSuperClass;
+import lodVader.mongodb.DBSuperClass2;
 import lodVader.mongodb.collections.DatasetDB;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.RDFResources.allPredicates.AllPredicatesDB;
@@ -139,10 +140,8 @@ public class DistributionQueries {
 				g.add(d.get(DistributionObjectNSDB.NS).toString());
 				size++;
 			}
-			
-			logger.info("Loaded "+size+ " object namespaces.");
 
-		
+			logger.info("Loaded " + size + " object namespaces.");
 
 		} else if (resourceType.equals(LODVaderProperties.TYPE_SUBJECT)) {
 
@@ -157,7 +156,7 @@ public class DistributionQueries {
 				g.add(d.get(DistributionSubjectNSDB.NS).toString());
 				size++;
 			}
-			logger.info("Loaded "+size+ " subject namespaces.");
+			logger.info("Loaded " + size + " subject namespaces.");
 
 		}
 
@@ -198,7 +197,7 @@ public class DistributionQueries {
 		}
 		return list;
 	}
-	
+
 	/**
 	 * 
 	 * @return number of total triples read
@@ -425,8 +424,11 @@ public class DistributionQueries {
 		return distributionList;
 	}
 
-	public HashSet<DistributionDB> getDistributionsByResource(String resource, String type) {
-
+//	@Test
+//	public void queryDistribution(){ 
+		public HashSet<DistributionDB> queryDistribution(String resource, String type) {
+//		String resource = "http://www.w3.org/2005/11/its/rdf#taSource";
+//		String type = LODVaderProperties.TYPE_SUBJECT;
 		HashSet<DistributionDB> setOfDistributionNS = new HashSet<DistributionDB>();
 
 		// get resource fqdn
@@ -434,7 +436,7 @@ public class DistributionQueries {
 		String ns = nsUtils.getNSFromString(resource);
 
 		if (type.equals(LODVaderProperties.TYPE_SUBJECT)) {
-			DBCollection collection = DBSuperClass.getInstance().getCollection(DistributionSubjectNSDB.COLLECTION_NAME);
+			DBCollection collection = DBSuperClass2.getCollection(DistributionSubjectNSDB.COLLECTION_NAME);
 
 			DBObject query;
 			query = new BasicDBObject(DistributionSubjectNSDB.NS, ns);
@@ -459,10 +461,15 @@ public class DistributionQueries {
 				}
 			}
 
+//			System.out.println("asasa");
 			for (LoadedBloomFiltersCache l : cache) {
-				if (l.found)
-					setOfDistributionNS.add(l.distribution);
+				
+//				System.out.println(l.s.resource);
+				if (l.found) {
+//					System.out.println("oie");
 
+					setOfDistributionNS.add(l.distribution);
+				}
 			}
 		}
 

@@ -57,7 +57,7 @@ public class StreamAndSaveDump extends SuperStream {
 
 	public StreamAndSaveDump(DistributionDB distributionMongoDBObj) throws MalformedURLException {
 		this.distribution = distributionMongoDBObj;
-		this.url = new URL(distributionMongoDBObj.getDownloadUrl());
+		this.downloadUrl = new URL(distributionMongoDBObj.getDownloadUrl());
 		this.RDFFormat = distributionMongoDBObj.getFormat();
 		this.uri = distributionMongoDBObj.getUri();
 	}
@@ -75,7 +75,7 @@ public class StreamAndSaveDump extends SuperStream {
 
 		// check format and extension
 		if (RDFFormat == null || RDFFormat.equals("")) {
-			DistributionDB dist = new DistributionDB(url.toString());
+			DistributionDB dist = new DistributionDB(downloadUrl.toString());
 			if (dist.getFormat() == null || dist.getFormat() == "" || dist.getFormat().equals(""))
 				RDFFormat = getExtension();
 			else
@@ -187,7 +187,7 @@ public class StreamAndSaveDump extends SuperStream {
 						logger.debug(++nf + " zip file uncompressed.");
 						logger.debug("File name: " + entry.getName());
 						
-						rdfParser.parse(zip, url.toString());
+						rdfParser.parse(zip, downloadUrl.toString());
 
 					}
 
@@ -213,7 +213,7 @@ public class StreamAndSaveDump extends SuperStream {
 
 						tar.read(content, 0, (int) entry.getSize());
 
-						rdfParser.parse(tar, url.toString());
+						rdfParser.parse(tar, downloadUrl.toString());
 					}
 					entry = (TarArchiveEntry) tar.getNextEntry();
 				}
@@ -221,7 +221,7 @@ public class StreamAndSaveDump extends SuperStream {
 			}
 
 			else {
-				rdfParser.parse(inputStream, url.toString());
+				rdfParser.parse(inputStream, downloadUrl.toString());
 			}
 
 		} catch (RDFHandlerException | IOException | RDFParseException e) {

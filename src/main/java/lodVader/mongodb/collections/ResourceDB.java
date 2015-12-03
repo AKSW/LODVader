@@ -1,78 +1,64 @@
 package lodVader.mongodb.collections;
 
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
+import lodVader.mongodb.DBSuperClass2;
 
-import lodVader.exceptions.LODVaderLODGeneralException;
-import lodVader.mongodb.DBSuperClass;
+public abstract class ResourceDB extends DBSuperClass2 {
 
-public class ResourceDB extends DBSuperClass {
-	
-	public final String MODIFIED_TIMESTAMP = "modifiedTimestamp";
+	public static final String URI = "uri";
 
 	public static final String LOD_VADER_ID = "lodVaderID";
-	
+
 	public static final String IS_VOCABULARY = "isVocabulary";
-	
+
 	public static final String TITLE = "title";
-	
+
 	public static final String LABEL = "label";
-	
-	
-	
-	protected String title;
-	
-	protected String label;
-	
-	protected boolean isVocabulary = false;
-	
-	protected int lodVaderID = 0;
-	
 
-	protected DBObject search(int id) {
-
-		mongoDBObject.put(LOD_VADER_ID,  id);
-		DBCursor d = objectCollection.find(mongoDBObject);
-		if (d.hasNext()){
-			DBObject o = d.next();
-			this.uri = o.get(URI).toString();
-			return o;
-		}
-
-		return null;
-	}
-	
-
-	public ResourceDB(String collectionName, String uri) {
-		super(collectionName, uri);
-		// TODO Auto-generated constructor stub
-	}
-	
-	public ResourceDB(String collectionName, int id) {
-		super(collectionName, id);
-		// TODO Auto-generated constructor stub
-	}
-	
-	public ResourceDB(String collectionName, DBObject object) {
-		super(collectionName, object);
-		// TODO Auto-generated constructor stub
-	}
-	
-	public ResourceDB(String collection, String uri, boolean isRegex) {
-		super(collection, uri, isRegex);
-		loadObject();
+	public ResourceDB(String collectionName) {
+		super(collectionName);
+		setIsVocabulary(false);
 	}
 
-	@Override
-	public boolean updateObject(boolean checkBeforeInsert)
-			throws LODVaderLODGeneralException {
-		// TODO Auto-generated method stub
-		return false;
+	public void setLodVaderID(int id) {
+		addField(LOD_VADER_ID, id);
 	}
 
-	@Override
-	protected boolean loadObject() {
-		return false;
+	public void setIsVocabulary(boolean isVocabulary) {
+		addField(IS_VOCABULARY, isVocabulary);
 	}
 
+	public String getTitle() {
+		return getField(TITLE).toString();
+	}
+
+	public boolean getIsVocabulary() {
+		return Boolean.getBoolean(getField(IS_VOCABULARY).toString());
+	}
+
+	public void setTitle(String title) {
+		addField(TITLE, title);
+	}
+
+	public void setLabel(String label) {
+		addField(LABEL, label);
+	}
+
+	public String getLabel() {
+		return getField(LABEL).toString();
+	}
+
+	public Integer getLODVaderID() {
+		if (getField(LOD_VADER_ID) != null)
+			return ((Number) getField(LOD_VADER_ID)).intValue();
+		else
+			return null;
+	}
+
+	public String getUri() {
+		return getField(URI).toString();
+	}
+
+	public void setUri(String uri){
+		addField(URI, uri);
+	}
 }

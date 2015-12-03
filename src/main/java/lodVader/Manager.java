@@ -59,7 +59,7 @@ public class Manager {
 				logger.info("Distribution is already in the last version. No needs to stream again. ");
 				distributionMongoDBObj
 						.setLastMsg("Distribution is already in the last version. No needs to stream again.");
-				distributionMongoDBObj.updateObject(true);
+				distributionMongoDBObj.update(true);
 			}
 
 			// if distribution have not already been handled
@@ -68,7 +68,7 @@ public class Manager {
 
 					// uptate status of distribution to streaming
 					distributionMongoDBObj.setStatus(DistributionDB.STATUS_STREAMING);
-					distributionMongoDBObj.updateObject(true);
+					distributionMongoDBObj.update(true);
 
 					// now we need to download the distribution
 					SuperStream streamFile;
@@ -84,27 +84,27 @@ public class Manager {
 
 					// uptate status of distribution
 					distributionMongoDBObj.setStatus(DistributionDB.STATUS_STREAMED);
-					distributionMongoDBObj.updateObject(true);
+					distributionMongoDBObj.update(true);
 
 					logger.debug("Distribution streamed. ");
 
 					logger.debug("Saving mongodb \"Distribution\" document.");
 
-					distributionMongoDBObj.setNumberOfObjectTriples(String.valueOf(streamFile.objectLines));
-					distributionMongoDBObj.setDownloadUrl(streamFile.url.toString());
+					distributionMongoDBObj.setNumberOfObjectTriples(streamFile.objectLines);
+					distributionMongoDBObj.setNumberOfSubjectTriples(streamFile.subjectLines);
+					distributionMongoDBObj.setDownloadUrl(streamFile.downloadUrl.toString());
 					distributionMongoDBObj.setFormat(streamFile.extension.toString());
 					distributionMongoDBObj.setHttpByteSize(String.valueOf((int) streamFile.httpContentLength));
 					distributionMongoDBObj.setHttpFormat(streamFile.httpContentType);
 					distributionMongoDBObj.setHttpLastModified(streamFile.httpLastModified);
-					distributionMongoDBObj.setObjectPath(streamFile.objectFilePath);
 					distributionMongoDBObj.setTriples(streamFile.totalTriples);
 
 					distributionMongoDBObj.setSuccessfullyDownloaded(true);
-					distributionMongoDBObj.updateObject(true);
+					distributionMongoDBObj.update(true);
 
 					logger.debug("Checking Similarity among distributions...");
 					distributionMongoDBObj.setStatus(DistributionDB.STATUS_CREATING_JACCARD_SIMILARITY);
-					distributionMongoDBObj.updateObject(true);
+					distributionMongoDBObj.update(true);
 					// Saving link similarities
 
 					logger.debug("Checking Jaccard Similarities...");
@@ -117,7 +117,7 @@ public class Manager {
 
 					logger.debug("Updating link strength among distributions...");
 					distributionMongoDBObj.setStatus(DistributionDB.STATUS_UPDATING_LINK_STRENGTH);
-					distributionMongoDBObj.updateObject(true);
+					distributionMongoDBObj.update(true);
 					// Saving link similarities
 					// LinkStrength linkStrength = new LinkStrength();
 					// linkStrength.updateLinks(distributionMongoDBObj);
@@ -125,7 +125,7 @@ public class Manager {
 					logger.debug("Done streaming mongodb distribution object.");
 
 					// uptate status of distribution
-					distributionMongoDBObj.setStatus(DistributionDB.STATUS_DONE);
+					distributionMongoDBObj.setStatus(DistributionDB.STATUS_WAITING_TO_STREAM);
 
 					DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss dd/MM/yyyy");
 					// get current date time with Date()
@@ -133,7 +133,7 @@ public class Manager {
 
 					distributionMongoDBObj.setLastTimeStreamed(dateFormat.format(date).toString());
 
-					distributionMongoDBObj.updateObject(true);
+					distributionMongoDBObj.update(true);
 
 					logger.info("Distribution " + distributionMongoDBObj.getDownloadUrl() + " processed! ");
 
@@ -144,7 +144,7 @@ public class Manager {
 
 					e.printStackTrace();
 					distributionMongoDBObj.setSuccessfullyDownloaded(false);
-					distributionMongoDBObj.updateObject(true);
+					distributionMongoDBObj.update(true);
 
 				}
 		}
@@ -187,7 +187,7 @@ public class Manager {
 			}
 		}
 	}
-
+ 
 	private static boolean checkDistributionStatus(DistributionDB distributionMongoDBObj) throws Exception {
 		boolean needDownload = false;
 

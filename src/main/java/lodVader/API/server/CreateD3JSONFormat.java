@@ -34,30 +34,28 @@ public class CreateD3JSONFormat extends HttpServlet {
 	String LINK_TYPE;
 
 	boolean showDistribution = true;
-	
+
 	boolean showOntologies = false;
-	
+
 	boolean showInvalidLinks = false;
-	
+
 	double min = 0.001;
-	
+
 	double max = 1;
-	
+
 	DiagramData diagramData = null;
-	
-	protected void doPost(HttpServletRequest request,
-			HttpServletResponse response) throws ServletException, IOException {
+
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 		manageRequest(request, response);
 	}
 
-	protected void doGet(HttpServletRequest request,
-			HttpServletResponse response) throws ServletException, IOException {
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 		manageRequest(request, response);
 	}
-	
 
-	public void printOutput(JSONArray nodes, JSONArray links,
-			HttpServletResponse response) {
+	public void printOutput(JSONArray nodes, JSONArray links, HttpServletResponse response) {
 
 		JSONObject obj = new JSONObject();
 
@@ -67,50 +65,40 @@ public class CreateD3JSONFormat extends HttpServlet {
 		try {
 			ServletOutputStream out = response.getOutputStream();
 			out.write(obj.toString().getBytes("UTF-8"));
-			System.out.println(obj.toString());
-//			response.getWriter().print(obj);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
-	public void manageRequest(HttpServletRequest request,
-			HttpServletResponse response) {
+	public void manageRequest(HttpServletRequest request, HttpServletResponse response) {
 
 		JSONArray nodes = new JSONArray();
 		JSONArray links = new JSONArray();
 
 		Map<String, String[]> parameters = request.getParameterMap();
-		
 
 		showDistribution = checkParamenter(parameters, "showDistributions");
 		showOntologies = checkParamenter(parameters, "showOntologies");
 		checkRange(parameters);
 		checkLinkTypes(parameters);
-		
+
 		diagramData = new DiagramData();
-		new LinksetQueries()
-		.getLinksetsDegrees(diagramData, LINK_TYPE, min, max);
-		
+		new LinksetQueries().getLinksetsDegrees(diagramData, LINK_TYPE, min, max);
+
 		ArrayList<DistributionDB> dis = new DistributionQueries().getSetOfDistributions(diagramData.distributionsID);
 		for (DistributionDB distributionMongoDBObject : dis) {
 			diagramData.loadedDistributions.put(distributionMongoDBObject.getLODVaderID(), distributionMongoDBObject);
 		}
-			
-		
+
 		if (parameters.containsKey("getAllDistributions")) {
 
 			Diagram diagram = new Diagram();
-			ArrayList<LinksetDB> linksets = new LinksetQueries()
-					.getLinksetsWithLinks();
+			ArrayList<LinksetDB> linksets = new LinksetQueries().getLinksetsWithLinks();
 
 			for (LinksetDB linkset : linksets) {
 
-				Bubble target = new Bubble( new DistributionDB(
-						linkset.getDistributionTarget()));
-				Bubble source = new Bubble( new DistributionDB(
-						linkset.getDistributionSource()));
-			
+				Bubble target = new Bubble(new DistributionDB(linkset.getDistributionTarget()));
+				Bubble source = new Bubble(new DistributionDB(linkset.getDistributionSource()));
 
 				Link link = new Link(source, target, linkset.getLinksAsString());
 
@@ -127,27 +115,28 @@ public class CreateD3JSONFormat extends HttpServlet {
 
 		if (parameters.containsKey("dataset")) {
 			Diagram diagramTemp = new Diagram();
-			
-			
+
 			for (String datasetID : parameters.get("dataset")) {
 
 				int currentLevel = 1;
-				
-				DatasetDB d = new DatasetDB(Integer.valueOf(datasetID));
+				int id = Integer.valueOf(datasetID);
+				DatasetDB d = new DatasetDB(id);
 
-				iterateDataset(d, diagramTemp, d.getLODVaderID(), currentLevel);				
+				iterateDataset(d, diagramTemp, d.getLODVaderID(), currentLevel);
 			}
 
 			int[] results = new int[parameters.get("dataset").length];
 
 			for (int i = 0; i < results.length; i++) {
-			    try {
-			        results[i] = Integer.parseInt(parameters.get("dataset")[i]);
-			    } catch (NumberFormatException nfe) {};
+				try {
+					results[i] = Integer.parseInt(parameters.get("dataset")[i]);
+				} catch (NumberFormatException nfe) {
+				}
+				;
 			}
-			
+
 			diagramTemp.printSelectedBubbles(results);
-			
+
 			nodes = diagramTemp.getBubblesJSON();
 			links = diagramTemp.getLinksJSON();
 
@@ -156,137 +145,129 @@ public class CreateD3JSONFormat extends HttpServlet {
 
 	}
 
-	private void iterateDataset(DatasetDB dataset,
-			Diagram diagram, int parentDataset, int currentLevel) {
-		
-		
+	private void iterateDataset(DatasetDB dataset, Diagram diagram, int parentDataset, int currentLevel) {
+
 		for (DatasetDB subset : dataset.getSubsetsAsMongoDBObject()) {
-			makeLink(diagram.addBubble(new Bubble(dataset, true,parentDataset)),
-					diagram.addBubble(new Bubble(subset, true,parentDataset)), diagram, "S");				
+			makeLink(diagram.addBubble(new Bubble(dataset, true, parentDataset)),
+					diagram.addBubble(new Bubble(subset, true, parentDataset)), diagram, "S");
 			iterateDataset(subset, diagram, parentDataset, --currentLevel);
 		}
-		
-		for (DistributionDB distribution : dataset.getDistributionsAsMongoDBObjects()) {
-			
 
-			makeLink(diagram.addBubble(new Bubble(dataset, true,parentDataset)),
-					diagram.addBubble(new Bubble(distribution, true,parentDataset)), diagram, "S");
-			
+		for (DistributionDB distribution : dataset.getDistributionsAsMongoDBObjects()) {
+
+			makeLink(diagram.addBubble(new Bubble(dataset, true, parentDataset)),
+					diagram.addBubble(new Bubble(distribution, true, parentDataset)), diagram, "S");
+
 			// get indegree and outdegree for a distribution
 			ArrayList<LinksetDB> in = diagramData.indegreeLinks.get(distribution.getLODVaderID());
 			ArrayList<LinksetDB> out = diagramData.outdegreeLinks.get(distribution.getLODVaderID());
-			
 
-			if(in!=null){
-				
-			for (LinksetDB linkset : in) {
-				// get all distribution objects
-				
-				DistributionDB source = diagramData.loadedDistributions.get(linkset.getDistributionSource());
-				
-				DistributionDB target =  distribution;
-				
-				String links = getLinksCorrectFormat(linkset);
-				
-				if(!showOntologies){
-				if(source.getIsVocabulary() == false && target.getIsVocabulary() == false)
-					makeLink(diagram.addBubble(new Bubble(source, showDistribution,parentDataset)),
-							diagram.addBubble(new Bubble(target, showDistribution,parentDataset)), diagram, links);
-				}
-				else
-					makeLink(diagram.addBubble(new Bubble(source, showDistribution,parentDataset)),
-							diagram.addBubble(new Bubble(target, showDistribution,parentDataset)), diagram, links);
+			if (in != null) {
 
-			}
-		}
-			if(out!=null)
-			for (LinksetDB linkset : out) {
-				
-				DistributionDB source =  distribution;
-				DistributionDB target =  diagramData.loadedDistributions.get(linkset.getDistributionTarget());				
-				
-				String links = getLinksCorrectFormat(linkset);
-				
-				if(!showOntologies){
-					if(source.getIsVocabulary() == false && target.getIsVocabulary() == false  )				
-						makeLink(diagram.addBubble(new Bubble(source, showDistribution,parentDataset)),
-								diagram.addBubble(new Bubble(target, showDistribution,parentDataset)), diagram, links);
+				for (LinksetDB linkset : in) {
+					// get all distribution objects
+
+					DistributionDB source = diagramData.loadedDistributions.get(linkset.getDistributionSource());
+
+					DistributionDB target = distribution;
+
+					String links = getLinksCorrectFormat(linkset);
+					
+					System.out.println(source.getDownloadUrl()+ " "+ source.getIsVocabulary());
+
+					if (!showOntologies) {
+						if (source.getIsVocabulary() == false && target.getIsVocabulary() == false)
+							makeLink(diagram.addBubble(new Bubble(source, showDistribution, parentDataset)),
+									diagram.addBubble(new Bubble(target, showDistribution, parentDataset)), diagram,
+									links);
+					} else
+						makeLink(diagram.addBubble(new Bubble(source, showDistribution, parentDataset)),
+								diagram.addBubble(new Bubble(target, showDistribution, parentDataset)), diagram, links);
+
 				}
-				else
-						makeLink(diagram.addBubble(new Bubble(source, showDistribution,parentDataset)),
-								diagram.addBubble(new Bubble(target, showDistribution,parentDataset)), diagram, links);
-				
 			}
+			if (out != null)
+				for (LinksetDB linkset : out) {
+
+					DistributionDB source = distribution;
+					DistributionDB target = diagramData.loadedDistributions.get(linkset.getDistributionTarget());
+
+					String links = getLinksCorrectFormat(linkset);
+
+					if (!showOntologies) {
+						if (source.getIsVocabulary() == false && target.getIsVocabulary() == false)
+							makeLink(diagram.addBubble(new Bubble(source, showDistribution, parentDataset)),
+									diagram.addBubble(new Bubble(target, showDistribution, parentDataset)), diagram,
+									links);
+					} else
+						makeLink(diagram.addBubble(new Bubble(source, showDistribution, parentDataset)),
+								diagram.addBubble(new Bubble(target, showDistribution, parentDataset)), diagram, links);
+
+				}
 		}
 	}
-	
 
-	private void makeLink(Bubble source, Bubble target, Diagram diagram, String link){
-		
-		
+	private void makeLink(Bubble source, Bubble target, Diagram diagram, String link) {
+
 		Link l = new Link(source, target, link);
 
 		diagram.addBubble(target);
 		diagram.addBubble(source);
-		
+
 		diagram.addLink(l);
-		
+
 	}
-	
-	protected String getLinksCorrectFormat(LinksetDB linkset){
+
+	protected String getLinksCorrectFormat(LinksetDB linkset) {
 		String links;
-		if(LINK_TYPE.equals(LinksetDB.INVALID_LINKS))
+		if (LINK_TYPE.equals(LinksetDB.INVALID_LINKS))
 			links = linkset.getInvalidLinksAsString();
-		else if(LINK_TYPE.equals(LinksetDB.PREDICATE_SIMILARITY))
+		else if (LINK_TYPE.equals(LinksetDB.PREDICATE_SIMILARITY))
 			links = linkset.getPredicatesSimilarityAsString();
-		else if(LINK_TYPE.equals(LinksetDB.LINK_STRENGHT)){
+		else if (LINK_TYPE.equals(LinksetDB.LINK_STRENGHT)) {
 			links = linkset.getStrengthAsString();
-			
-		}
-		else
+
+		} else
 			links = linkset.getLinksAsString();
-		
+
 		return links;
 	}
-	
-	protected boolean checkParamenter(Map<String, String[]> parameters, String parameter){
-		if (parameters.containsKey(parameter)) 
+
+	protected boolean checkParamenter(Map<String, String[]> parameters, String parameter) {
+		if (parameters.containsKey(parameter))
 			return true;
 		else
 			return false;
 	}
-	
-	protected void checkRange(Map<String, String[]> parameters){
+
+	protected void checkRange(Map<String, String[]> parameters) {
 		if (parameters.containsKey("linkFrom")) {
 			min = Double.parseDouble(parameters.get("linkFrom")[0]);
-			if (min<0.2)
-				min=0.2;
+			if (min < 0.2)
+				min = 0.2;
 		}
-		if (parameters.containsKey("linkTo")) 
+		if (parameters.containsKey("linkTo"))
 			max = Double.parseDouble(parameters.get("linkTo")[0]);
 	}
-	
-	protected void checkLinkTypes(Map<String, String[]> parameters){
-		if(checkParamenter(parameters, "linkType")){
-			
-			if(parameters.get("linkType")[0].equals("showLinksStrength"))
+
+	protected void checkLinkTypes(Map<String, String[]> parameters) {
+		if (checkParamenter(parameters, "linkType")) {
+
+			if (parameters.get("linkType")[0].equals("showLinksStrength"))
 				LINK_TYPE = LinksetDB.LINK_STRENGHT;
-			else if(parameters.get("linkType")[0].equals("showDarkLOD")){
+			else if (parameters.get("linkType")[0].equals("showDarkLOD")) {
 				LINK_TYPE = LinksetDB.INVALID_LINKS;
 				min = LODVaderProperties.LINKSET_TRESHOLD;
 				max = -1;
-			}
-			else if(parameters.get("linkType")[0].equals("showSimilarity"))
+			} else if (parameters.get("linkType")[0].equals("showSimilarity"))
 				LINK_TYPE = LinksetDB.PREDICATE_SIMILARITY;
-			else if(parameters.get("linkType")[0].equals("showLinks")){
+			else if (parameters.get("linkType")[0].equals("showLinks")) {
 				LINK_TYPE = LinksetDB.LINK_NUMBER_LINKS;
 				min = LODVaderProperties.LINKSET_TRESHOLD;
 				max = -1;
 			}
-				
+
 		}
 	}
-	
-	
-	
+
 }

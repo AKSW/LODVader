@@ -24,7 +24,7 @@ abstract public class DBSuperClass {
 
 	// defining mongodb database
 	static DB db;
-
+	
 	// defining collection name
 	protected String collectionName;
 
@@ -210,10 +210,6 @@ abstract public class DBSuperClass {
 	}
 
 	protected DBObject search() {
-
-		// adding object URI
-//		if (uri == null)
-//			return null;
 
 		DBCursor d = objectCollection.find(mongoDBObject);
 		if (d.hasNext())

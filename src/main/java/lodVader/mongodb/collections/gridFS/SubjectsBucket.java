@@ -48,13 +48,6 @@ public class SubjectsBucket extends SuperBucket {
 		this.firstResource = firstResource;
 		this.lastResource = lastResource;
 	}
-	
-	@Test
-	public void oi(){
-		resource = "http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#RFC5147String";
-		System.out.println(query(60));
-		
-	}
 
 	public ArrayList<SubjectsBucket> createAllBuckets(int distributionID) {
 		

@@ -26,7 +26,10 @@ import com.hp.hpl.jena.rdf.model.StmtIterator;
 import lodVader.LODVaderProperties;
 import lodVader.exceptions.LODVaderFormatNotAcceptedException;
 import lodVader.exceptions.LODVaderLODGeneralException;
+import lodVader.exceptions.LODVaderMissingPropertiesException;
 import lodVader.exceptions.LODVaderNoDatasetFoundException;
+import lodVader.exceptions.mongodb.LODVaderNoPKFoundException;
+import lodVader.exceptions.mongodb.LODVaderObjectAlreadyExistsException;
 import lodVader.mongodb.collections.DatasetDB;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.ontology.NS;
@@ -144,12 +147,6 @@ public class DescriptionFileParser {
 			if(datasetMongoDBObj.getIsVocabulary())
 				break;
 			
-			
-
-			datasetMongoDBObj.setAccess_url(access_url);
-
-			// add description file path
-			datasetMongoDBObj.setDescriptionFileName(fileURLHash);
 
 			// case there is title property
 			if (dataset.getSubject().getProperty(RDFProperties.title) != null) {
@@ -172,8 +169,18 @@ public class DescriptionFileParser {
 				topDatasetID = datasetMongoDBObj.getLODVaderID();
 				topDatasetTitle = datasetMongoDBObj.getTitle();
 			}
+			
+			if(datasetMongoDBObj.getSubsetsIDs() == null)
+				datasetMongoDBObj.setSubsetIds(new ArrayList<Integer>());
+			if(datasetMongoDBObj.getDistributionsIDs() == null)
+				datasetMongoDBObj.setDistributionsIds(new ArrayList<Integer>());
 
-			datasetMongoDBObj.updateObject(true);
+			try {
+				datasetMongoDBObj.update(true);
+			} catch (LODVaderMissingPropertiesException | LODVaderObjectAlreadyExistsException
+					| LODVaderNoPKFoundException e) {
+				e.printStackTrace();
+			}
 			datasetMongoDBObj.addParentDatasetID(parentDataset);
 
 			// find subset within subset
@@ -210,7 +217,13 @@ public class DescriptionFileParser {
 //								.toString());
 						datasetMongoDBObj.addSubsetID(new DatasetDB(subset.getObject()
 								.toString()).getLODVaderID());
-						datasetMongoDBObj.updateObject(true);
+						try {
+							datasetMongoDBObj.update(true);
+						} catch (LODVaderMissingPropertiesException | LODVaderObjectAlreadyExistsException
+								| LODVaderNoPKFoundException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
 				}
 			}
@@ -227,8 +240,13 @@ public class DescriptionFileParser {
 						&& distributionProperty.equals(ResourceFactory
 								.createProperty(NS.VOID_URI, "dataDump"))) {
 					Statement stmtDistribution2 = stmtDistribution.next();
-					addDistribution(stmtDistribution2, stmtDistribution2,
-							datasetMongoDBObj,topDatasetTitle, topDatasetID);
+					try {
+						addDistribution(stmtDistribution2, stmtDistribution2,
+								datasetMongoDBObj,topDatasetTitle, topDatasetID);
+					} catch (MalformedURLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				} else if (stmtDistribution.hasNext()) {
 					break;
 				}
@@ -314,7 +332,7 @@ public class DescriptionFileParser {
 										topDatasetID);
 
 							}
-						} catch (LODVaderFormatNotAcceptedException ex) {
+						} catch (LODVaderFormatNotAcceptedException | MalformedURLException ex) {
 							ex.printStackTrace();
 						}
 					}
@@ -325,7 +343,7 @@ public class DescriptionFileParser {
 
 	public void addDistribution(Statement downloadURLStmt,
 			Statement stmtDistribution, DatasetDB subsetMongoDBObj,
-			String topDatasetTitle, int topDatasetID) {
+			String topDatasetTitle, int topDatasetID) throws MalformedURLException {
 
 		logger.info("Distribution found: downloadURL: "
 				+ downloadURLStmt.getObject().toString());
@@ -333,7 +351,7 @@ public class DescriptionFileParser {
 		// save distribution with downloadURL to list
 		numberOfDistributions++;
 		someDownloadURLFound = true;
-
+ 
 		// creating mongodb distribution object
 		DistributionDB distributionMongoDBObj = new DistributionDB(
 				downloadURLStmt.getObject().toString());
@@ -343,9 +361,9 @@ public class DescriptionFileParser {
 			return;
 		
 		distributionMongoDBObj.setResourceUri(stmtDistribution.getSubject()
-				.toString());
+				.toString()); 
  
-		distributionMongoDBObj.addDefaultDataset(subsetMongoDBObj.getLODVaderID());
+		distributionMongoDBObj.addDefaultDatasets(subsetMongoDBObj.getLODVaderID());
 
 		distributionMongoDBObj.setTopDataset(topDatasetID); 
 
@@ -422,13 +440,26 @@ public class DescriptionFileParser {
 			distributionMongoDBObj
 					.setStatus(DistributionDB.STATUS_WAITING_TO_STREAM);
 		}
-		distributionMongoDBObj.updateObject(true);
+		try {
+			distributionMongoDBObj.update(true);
+		} catch (LODVaderMissingPropertiesException | LODVaderObjectAlreadyExistsException
+				| LODVaderNoPKFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		distributionsLinks.add(distributionMongoDBObj);
 
 		if (subsetMongoDBObj != null) {
 			// update dataset or subset on mongodb with distribution
 			subsetMongoDBObj.addDistributionID(distributionMongoDBObj.getLODVaderID());
-			subsetMongoDBObj.updateObject(true);
+			
+			try {
+				subsetMongoDBObj.update(true);
+			} catch (LODVaderMissingPropertiesException | LODVaderObjectAlreadyExistsException
+					| LODVaderNoPKFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 
 	}

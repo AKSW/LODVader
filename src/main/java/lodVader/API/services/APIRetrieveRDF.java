@@ -1,5 +1,6 @@
 package lodVader.API.services;
 
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 
 import org.slf4j.Logger;
@@ -26,7 +27,7 @@ import lodVader.ontology.RDFProperties;
 public class APIRetrieveRDF extends API {
 
 	public Model outModel = null;
-	
+
 	final static Logger logger = LoggerFactory.getLogger(APIRetrieveRDF.class);
 
 	@Override
@@ -39,43 +40,46 @@ public class APIRetrieveRDF extends API {
 		// TODO Auto-generated constructor stub
 	}
 
-//	@Test
-//	public void t() throws DynamicLODNoDatasetFoundException, DynamicLODAPINoLinksFoundException {
-//		outModelInit();
-//		getDatasetChildren(new DatasetMongoDBObject(
-//				"http://gerbil.aksw.org/gerbil/dataId/corpora/N3-RSS-500#dataset"));
-//		printModel();
-//	}
-	
-	
+	// @Test
+	// public void t() throws DynamicLODNoDatasetFoundException,
+	// DynamicLODAPINoLinksFoundException {
+	// outModelInit();
+	// getDatasetChildren(new DatasetMongoDBObject(
+	// "http://gerbil.aksw.org/gerbil/dataId/corpora/N3-RSS-500#dataset"));
+	// printModel();
+	// }
 
-	public APIRetrieveRDF(String source, String target) throws LODVaderNoDatasetFoundException,
-			DynamicLODAPINoLinksFoundException{
+	public APIRetrieveRDF(String source, String target)
+			throws LODVaderNoDatasetFoundException, DynamicLODAPINoLinksFoundException {
 		retrieveRDF(source, target);
 	}
-	public APIRetrieveRDF(String URI) throws LODVaderNoDatasetFoundException,
-	DynamicLODAPINoLinksFoundException {
+
+	public APIRetrieveRDF(String URI) throws LODVaderNoDatasetFoundException, DynamicLODAPINoLinksFoundException {
 		retrieveRDF(URI, (String) null);
 	}
-	
-	public void retrieveRDF(String source, String target) throws LODVaderNoDatasetFoundException,
-	DynamicLODAPINoLinksFoundException{
+
+	public void retrieveRDF(String source, String target)
+			throws LODVaderNoDatasetFoundException, DynamicLODAPINoLinksFoundException {
 		outModelInit();
-		
+
 		// try to find by distribution
-		DistributionDB dist = new DistributionDB(source);
-		
-		if(dist.getDefaultDatasets().size()>0){
-			retrieveByDistribution(dist.getUri());
-			logger.debug("APIRetrieve found a distribution to retrieve RDF: "+ dist.getUri());
+		DistributionDB dist;
+		try {
+			dist = new DistributionDB(source);
+
+			if (dist.getDefaultDatasets().size() > 0) {
+				retrieveByDistribution(dist.getUri());
+				logger.debug("APIRetrieve found a distribution to retrieve RDF: " + dist.getUri());
+			} else {
+				DatasetDB d = new DatasetDB(source);
+				getDatasetChildren(d);
+			}
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		else{
-			DatasetDB d = new DatasetDB(source, true);
-			getDatasetChildren(d);
-		}
-//		printModel();
+		// printModel();
 	}
-	
 
 	private void outModelInit() {
 		outModel = ModelFactory.createDefaultModel();
@@ -93,63 +97,59 @@ public class APIRetrieveRDF extends API {
 		outModel.write(System.out, "TURTLE");
 	}
 
-	public void retrieveByDistribution(String distributionURI) throws DynamicLODAPINoLinksFoundException {
+	public void retrieveByDistribution(String distributionURI) throws DynamicLODAPINoLinksFoundException, MalformedURLException {
 		// get indegree and outdegree for a distribution
 		DistributionDB dis = new DistributionDB(distributionURI);
-		
-		ArrayList<LinksetDB> in = new LinksetQueries()
-				.getLinksetsInDegreeByDistribution(dis.getLODVaderID(), LinksetDB.LINK_NUMBER_LINKS, LODVaderProperties.LINKSET_TRESHOLD,-1);
-		ArrayList<LinksetDB> out = new LinksetQueries()
-				.getLinksetsOutDegreeByDistribution(dis.getLODVaderID(), LinksetDB.LINK_NUMBER_LINKS,LODVaderProperties.LINKSET_TRESHOLD,-1);
+
+		ArrayList<LinksetDB> in = new LinksetQueries().getLinksetsInDegreeByDistribution(dis.getLODVaderID(),
+				LinksetDB.LINK_NUMBER_LINKS, LODVaderProperties.LINKSET_TRESHOLD, -1);
+		ArrayList<LinksetDB> out = new LinksetQueries().getLinksetsOutDegreeByDistribution(dis.getLODVaderID(),
+				LinksetDB.LINK_NUMBER_LINKS, LODVaderProperties.LINKSET_TRESHOLD, -1);
 
 		// add choosen distribution to jena
 		// addDistributionToModel(new
 		// DistributionMongoDBObject(distributionURI));
-		
+
 		boolean linksetsFound = false;
 
 		// add linksets to jena model
 		for (LinksetDB linkset : in) {
-			DistributionDB distributionSubject = new DistributionDB(
-					linkset.getDistributionTarget());
+			DistributionDB distributionSubject = new DistributionDB(linkset.getDistributionTarget());
 
-			DistributionDB distributionObject =  new DistributionDB(
-					linkset.getDistributionSource());
+			DistributionDB distributionObject = new DistributionDB(linkset.getDistributionSource());
 
 			for (int d1 : distributionSubject.getDefaultDatasets()) {
 				for (int d2 : distributionObject.getDefaultDatasets()) {
-					if(addLinksetToModel(d2, d1, linkset.getLinks()))
+					if (addLinksetToModel(d2, d1, linkset.getLinks()))
 						linksetsFound = true;
 				}
 			}
 		}
 		// add linksets to jena model
 		for (LinksetDB linkset : out) {
-			DistributionDB distributionSubject =  new DistributionDB(
-					linkset.getDistributionTarget());
+			DistributionDB distributionSubject = new DistributionDB(linkset.getDistributionTarget());
 
-			DistributionDB distributionObject = new DistributionDB(
-					linkset.getDistributionSource());
+			DistributionDB distributionObject = new DistributionDB(linkset.getDistributionSource());
 
 			for (int d1 : distributionSubject.getDefaultDatasets()) {
 				for (int d2 : distributionObject.getDefaultDatasets()) {
-					if(addLinksetToModel(d2, d1, linkset.getLinks()))
+					if (addLinksetToModel(d2, d1, linkset.getLinks()))
 						linksetsFound = true;
 				}
 			}
 
 		}
-		
-//		if(!linksetsFound)
-//			throw new DynamicLODAPINoLinksFoundException ("Your dataset still doesn't not contains links with our stored datasets.");
+
+		// if(!linksetsFound)
+		// throw new DynamicLODAPINoLinksFoundException ("Your dataset still
+		// doesn't not contains links with our stored datasets.");
 
 	}
 
 	private void addDistributionToModel(DistributionDB distribution) {
 		// add distribution to jena model
 		Resource r = outModel.createResource(distribution.getDownloadUrl());
-		r.addProperty(RDFProperties.type,
-				ResourceFactory.createResource(NS.DCAT_URI + "distribution"));
+		r.addProperty(RDFProperties.type, ResourceFactory.createResource(NS.DCAT_URI + "distribution"));
 
 		String name;
 
@@ -164,8 +164,7 @@ public class APIRetrieveRDF extends API {
 	private void addDatasetToModel(DatasetDB dataset, String subset) {
 		// add distribution to jena model
 		Resource r = outModel.createResource(dataset.getUri());
-		r.addProperty(RDFProperties.type,
-				ResourceFactory.createResource(NS.VOID_URI + "Dataset"));
+		r.addProperty(RDFProperties.type, ResourceFactory.createResource(NS.VOID_URI + "Dataset"));
 
 		String name;
 
@@ -175,52 +174,43 @@ public class APIRetrieveRDF extends API {
 			name = dataset.getTitle();
 
 		r.addProperty(RDFProperties.title, name);
-		r.addProperty(RDFProperties.triples,
-				String.valueOf(new DatasetQueries().getNumberOfTriples(dataset)));
+		r.addProperty(RDFProperties.triples, String.valueOf(new DatasetQueries().getNumberOfTriples(dataset)));
 		r.addProperty(RDFProperties.subset, outModel.createResource(subset));
 	}
 
 	private boolean addLinksetToModel(int source, int target, int links) {
 		DatasetDB datasetSource = new DatasetDB(source);
-		DatasetDB datasetTarget =new DatasetDB(target);
+		DatasetDB datasetTarget = new DatasetDB(target);
 
-		if (!datasetSource.getIsVocabulary()
-				&& !datasetTarget.getIsVocabulary()) {
-//			 add linksets
-//			String linksetURI = target + "_" + source;
-			String linksetURI = lodVader.API.server.ServiceAPI.getServerURL() + "?retrieveDataset&source="+
-					datasetSource.getUri() + "&target="+ datasetTarget.getUri();
+		if (!datasetSource.getIsVocabulary() && !datasetTarget.getIsVocabulary()) {
+			// add linksets
+			// String linksetURI = target + "_" + source;
+			String linksetURI = lodVader.API.server.ServiceAPI.getServerURL() + "?retrieveDataset&source="
+					+ datasetSource.getUri() + "&target=" + datasetTarget.getUri();
 			Resource r = outModel.createResource(linksetURI);
-			Resource wasDerivedFrom = outModel
-					.createResource(lodVader.API.server.ServiceAPI.getServerURL());
+			Resource wasDerivedFrom = outModel.createResource(lodVader.API.server.ServiceAPI.getServerURL());
 
-			r.addProperty(RDFProperties.type,
-					ResourceFactory.createResource(NS.VOID_URI + "Linkset"));
-			r.addProperty(
-					ResourceFactory.createProperty(NS.VOID_URI
-							+ "objectsTarget"),
+			r.addProperty(RDFProperties.type, ResourceFactory.createResource(NS.VOID_URI + "Linkset"));
+			r.addProperty(ResourceFactory.createProperty(NS.VOID_URI + "objectsTarget"),
 					ResourceFactory.createResource(datasetSource.getUri()));
-			r.addProperty(
-					ResourceFactory.createProperty(NS.VOID_URI
-							+ "subjectsTarget"),
+			r.addProperty(ResourceFactory.createProperty(NS.VOID_URI + "subjectsTarget"),
 					ResourceFactory.createResource(datasetTarget.getUri()));
 			r.addProperty(RDFProperties.wasDerivedFrom, wasDerivedFrom);
-			r.addProperty(
-					ResourceFactory.createProperty(NS.VOID_URI + "triples"),
+			r.addProperty(ResourceFactory.createProperty(NS.VOID_URI + "triples"),
 					ResourceFactory.createPlainLiteral(String.valueOf(links)));
 
 			// describe dadaset with this uri as subset
 			addDatasetToModel(datasetSource, linksetURI);
 			addDatasetToModel(datasetTarget, linksetURI);
-			
+
 			return true;
-		}
-		else return false;
+		} else
+			return false;
 
 	}
 
 	public void getDatasetChildren(DatasetDB d)
-			throws LODVaderNoDatasetFoundException, DynamicLODAPINoLinksFoundException {
+			throws LODVaderNoDatasetFoundException, DynamicLODAPINoLinksFoundException, MalformedURLException {
 		boolean datasetOrDistribuionFound = false;
 
 		for (int child : d.getSubsetsIDs()) {
@@ -231,14 +221,13 @@ public class APIRetrieveRDF extends API {
 		}
 
 		for (int dist : d.getDistributionsIDs()) {
-			retrieveByDistribution(new  DistributionDB(dist).getUri());
+			retrieveByDistribution(new DistributionDB(dist).getUri());
 			datasetOrDistribuionFound = true;
 		}
 
 		if (!datasetOrDistribuionFound)
-			throw new LODVaderNoDatasetFoundException(
-					"Not possible to find datasets, subsets or distributions within "
-							+ d.getUri()+". Please enter a valid dataset URI.");
+			throw new LODVaderNoDatasetFoundException("Not possible to find datasets, subsets or distributions within "
+					+ d.getUri() + ". Please enter a valid dataset URI.");
 
 	}
 

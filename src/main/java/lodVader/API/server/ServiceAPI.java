@@ -155,11 +155,11 @@ public class ServiceAPI extends HttpServlet {
 				String searchObject = null;
 				
 				if(!parameters.get(ServiceAPIOptions.LIST_SEARCH_SUBJECT)[0].equals(""))
-					searchSubject = parameters.get(ServiceAPIOptions.LIST_SEARCH_SUBJECT)[0].toString();
+					searchSubject = parameters.get(ServiceAPIOptions.LIST_SEARCH_SUBJECT)[0].toString().replace("%22", "#");
 				if(!parameters.get(ServiceAPIOptions.LIST_SEARCH_PROPERTY)[0].equals(""))
-					searchProperty = parameters.get(ServiceAPIOptions.LIST_SEARCH_PROPERTY)[0].toString();
+					searchProperty = parameters.get(ServiceAPIOptions.LIST_SEARCH_PROPERTY)[0].toString().replace("%22", "#");
 				if(!parameters.get(ServiceAPIOptions.LIST_SEARCH_OBJECT)[0].equals(""))
-					searchObject = parameters.get(ServiceAPIOptions.LIST_SEARCH_OBJECT)[0].toString();
+					searchObject = parameters.get(ServiceAPIOptions.LIST_SEARCH_OBJECT)[0].toString().replace("%22", "#");
 					
 				out.write(new APIStatistics().listDistributions(
 						Integer.parseInt(parameters.get(ServiceAPIOptions.LIST_START)[0]),

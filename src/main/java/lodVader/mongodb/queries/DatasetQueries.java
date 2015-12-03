@@ -1,11 +1,8 @@
 package lodVader.mongodb.queries;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.TreeSet;
-
-import org.junit.Test;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
@@ -14,10 +11,10 @@ import com.mongodb.DBObject;
 
 import lodVader.LODVaderProperties;
 import lodVader.mongodb.DBSuperClass;
+import lodVader.mongodb.DBSuperClass2;
 import lodVader.mongodb.collections.DatasetDB;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.LinksetDB;
-import lodVader.mongodb.collections.namespaces.DistributionSubjectNSDB;
 
 public class DatasetQueries {
 
@@ -246,11 +243,14 @@ public class DatasetQueries {
 	public ArrayList<DatasetDB> getSubsetsAsMongoDBObject(DatasetDB dataset) {
 
 		ArrayList<DatasetDB> list = new ArrayList<DatasetDB>();
+		if(dataset.getSubsetsIDs().size()==0)
+			return list;
 		try {
 			DBCollection collection = DBSuperClass.getInstance().getCollection(
 					DatasetDB.COLLECTION_NAME);
 			BasicDBObject query = new BasicDBObject(
 					DatasetDB.LOD_VADER_ID, new BasicDBObject("$in", dataset.getSubsetsIDs()));
+
 			// query.append("$where", "this.distributions_uris.length > 0");
 			DBCursor instances = collection.find(query);
 
@@ -268,11 +268,10 @@ public class DatasetQueries {
 
 		ArrayList<DistributionDB> list = new ArrayList<DistributionDB>();
 		try {
-			DBCollection collection = DBSuperClass.getInstance().getCollection(
+			DBCollection collection = DBSuperClass2.getCollection(
 					DistributionDB.COLLECTION_NAME);
 			BasicDBObject query = new BasicDBObject(
 					DistributionDB.LOD_VADER_ID, new BasicDBObject("$in", dataset.getDistributionsIDs()));
-			// query.append("$where", "this.distributions_uris.length > 0");
 			DBCursor instances = collection.find(query);
 
 			for (DBObject instance : instances) {
@@ -284,20 +283,5 @@ public class DatasetQueries {
 		}
 		return list;
 	}
-
-//	public DatasetMongoDBObject getDatasetById(int id) {
-//		DBCollection collection = DBSuperClass.getInstance().getCollection(
-//				DatasetMongoDBObject.COLLECTION_NAME);
-//		BasicDBObject query = new BasicDBObject(
-//				DatasetMongoDBObject.DYN_LOD_ID, id);
-//		// query.append("$where", "this.distributions_uris.length > 0");
-//		DBCursor instances = collection.find(query);
-//
-//		if (instances.hasNext())
-//			return new DatasetMongoDBObject(instances.next()
-//					.get(DatasetMongoDBObject.URI).toString());
-//		else
-//			return null;
-//	}
 
 }

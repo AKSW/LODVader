@@ -72,13 +72,13 @@ public class StartLODVader extends HttpServlet {
 								DistributionDB.STATUS_STREAMING);
 						logger.debug("re-download distributions with \""
 								+ DistributionDB.STATUS_STREAMING
-								+ "\" status");
+								+ "\" status"); 
 
 						for (String s : q) {
 							DistributionDB dist = new DistributionDB(
 									s);
 							dist.setStatus(DistributionDB.STATUS_WAITING_TO_STREAM);
-							dist.updateObject(true);
+							dist.update(true);
 //							distributions.add(dist);
 						}
 
@@ -97,8 +97,7 @@ public class StartLODVader extends HttpServlet {
 						for (String s : q) {
 							DistributionDB dist = new DistributionDB(
 									s);
-//							dist.setStatus(DistributionDB.STATUS_WAITING_TO_STREAM);
-							dist.updateObject(true);
+							dist.update(true);
 							distributions.add(dist);
 						}
 
@@ -119,7 +118,7 @@ public class StartLODVader extends HttpServlet {
 							DistributionDB dist = new DistributionDB(
 									s);
 							dist.setStatus(DistributionDB.STATUS_WAITING_TO_STREAM);
-							dist.updateObject(true);
+							dist.update(true);
 							distributions.add(dist);
 						}
 					}
@@ -140,6 +139,7 @@ public class StartLODVader extends HttpServlet {
 								.getDescribedNS(LODVaderProperties.TYPE_OBJECT);
 					
 					logger.info("We will resume: "+distributions.size()+ " downloads(s).");
+					
 					new Manager(distributions);
 
 				} catch (Exception e) {

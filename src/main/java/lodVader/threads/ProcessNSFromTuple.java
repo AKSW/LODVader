@@ -1,5 +1,6 @@
 package lodVader.threads;
 
+import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
@@ -74,7 +75,7 @@ public abstract class ProcessNSFromTuple extends Thread {
 
 	int numberOfReadedResources = 0;
 
-	public ProcessNSFromTuple(ConcurrentLinkedQueue<String> resourceQueue, String uri) {
+	public ProcessNSFromTuple(ConcurrentLinkedQueue<String> resourceQueue, String uri) throws MalformedURLException {
 		this.resourceQueue = resourceQueue;
 		this.countTotalNS = new ConcurrentHashMap<String, Integer>();
 		this.countTotalNS0 = new ConcurrentHashMap<String, Integer>();

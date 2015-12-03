@@ -7,7 +7,8 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
-import lodVader.mongodb.DBSuperClass;
+import lodVader.mongodb.DBSuperClass2;
+import lodVader.mongodb.collections.ResourceDB;
 
 public class GeneralQueries {
 
@@ -16,13 +17,13 @@ public class GeneralQueries {
 
 		ArrayList<String> list = new ArrayList<String>();
 		try {
-			DBCollection collection = DBSuperClass.getInstance().getCollection(
+			DBCollection collection = DBSuperClass2.getCollection(
 					collectionName);
 			DBObject query = new BasicDBObject(field, value);
 			DBCursor instances = collection.find(query);
 
 			for (DBObject instance : instances) {
-				list.add(instance.get(DBSuperClass.URI)
+				list.add(instance.get(ResourceDB.URI)
 						.toString());
 			}
 

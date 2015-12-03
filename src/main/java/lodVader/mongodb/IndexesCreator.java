@@ -113,9 +113,6 @@ public class IndexesCreator {
 		addIndex("SubjectsBucket.files", SuperBucket.DISTRIBUTION_ID, 1);
 		addIndex("SubjectsBucket.files", SuperBucket.FIRST_RESOURCE, 1);
 		addIndex("SubjectsBucket.files", SuperBucket.LAST_RESOURCE, 1);
-		
-		
-
 	}
 	
 	public void addIndex(String collection, String field, int value){
