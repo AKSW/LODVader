@@ -28,7 +28,7 @@ public class LoadedBloomFiltersCache extends Thread{
 	
 	public LoadedBloomFiltersCache(DistributionDB distribution, String query, String type) {
 		
-		if(type.equals(LODVaderProperties.TYPE_PROPERTY))
+		if(type.equals(LODVaderProperties.TYPE_SUBJECT))
 			s = new SubjectsBucket();
 		else
 			s = new ObjectsBucket();	
