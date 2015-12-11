@@ -2,94 +2,62 @@ package lodVader.mongodb.collections.RDFResources;
 
 import java.util.Set;
 
-import com.mongodb.DBObject;
-
-import lodVader.exceptions.LODVaderLODGeneralException;
-import lodVader.mongodb.DBSuperClass;
+import lodVader.mongodb.DBSuperClass2;
 import lodVader.mongodb.collections.LODVaderCounterDB;
 
-public abstract class GeneralRDFResourceDB extends DBSuperClass  {
+public abstract class GeneralRDFResourceDB extends DBSuperClass2  {
 
-	public GeneralRDFResourceDB(String collectionName, int lodVaderID) {
-		super(collectionName, lodVaderID);
-		this.lodVaderID = lodVaderID;
-		mongoDBObject.put(LOD_VADER_ID, lodVaderID);
-		loadObject();
-	}
+	public static final String LOD_VADER_ID = "lodVaderID";
 
-	public GeneralRDFResourceDB(String collectionName, String id) {
-		super(collectionName, id);
-		loadObject();
+	public static final String URI = "uri";
+	
+	
+	public GeneralRDFResourceDB(String collection, int lodVaderID) {
+		super(collection);
+		setVariables();
+		setLODVaderID(lodVaderID);
+		find(true);
 	}
 	
-	public GeneralRDFResourceDB() {
-		super();
+	public GeneralRDFResourceDB(String collection) {
+		super(collection);
+		setVariables();
+	}
+	
+	public GeneralRDFResourceDB(String collection, String uri) {
+		super(collection);
+		setVariables();
+		setUri(uri);
+		if(!find(true))
+			setLODVaderID(new LODVaderCounterDB().getCounterValue());
+		
+	}
+	
+	public void setVariables(){
+		addPK(LOD_VADER_ID);
+		addPK(URI);
+		addMandatoryField(LOD_VADER_ID);
+		addMandatoryField(URI);
 	}
 
-	public final String LOD_VADER_ID = "lodVaderID";
-
-	protected int lodVaderID = 0;
-	
 
 	public int getLodVaderID() {
-		return lodVaderID;
-	}
-
-	public void setLODVaderID(int lodVaderID) {
-		this.lodVaderID = lodVaderID;
+		return Integer.parseInt(getField(LOD_VADER_ID).toString()); 
 	}
 	
-	@Override
-	public boolean updateObject(boolean checkBeforeInsert)
-			throws LODVaderLODGeneralException {
-		// save object case it doens't exists
-		try {
-			if (lodVaderID == 0)
-				lodVaderID = new LODVaderCounterDB()
-						.incrementAndGetID();
-			mongoDBObject.put(LOD_VADER_ID, lodVaderID);
-
-			updateLocalVariables();
-			
-			insert(checkBeforeInsert);
-			return true;
-
-		} catch (Exception e2) {
-			try {
-				if (update())
-					return true;
-				else
-					return false;
-			} catch (LODVaderLODGeneralException e) {
-				e.printStackTrace();
-				return false;
-			}
-		}
+	public String getUri() {
+		return getField(URI).toString();
 	}
 
-	@Override
-	protected boolean loadObject() {
-		DBObject obj = search();
-		if (obj != null) {
-			// mongoDBObject = (BasicDBObject) obj;
-			uri = (String) obj.get(URI);
-			lodVaderID = (Integer) obj.get(LOD_VADER_ID);
-			if (lodVaderID == 0)
-				lodVaderID = new LODVaderCounterDB()
-						.incrementAndGetID();
-			loadLocalVariables();
-			return true;
-		}
-		else
-			return false;
+	public void setUri(String uri) {
+		addField(URI, uri);
 	}	
+	
+	public void setLODVaderID(int lodVaderID) {
+		addField(LOD_VADER_ID, lodVaderID);
+	}
 
-	abstract public void loadLocalVariables();
 	
-	abstract public void updateLocalVariables();
-	
-	abstract public void insertSet(Set<String> set);
-	
-
+	abstract public void insertSet(Set<String> set);	
 	
 }

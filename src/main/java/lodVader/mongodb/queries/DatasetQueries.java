@@ -10,7 +10,6 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
 import lodVader.LODVaderProperties;
-import lodVader.mongodb.DBSuperClass;
 import lodVader.mongodb.DBSuperClass2;
 import lodVader.mongodb.collections.DatasetDB;
 import lodVader.mongodb.collections.DistributionDB;
@@ -48,7 +47,7 @@ public class DatasetQueries {
 	public int getNumberOfDatasets() {
 		int numberOfDatasets = 0;
 		try {
-			DBCollection collection = DBSuperClass.getInstance().getCollection(
+			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(
 					DatasetDB.COLLECTION_NAME);
 			numberOfDatasets = (int) collection.count();
 		} catch (Exception e) {
@@ -62,7 +61,7 @@ public class DatasetQueries {
 
 		ArrayList<DatasetDB> list = new ArrayList<DatasetDB>();
 		try {
-			DBCollection collection = DBSuperClass.getInstance().getCollection(
+			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(
 					DatasetDB.COLLECTION_NAME);
 			DBCursor instances = collection.find();
 
@@ -81,7 +80,7 @@ public class DatasetQueries {
 
 		ArrayList<DatasetDB> list = new ArrayList<DatasetDB>();
 		try {
-			DBCollection collection = DBSuperClass.getInstance().getCollection(
+			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(
 					DatasetDB.COLLECTION_NAME);
 			BasicDBObject query = new BasicDBObject();
 			query.put(DatasetDB.LOD_VADER_ID, new BasicDBObject("$in", datasetsIDs));
@@ -104,7 +103,7 @@ public class DatasetQueries {
 
 		ArrayList<DatasetDB> list = new ArrayList<DatasetDB>();
 		try {
-			DBCollection collection = DBSuperClass.getInstance().getCollection(
+			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(
 					DatasetDB.COLLECTION_NAME);
 			BasicDBObject query = new BasicDBObject(
 					DatasetDB.IS_VOCABULARY, false);
@@ -127,7 +126,7 @@ public class DatasetQueries {
 
 		ArrayList<DatasetDB> list = new ArrayList<DatasetDB>();
 		try {
-			DBCollection collection = DBSuperClass.getInstance().getCollection(
+			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(
 					DatasetDB.COLLECTION_NAME);
 			BasicDBObject query = new BasicDBObject(
 					DatasetDB.IS_VOCABULARY, false);
@@ -157,7 +156,7 @@ public class DatasetQueries {
 
 		ArrayList<DatasetDB> list = new ArrayList<DatasetDB>();
 		try {
-			DBCollection collection = DBSuperClass.getInstance().getCollection(
+			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(
 					DatasetDB.COLLECTION_NAME);
 			BasicDBObject query = new BasicDBObject(
 					DatasetDB.IS_VOCABULARY, false);
@@ -181,7 +180,7 @@ public class DatasetQueries {
 
 		ArrayList<DatasetDB> list = new ArrayList<DatasetDB>();
 		try {
-			DBCollection collection = DBSuperClass.getInstance().getCollection(
+			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(
 					LinksetDB.COLLECTION_NAME);
 			BasicDBObject query = new BasicDBObject(LinksetDB.LINK_NUMBER_LINKS,
 					new BasicDBObject("$gt", LODVaderProperties.LINKSET_TRESHOLD));
@@ -199,7 +198,7 @@ public class DatasetQueries {
 				t.add(s);
 			}
 
-			collection = DBSuperClass.getInstance().getCollection(
+			collection = DBSuperClass2.getDBInstance().getCollection(
 					DatasetDB.COLLECTION_NAME);
 			query = new BasicDBObject(DatasetDB.LOD_VADER_ID,
 					new BasicDBObject("$in", t));
@@ -223,7 +222,7 @@ public class DatasetQueries {
 
 		ArrayList<DatasetDB> list = new ArrayList<DatasetDB>();
 		try {
-			DBCollection collection = DBSuperClass.getInstance().getCollection(
+			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(
 					DatasetDB.COLLECTION_NAME);
 			BasicDBObject query = new BasicDBObject(
 					DatasetDB.IS_VOCABULARY, true);
@@ -246,7 +245,7 @@ public class DatasetQueries {
 		if(dataset.getSubsetsIDs().size()==0)
 			return list;
 		try {
-			DBCollection collection = DBSuperClass.getInstance().getCollection(
+			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(
 					DatasetDB.COLLECTION_NAME);
 			BasicDBObject query = new BasicDBObject(
 					DatasetDB.LOD_VADER_ID, new BasicDBObject("$in", dataset.getSubsetsIDs()));
@@ -255,7 +254,7 @@ public class DatasetQueries {
 			DBCursor instances = collection.find(query);
 
 			for (DBObject instance : instances) {
-				list.add(new DatasetDB(instance));
+				list.add(new DatasetDB(instance));  
 			}
 
 		} catch (Exception e) {

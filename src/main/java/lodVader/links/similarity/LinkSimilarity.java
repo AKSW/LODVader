@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
+import lodVader.exceptions.LODVaderMissingPropertiesException;
+import lodVader.exceptions.mongodb.LODVaderNoPKFoundException;
+import lodVader.exceptions.mongodb.LODVaderObjectAlreadyExistsException;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.LinksetDB;
 import lodVader.mongodb.collections.RDFResources.GeneralRDFResourceRelationDB;
@@ -87,7 +90,6 @@ public abstract class LinkSimilarity {
 			link.setRdfTypeSimilarity(value);
 		else if(this.type instanceof RDFSubClassOfRelationDB)
 			link.setRdfSubClassSimilarity(value);
-//		else if(type instanceof OwlClassRelationDB)
 		else
 			link.setOwlClassSimilarity(value);
 		
@@ -99,16 +101,21 @@ public abstract class LinkSimilarity {
 				)
 			return;
 		
-		if(link.getDatasetSource()==0)
+//		if(link.getDatasetSource()==0)
 			link.setDatasetSource(dist1.getTopDatasetID());
-		if(link.getDatasetTarget()==0)
+//		if(link.getDatasetTarget()==0)
 			link.setDatasetTarget(dist2.getTopDatasetID());
 		
-		if(link.getDistributionSource()==0)
+//		if(link.getDistributionSource()==0)
 			link.setDistributionSource(dist1.getLODVaderID());
-		if(link.getDistributionTarget()==0)
+//		if(link.getDistributionTarget()==0)
 			link.setDistributionTarget(dist2.getLODVaderID());		
 		
-		link.updateObject(true);
+		try {
+			link.update(true);
+		} catch (LODVaderMissingPropertiesException | LODVaderObjectAlreadyExistsException
+				| LODVaderNoPKFoundException e) {
+			e.printStackTrace();
+		}
 	}
 }

@@ -26,14 +26,13 @@ import com.mongodb.gridfs.GridFSInputFile;
 import lodVader.LODVaderProperties;
 import lodVader.bloomfilters.GoogleBloomFilter;
 import lodVader.exceptions.LODVaderLODGeneralException;
-import lodVader.mongodb.DBSuperClass;
 import lodVader.mongodb.DBSuperClass2;
 
 public class SuperBucket {
 
 	final static Logger logger = LoggerFactory.getLogger(SuperBucket.class);
 
-//	static double time = 0;
+	// static double time = 0;
 
 	int chunkSize = LODVaderProperties.MAX_CHUNK_SIZE;
 
@@ -66,7 +65,6 @@ public class SuperBucket {
 	public SuperBucket() {
 	}
 
-
 	public SuperBucket(File resourcesFile, int distributionID) {
 		this.resourcesFile = resourcesFile;
 		this.distributionID = distributionID;
@@ -78,7 +76,7 @@ public class SuperBucket {
 		this.lastResource = lastResource;
 	}
 
-//	@SuppressWarnings("unchecked")
+	// @SuppressWarnings("unchecked")
 	public void makeBucket() {
 
 		// first we have to remove the old BFs for this distribution
@@ -101,19 +99,19 @@ public class SuperBucket {
 				String resource;
 				// use external sort tool
 
-				resourcesFileSorted = new File(LODVaderProperties.TMP_FOLDER+"sorted_tmp");
-				
+				resourcesFileSorted = new File(LODVaderProperties.TMP_FOLDER + "sorted_tmp");
+
 				File tmpFolder = new File(LODVaderProperties.TMP_FOLDER);
-				
+
 				Comparator<String> comparator = ExternalSort.defaultcomparator;
-				List<File> l = ExternalSort.sortInBatch(resourcesFile, comparator, ExternalSort.DEFAULTMAXTEMPFILES, Charset.defaultCharset(), 
-						tmpFolder, true,
-						0, false);
+				List<File> l = ExternalSort.sortInBatch(resourcesFile, comparator, ExternalSort.DEFAULTMAXTEMPFILES,
+						Charset.defaultCharset(), tmpFolder, true, 0, false);
 				logger.info("created " + l.size() + " tmp files");
-				ExternalSort.mergeSortedFiles(l, resourcesFileSorted, comparator, Charset.defaultCharset(), true, false, false);
+				ExternalSort.mergeSortedFiles(l, resourcesFileSorted, comparator, Charset.defaultCharset(), true, false,
+						false);
 
 				BufferedReader f = new BufferedReader(new FileReader(resourcesFileSorted));
-				// for(String resource: resources){
+
 				while ((resource = f.readLine()) != null) {
 					chunk.add(resource);
 					if (chunk.size() == chunkSize) {
@@ -121,6 +119,7 @@ public class SuperBucket {
 						chunk = new ArrayList<String>();
 					}
 				}
+
 				resourcesFileSorted.delete();
 			} else {
 				throw new LODVaderLODGeneralException("No items to load in BF!");
@@ -133,25 +132,13 @@ public class SuperBucket {
 	}
 
 	private void removeBFs(int distributionID) {
-		GridFS gridFS = new GridFS(DBSuperClass.getInstance(), COLLECTION_NAME);
+		GridFS gridFS = new GridFS(DBSuperClass2.getDBInstance(), COLLECTION_NAME);
 		gridFS.remove(new BasicDBObject(DISTRIBUTION_ID, distributionID));
 	}
 
 	private void saveChunk(final ArrayList<String> chunk) {
 		final int distributionID = this.distributionID;
-//		Thread t = new Thread() {
-//			public void run() {
-				makeBloomFilter(chunk, distributionID);
-//			};
-//		};
-//		t.start();
-//		try {
-//			t.join();
-//		} catch (InterruptedException e) {
-//			 TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-
+		makeBloomFilter(chunk, distributionID);
 	}
 
 	private void makeBloomFilter(ArrayList<String> chunk, int distributionID) {
@@ -217,7 +204,7 @@ public class SuperBucket {
 			try {
 				filter.filter = BloomFilter.readFrom(file.getInputStream(), filter.funnel);
 				result = filter.filter.mightContain(resource.getBytes());
-			
+
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -229,7 +216,7 @@ public class SuperBucket {
 
 	public GoogleBloomFilter getFilter() {
 
-		GridFS gfs = new GridFS(DBSuperClass.getInstance(), COLLECTION_NAME);
+		GridFS gfs = new GridFS(DBSuperClass2.getDBInstance(), COLLECTION_NAME);
 
 		BasicDBObject firstResource = new BasicDBObject(FIRST_RESOURCE, new BasicDBObject("$lte", resource));
 		BasicDBObject lastResource = new BasicDBObject(LAST_RESOURCE, new BasicDBObject("$gte", resource));

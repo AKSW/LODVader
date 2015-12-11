@@ -10,6 +10,9 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import lodVader.exceptions.LODVaderMissingPropertiesException;
+import lodVader.exceptions.mongodb.LODVaderNoPKFoundException;
+import lodVader.exceptions.mongodb.LODVaderObjectAlreadyExistsException;
 import lodVader.links.similarity.JaccardSimilarity;
 import lodVader.links.similarity.LinkSimilarity;
 import lodVader.lov.LOV;
@@ -177,12 +180,10 @@ public class Manager {
 			try {
 				new LOV().loadLOVVocabularies();
 				g.setDownloadedLOV(true);
-				g.updateObject(true);
 				logger.info("LOV vocabularies loaded!");
 			} catch (Exception e) {
 				e.printStackTrace();
 				g.setDownloadedLOV(false);
-				g.updateObject(true);
 				logger.info("We got an error trying to load LOV vocabularies! " + e.getMessage());
 			}
 		}

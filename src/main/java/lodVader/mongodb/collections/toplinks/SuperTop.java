@@ -3,18 +3,15 @@ package lodVader.mongodb.collections.toplinks;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.PriorityQueue;
-import java.util.concurrent.ConcurrentHashMap;
 
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 
 import lodVader.LODVaderProperties;
-import lodVader.mongodb.DBSuperClass;
+import lodVader.mongodb.DBSuperClass2;
 
-public class SuperTop {
-
-	public static String COLLECTION_NAME = null;
+public class SuperTop extends DBSuperClass2{
 
 	public static String AMOUNT = "amount";
 
@@ -25,14 +22,14 @@ public class SuperTop {
 	public static String TARGET_DISTRIBUTION_ID = "targetDistributionID";
 	
 	public SuperTop(String collectionName) {
-		this.COLLECTION_NAME = collectionName;
+		super(collectionName);
 	}
 
 	public void saveAll(HashMap<String, Integer> values, int sourceDistributionID, int targetDistributionID) {
 		
 		removeAll(sourceDistributionID, targetDistributionID);
 
-		DBCollection collection = DBSuperClass.getInstance().getCollection(COLLECTION_NAME);
+		DBCollection collection = DBSuperClass2.getDBInstance().getCollection(COLLECTION_NAME);
 
 		for (String s : topNKeys(values, LODVaderProperties.TOP_N_LINKS).keySet()) {
 			BasicDBObject insert = new BasicDBObject();
@@ -70,7 +67,7 @@ public class SuperTop {
 	}
 
 	public void removeAll(int distributionSourceID, int targetDistributionID) {
-		DBCollection collection = DBSuperClass.getInstance().getCollection(COLLECTION_NAME);
+		DBCollection collection = DBSuperClass2.getDBInstance().getCollection(COLLECTION_NAME);
 		
 		BasicDBList list = new BasicDBList();
 		list.add(new BasicDBObject(SOURCE_DISTRIBUTION_ID, distributionSourceID));

@@ -4,47 +4,37 @@ import java.util.Iterator;
 import java.util.Set;
 
 import lodVader.exceptions.LODVaderLODGeneralException;
+import lodVader.exceptions.LODVaderMissingPropertiesException;
+import lodVader.exceptions.mongodb.LODVaderNoPKFoundException;
+import lodVader.exceptions.mongodb.LODVaderObjectAlreadyExistsException;
 import lodVader.mongodb.collections.RDFResources.GeneralRDFResourceDB;
 
-public class RDFTypeObjectDB extends GeneralRDFResourceDB{
+public class RDFTypeObjectDB extends GeneralRDFResourceDB {
 
 	public static final String COLLECTION_NAME = "RDFTypeObjects";
 
-	public RDFTypeObjectDB(String id) {
-		super(COLLECTION_NAME, id);
-		loadObject();
+	public RDFTypeObjectDB(String uri) {
+		super(COLLECTION_NAME, uri);
 	}
-	public RDFTypeObjectDB(int id) {
-		super(COLLECTION_NAME, id);
-		loadObject();
+
+	public RDFTypeObjectDB(int lodVaderID) {
+		super(COLLECTION_NAME, lodVaderID);
 	}
-	
+
 	public RDFTypeObjectDB() {
-		super();
-	}
-
-	@Override
-	public void loadLocalVariables() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void updateLocalVariables() {
-		// TODO Auto-generated method stub
-		
+		super(COLLECTION_NAME);
 	}
 
 	@Override
 	public void insertSet(Set<String> set) {
 		Iterator<String> i = set.iterator();
 		RDFTypeObjectDB t = null;
-		while(i.hasNext()){
-			t=new RDFTypeObjectDB(i.next());
+		while (i.hasNext()) {
+			t = new RDFTypeObjectDB(i.next());
 			try {
-				t.updateObject(true);
-			} catch (LODVaderLODGeneralException e) {
-				// TODO Auto-generated catch block
+				t.update(true);
+			} catch (LODVaderMissingPropertiesException | LODVaderObjectAlreadyExistsException
+					| LODVaderNoPKFoundException e) {
 				e.printStackTrace();
 			}
 		}

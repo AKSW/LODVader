@@ -1,65 +1,49 @@
 package lodVader.mongodb.collections;
 
-import com.mongodb.DBObject;
+import lodVader.exceptions.LODVaderMissingPropertiesException;
+import lodVader.exceptions.mongodb.LODVaderNoPKFoundException;
+import lodVader.exceptions.mongodb.LODVaderObjectAlreadyExistsException;
+import lodVader.mongodb.DBSuperClass2;
 
-import lodVader.exceptions.LODVaderLODGeneralException;
-import lodVader.mongodb.DBSuperClass;
-
-public class SystemPropertiesDB extends DBSuperClass {
+public class SystemPropertiesDB extends DBSuperClass2 {
 
 	// Collection name
 	public static final String COLLECTION_NAME = "SystemProperties";
 
-	public static final String DOWNLOADED_LOV = "downloadedLOV";
+	public static final String KEY = "key";
 
-
-	// class properties
-
-	private Boolean downloadedLOV;	
+	public static final String VALUE = "value";
 
 	public SystemPropertiesDB() {
-		super(COLLECTION_NAME, COLLECTION_NAME);
-		loadObject();
+		super(COLLECTION_NAME);
+		addPK(KEY);
 	}
 
-	public boolean updateObject(boolean checkBeforeInsert) {
-		try {
-			mongoDBObject.put(DOWNLOADED_LOV, downloadedLOV);
-			insert(checkBeforeInsert);
-			return true;
-		} catch (Exception e2) {
-			// e2.printStackTrace();
-
-			try {
-				if (update())
-					return true;
-				else
-					return false;
-			} catch (LODVaderLODGeneralException e) {
-				e.printStackTrace();
-				return false;
-			}
-		}
+	private void setKey(String key) {
+		addField(KEY, key);
 	}
 
-	protected boolean loadObject() {
-		DBObject obj = search();
-
-		if (obj != null) {
-
-			downloadedLOV = (Boolean) obj.get(DOWNLOADED_LOV);
-			
-			return true;
-		}
-		return false;
+	private void setValue(Boolean value) {
+		addField(VALUE, value);
 	}
 
 	public Boolean getDownloadedLOV() {
-		return downloadedLOV;
+		setKey("DownloadedLOV");
+		find(true);
+		if (getField("value") == null)
+			return false;
+		return Boolean.parseBoolean(getField("value").toString());
 	}
 
 	public void setDownloadedLOV(Boolean downloadedLOV) {
-		this.downloadedLOV = downloadedLOV;
+		setKey("DownloadedLOV");
+		setValue(downloadedLOV);
+		try {
+			update(true);
+		} catch (LODVaderMissingPropertiesException | LODVaderObjectAlreadyExistsException
+				| LODVaderNoPKFoundException e) {
+			e.printStackTrace();
+		}
 	}
 
 }

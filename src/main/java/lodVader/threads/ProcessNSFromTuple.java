@@ -13,6 +13,9 @@ import lodVader.LODVaderProperties;
 import lodVader.LoadedBloomFiltersCache;
 import lodVader.TuplePart;
 import lodVader.bloomfilters.GoogleBloomFilter;
+import lodVader.exceptions.LODVaderMissingPropertiesException;
+import lodVader.exceptions.mongodb.LODVaderNoPKFoundException;
+import lodVader.exceptions.mongodb.LODVaderObjectAlreadyExistsException;
 import lodVader.linksets.DatasetResourcesData;
 import lodVader.linksets.DistributionResourcesData;
 import lodVader.mongodb.collections.DistributionDB;
@@ -265,7 +268,12 @@ public abstract class ProcessNSFromTuple extends Thread {
 			}
 
 			if (l.getLinks() > 0 || l.getInvalidLinks() > 0)
-				l.updateObject(true);
+				try {
+					l.update(true);
+				} catch (LODVaderMissingPropertiesException | LODVaderObjectAlreadyExistsException
+						| LODVaderNoPKFoundException e) {
+					e.printStackTrace();
+				}
 
 			logger.debug("Saved links: " + l.getLinks() + " (good) " + l.getInvalidLinks() + " (bad) in "
 					+ t.stopTimer() + "s");
@@ -275,11 +283,9 @@ public abstract class ProcessNSFromTuple extends Thread {
 	private boolean saveNamespaces() {
 		logger.debug("Saving NS0...");
 		if (tuplePart.equals(TuplePart.SUBJECT)) {
-			DistributionSubjectNS0DB d = new DistributionSubjectNS0DB();
-			d.bulkSave(countTotalNS0.keySet(), distribution, d);
+			new DistributionSubjectNS0DB().bulkSave(countTotalNS0.keySet(), distribution);
 		} else {
-			DistributionObjectNS0DB d = new DistributionObjectNS0DB();
-			d.bulkSave(countTotalNS0.keySet(), distribution, d);
+			new DistributionObjectNS0DB().bulkSave(countTotalNS0.keySet(), distribution);
 		}
 
 		logger.debug("Saving NS...");

@@ -9,7 +9,10 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 
 import lodVader.exceptions.LODVaderLODGeneralException;
-import lodVader.mongodb.DBSuperClass;
+import lodVader.exceptions.LODVaderMissingPropertiesException;
+import lodVader.exceptions.mongodb.LODVaderNoPKFoundException;
+import lodVader.exceptions.mongodb.LODVaderObjectAlreadyExistsException;
+import lodVader.mongodb.DBSuperClass2;
 import lodVader.mongodb.collections.RDFResources.allPredicates.AllPredicatesDB;
 import lodVader.mongodb.collections.RDFResources.allPredicates.AllPredicatesRelationDB;
 
@@ -26,7 +29,7 @@ public class PredicatesQueries {
 		HashSet<String>  result= new HashSet<String>();
 		try {
 
-			DBCollection collection = DBSuperClass.getInstance().getCollection(
+			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(
 					AllPredicatesRelationDB.COLLECTION_NAME);
 
 			// get all objects domain of a distribution
@@ -60,13 +63,13 @@ public class PredicatesQueries {
 			String predicate = i.next();
 			AllPredicatesDB p = new AllPredicatesDB(predicate);
 			try {
-				p.updateObject(true);
+				p.update(true);
 				AllPredicatesRelationDB pr = new AllPredicatesRelationDB(p.getLodVaderID()+"-"+distributionLODVaderID+"-"+topDatasetDynLodID);
 				pr.setDatasetID(topDatasetDynLodID);
 				pr.setDistributionID(distributionLODVaderID);
 				pr.setPredicateID(p.getLodVaderID());
-				pr.updateObject(true);
-			} catch (LODVaderLODGeneralException e) {
+				pr.update(true);
+			} catch ( LODVaderMissingPropertiesException | LODVaderObjectAlreadyExistsException | LODVaderNoPKFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}

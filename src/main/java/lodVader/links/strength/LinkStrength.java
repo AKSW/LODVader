@@ -4,6 +4,9 @@ import java.util.ArrayList;
 
 import org.junit.Test;
 
+import lodVader.exceptions.LODVaderMissingPropertiesException;
+import lodVader.exceptions.mongodb.LODVaderNoPKFoundException;
+import lodVader.exceptions.mongodb.LODVaderObjectAlreadyExistsException;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.LinksetDB;
 import lodVader.mongodb.queries.DistributionQueries;
@@ -45,10 +48,7 @@ public class LinkStrength {
 	 * @param value similarity value
 	 */
 	private void makeLink(DistributionDB dist1, DistributionDB dist2){
-		String id = String.valueOf(dist1.getLODVaderID()) + "-" + String.valueOf(dist2.getLODVaderID());
-		
-//		if(dist2.getDynLodID() == 31170){ 66
-			
+		String id = String.valueOf(dist1.getLODVaderID()) + "-" + String.valueOf(dist2.getLODVaderID());		
 		
 		double nLinks = 0.0;
 		int numberOfSourceFQDN = new NSQueries().getNumberOfObjectResources(dist1.getLODVaderID());
@@ -78,8 +78,12 @@ public class LinkStrength {
 		if(link.getDistributionTarget()==0)
 			link.setDistributionTarget(dist2.getLODVaderID());		
 		
-		link.updateObject(true);
-//		}
+		try {
+			link.update(true);
+		} catch (LODVaderMissingPropertiesException | LODVaderObjectAlreadyExistsException
+				| LODVaderNoPKFoundException e) {
+			e.printStackTrace();
+		}
 	}
 	
 

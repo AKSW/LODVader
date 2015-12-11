@@ -2,50 +2,33 @@ package lodVader.mongodb.collections.namespaces;
 
 import java.util.Set;
 
-import org.bson.types.ObjectId;
-
 import com.mongodb.BasicDBObject;
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
 
 import lodVader.exceptions.LODVaderMissingPropertiesException;
-import lodVader.mongodb.DBSuperClass;
+import lodVader.exceptions.mongodb.LODVaderNoPKFoundException;
+import lodVader.exceptions.mongodb.LODVaderObjectAlreadyExistsException;
+import lodVader.mongodb.DBSuperClass2;
 import lodVader.mongodb.collections.DistributionDB;
 
-public class SuperNS {
+public class SuperNS extends DBSuperClass2{
 
-	// Collection name
-	public String COLLECTION_NAME = null;
-
+	public SuperNS(String collectionName) {
+		super(collectionName);
+		setParameters();
+	}
+	
+	private void setParameters(){
+		addMandatoryField(DATASET_ID);
+		addMandatoryField(DISTRIBUTION_ID);
+		addMandatoryField(NS);
+	}
+	
 	// class properties
 	public static final String DISTRIBUTION_ID = "distributionID";
 
 	public static final String DATASET_ID = "datasetID";
 
 	public static final String NS = "ns";
-
-	public BasicDBObject mongoDBObject = new BasicDBObject();
-
-	private DBCollection collection = null;
-
-	public boolean updateObject(boolean checkBeforeInsert) throws LODVaderMissingPropertiesException {
-		
-		if (checkBeforeInsert) {
-			DBCursor d = getCollection().find(mongoDBObject);
-			if (d.hasNext())
-				return false;
-		}
-		mongoDBObject.put("_id", new ObjectId().get().toString());
-		if (checkField(DISTRIBUTION_ID) && checkField(DATASET_ID) && checkField(NS))
-			getCollection().insert(mongoDBObject);
-		return true;
-	
-	}
-
-	public void removeObject() throws LODVaderMissingPropertiesException {
-		if (checkField(DISTRIBUTION_ID) && checkField(DATASET_ID) && checkField(NS))
-			getCollection().remove(mongoDBObject);
-	}
 
 	public int getDistributionID() {
 		return ((Number) mongoDBObject.get(DISTRIBUTION_ID)).intValue();
@@ -64,45 +47,26 @@ public class SuperNS {
 	}
 
 	public String getNS() {
-		return mongoDBObject.get(NS).toString();
+		return getField(NS).toString();
 	}
 
 	public void setNS(String ns) {
-		mongoDBObject.put(NS, ns);
-	}
-
-	protected void addField(String key, String val) {
-		mongoDBObject.put(key, val);
-	}
-
-	protected void addField(String key, int val) {
-		mongoDBObject.put(key, val);
-	}
-
-	protected Object getField(String key) {
-		return mongoDBObject.get(key);
-	}
-
-	public DBCollection getCollection() {
-		if (collection == null)
-			collection = DBSuperClass.getInstance().getCollection(COLLECTION_NAME);
-		return collection;
-	}
-
-	private boolean checkField(Object key) throws LODVaderMissingPropertiesException {
-		if (!mongoDBObject.containsKey(key))
-			throw new LODVaderMissingPropertiesException("Missing property: " + key.toString());
-		return true;
+		addField(NS, ns);
 	}
 	
-	public void bulkSave(Set<String> nsSet, DistributionDB distribution, SuperNS d){
+	public void bulkSave(Set<String> nsSet, DistributionDB distribution){
 		getCollection().remove(new BasicDBObject(DISTRIBUTION_ID, distribution.getLODVaderID()));
 		for (String s : nsSet) {
 			try {
-				d.setDistributionID(distribution.getLODVaderID());
-				d.setNS(s);
-				d.setDatasetID(distribution.getTopDatasetID());
-				d.updateObject(true);
+				mongoDBObject = new BasicDBObject();
+				setDistributionID(distribution.getLODVaderID());
+				setNS(s);
+				setDatasetID(distribution.getTopDatasetID());
+				try {
+					update(true);
+				} catch (LODVaderObjectAlreadyExistsException | LODVaderNoPKFoundException e) {
+					e.printStackTrace();
+				}
 			} catch (LODVaderMissingPropertiesException e) {
 				e.printStackTrace();
 			}

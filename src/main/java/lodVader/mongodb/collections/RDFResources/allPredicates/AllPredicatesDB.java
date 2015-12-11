@@ -3,10 +3,10 @@ package lodVader.mongodb.collections.RDFResources.allPredicates;
 import java.util.Iterator;
 import java.util.Set;
 
-import lodVader.exceptions.LODVaderLODGeneralException;
+import lodVader.exceptions.LODVaderMissingPropertiesException;
+import lodVader.exceptions.mongodb.LODVaderNoPKFoundException;
+import lodVader.exceptions.mongodb.LODVaderObjectAlreadyExistsException;
 import lodVader.mongodb.collections.RDFResources.GeneralRDFResourceDB;
-
-
 
 public class AllPredicatesDB extends GeneralRDFResourceDB {
 
@@ -14,24 +14,14 @@ public class AllPredicatesDB extends GeneralRDFResourceDB {
 
 	public AllPredicatesDB(int id) {
 		super(COLLECTION_NAME, id);
-		loadObject();
 	}
 
 	public AllPredicatesDB(String URI) {
 		super(COLLECTION_NAME, URI);
-		loadObject();
 	}
 	
 	public AllPredicatesDB() {
-		super();
-	}
-
-	@Override
-	public void loadLocalVariables() {
-	}
-
-	@Override
-	public void updateLocalVariables() {
+		super(COLLECTION_NAME);
 	}
 
 	@Override
@@ -41,8 +31,8 @@ public class AllPredicatesDB extends GeneralRDFResourceDB {
 		while(i.hasNext()){
 			t=new AllPredicatesDB(i.next());
 			try {
-				t.updateObject(true);
-			} catch (LODVaderLODGeneralException e) {
+				t.update(true);
+			} catch (LODVaderMissingPropertiesException | LODVaderObjectAlreadyExistsException | LODVaderNoPKFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}

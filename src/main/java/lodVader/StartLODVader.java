@@ -11,14 +11,16 @@ import org.slf4j.LoggerFactory;
 
 import lodVader.mongodb.IndexesCreator;
 import lodVader.mongodb.collections.DistributionDB;
+import lodVader.mongodb.collections.LODVaderCounterDB;
 import lodVader.mongodb.queries.DistributionQueries;
 import lodVader.mongodb.queries.GeneralQueries;
 import lodVader.utils.FileUtils;
 
 /**
- * start service properly. This class checks whether the application have
- * to keep streaming files (means that app was killed before finish their work),
+ * start service properly. This class checks whether the application have to
+ * keep streaming files (means that app was killed before finish their work),
  * and whether have to create MongoDB indexes
+ * 
  * @author ciro
  *
  */
@@ -34,18 +36,18 @@ public class StartLODVader extends HttpServlet {
 			public void run() {
 
 				try {
-					
+
 					logger.info("==========================================================");
 					logger.info("");
 					logger.info("");
 					logger.info("====================================================");
-					logger.info("============== LODVader "+LODVaderProperties.VERSION+" Started ===============");
+					logger.info("============== LODVader " + LODVaderProperties.VERSION + " Started ===============");
 					logger.info("====================================================");
 					logger.info("");
 					logger.info("");
-					
+
 					logger.info("Reading properties file.");
-					
+
 					LODVaderProperties properties = new LODVaderProperties();
 
 					if (LODVaderProperties.SUBJECT_FILE_DISTRIBUTION_PATH == null) {
@@ -58,88 +60,82 @@ public class StartLODVader extends HttpServlet {
 					// creating indexes
 					logger.info("Creating MondoDB indexes...");
 
+					// checking counter
+					try {
+						new LODVaderCounterDB().incrementAndGetID();
+					} catch (Exception e) {
+						LODVaderCounterDB c = new LODVaderCounterDB();
+						c.setCounterValue(1);
+						c.insert(false);
+					}
+
 					new IndexesCreator().createIndexes();
-					
+
 					ArrayList<DistributionDB> distributions = new ArrayList<DistributionDB>();
 
 					logger.info("Resuming Downloads...");
 					if (LODVaderProperties.RESUME) {
-						
+
 						// re-download distributions with "Downloading" status
-						ArrayList<String> q = new GeneralQueries().getMongoDBObject(
-								DistributionDB.COLLECTION_NAME,
-								DistributionDB.STATUS,
-								DistributionDB.STATUS_STREAMING);
-						logger.debug("re-download distributions with \""
-								+ DistributionDB.STATUS_STREAMING
-								+ "\" status"); 
+						ArrayList<String> q = new GeneralQueries().getMongoDBObject(DistributionDB.COLLECTION_NAME,
+								DistributionDB.STATUS, DistributionDB.STATUS_STREAMING);
+						logger.debug(
+								"re-download distributions with \"" + DistributionDB.STATUS_STREAMING + "\" status");
 
 						for (String s : q) {
-							DistributionDB dist = new DistributionDB(
-									s);
+							DistributionDB dist = new DistributionDB(s);
 							dist.setStatus(DistributionDB.STATUS_WAITING_TO_STREAM);
 							dist.update(true);
-//							distributions.add(dist);
+							// distributions.add(dist);
 						}
 
 						// download distributions with
 						// "STATUS_WAITING_TO_STREAM"
 						// status
-						q = new GeneralQueries()
-								.getMongoDBObject(
-										DistributionDB.COLLECTION_NAME,
-										DistributionDB.STATUS,
-										DistributionDB.STATUS_WAITING_TO_STREAM);
-						logger.debug("download distributions with \""
-								+ DistributionDB.STATUS_WAITING_TO_STREAM
+						q = new GeneralQueries().getMongoDBObject(DistributionDB.COLLECTION_NAME, DistributionDB.STATUS,
+								DistributionDB.STATUS_WAITING_TO_STREAM);
+						logger.debug("download distributions with \"" + DistributionDB.STATUS_WAITING_TO_STREAM
 								+ "\" status");
 
 						for (String s : q) {
-							DistributionDB dist = new DistributionDB(
-									s);
+							DistributionDB dist = new DistributionDB(s);
 							dist.update(true);
 							distributions.add(dist);
 						}
 
 					}
-					
-					if(LODVaderProperties.RESUME_ERRORS){
+
+					if (LODVaderProperties.RESUME_ERRORS) {
 						// download distributions with "ERROR"
 						// status
-						ArrayList<String> q = new GeneralQueries().getMongoDBObject(
-								DistributionDB.COLLECTION_NAME,
-								DistributionDB.STATUS,
-								DistributionDB.STATUS_ERROR);
-						logger.debug("download distributions with \""
-								+ DistributionDB.STATUS_WAITING_TO_STREAM
+						ArrayList<String> q = new GeneralQueries().getMongoDBObject(DistributionDB.COLLECTION_NAME,
+								DistributionDB.STATUS, DistributionDB.STATUS_ERROR);
+						logger.debug("download distributions with \"" + DistributionDB.STATUS_WAITING_TO_STREAM
 								+ "\" status");
 
 						for (String s : q) {
-							DistributionDB dist = new DistributionDB(
-									s);
+							DistributionDB dist = new DistributionDB(s);
 							dist.setStatus(DistributionDB.STATUS_WAITING_TO_STREAM);
 							dist.update(true);
 							distributions.add(dist);
 						}
 					}
 
-					
 					// load BF for namespaces
 					logger.info("Loading nasmespaces... ");
 
-					
 					if (LoadedBloomFiltersCache.describedSubjectsNSCurrentSize > LODVaderProperties.BF_BUFFER_RANGE
 							|| LoadedBloomFiltersCache.describedSubjectsNS == null)
 						LoadedBloomFiltersCache.describedSubjectsNS = new DistributionQueries()
 								.getDescribedNS(LODVaderProperties.TYPE_SUBJECT);
-					
+
 					if (LoadedBloomFiltersCache.describedObjectsNSCurrentSize > LODVaderProperties.BF_BUFFER_RANGE
 							|| LoadedBloomFiltersCache.describedObjectsNS == null)
 						LoadedBloomFiltersCache.describedObjectsNS = new DistributionQueries()
 								.getDescribedNS(LODVaderProperties.TYPE_OBJECT);
-					
-					logger.info("We will resume: "+distributions.size()+ " downloads(s).");
-					
+
+					logger.info("We will resume: " + distributions.size() + " downloads(s).");
+
 					new Manager(distributions);
 
 				} catch (Exception e) {

@@ -8,6 +8,8 @@ import com.mongodb.BasicDBObject;
 
 import lodVader.LoadedBloomFiltersCache;
 import lodVader.exceptions.LODVaderMissingPropertiesException;
+import lodVader.exceptions.mongodb.LODVaderNoPKFoundException;
+import lodVader.exceptions.mongodb.LODVaderObjectAlreadyExistsException;
 import lodVader.mongodb.collections.DistributionDB;
 
 public class DistributionObjectNSDB extends SuperNS {
@@ -16,7 +18,7 @@ public class DistributionObjectNSDB extends SuperNS {
 	public static String COLLECTION_NAME = "DistributionObjectNS";
 
 	public DistributionObjectNSDB() {
-		super.COLLECTION_NAME = DistributionObjectNSDB.COLLECTION_NAME;
+		super(COLLECTION_NAME);
 	}
 
 	public int getNumberOfResources() {
@@ -49,7 +51,11 @@ public class DistributionObjectNSDB extends SuperNS {
 			}
 
 			try {
-				d2.updateObject(true);
+				try {
+					d2.update(true);
+				} catch (LODVaderObjectAlreadyExistsException | LODVaderNoPKFoundException e) {
+					e.printStackTrace();
+				}
 			} catch (LODVaderMissingPropertiesException e) {
 				e.printStackTrace();
 			}

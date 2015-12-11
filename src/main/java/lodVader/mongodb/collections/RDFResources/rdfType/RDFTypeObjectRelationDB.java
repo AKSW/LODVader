@@ -8,9 +8,11 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 
 import lodVader.exceptions.LODVaderLODGeneralException;
-import lodVader.mongodb.DBSuperClass;
+import lodVader.exceptions.LODVaderMissingPropertiesException;
+import lodVader.exceptions.mongodb.LODVaderNoPKFoundException;
+import lodVader.exceptions.mongodb.LODVaderObjectAlreadyExistsException;
+import lodVader.mongodb.DBSuperClass2;
 import lodVader.mongodb.collections.RDFResources.GeneralRDFResourceRelationDB;
-import lodVader.mongodb.collections.RDFResources.rdfSubClassOf.RDFSubClassOfRelationDB;
 
 
 
@@ -19,28 +21,13 @@ public class RDFTypeObjectRelationDB extends GeneralRDFResourceRelationDB{
 	public static final String COLLECTION_NAME = "RDFTypeObjectsRelation";
 
 
-	public RDFTypeObjectRelationDB(int id) {
+	public RDFTypeObjectRelationDB(String id) {
 		super(COLLECTION_NAME, id);
-		loadObject();
-	}
-
-	public RDFTypeObjectRelationDB(String URI) {
-		super(COLLECTION_NAME, URI);
-		loadObject();
 	}
 	
 	public RDFTypeObjectRelationDB() {
-		super();
+		super(COLLECTION_NAME);
 	}
-
-	@Override
-	public void loadLocalVariables() {
-	}
-
-	@Override
-	public void updateLocalVariables() {		
-	}
-	
 
 	/**
 	 * Store a set of object rdf:type values
@@ -50,14 +37,14 @@ public class RDFTypeObjectRelationDB extends GeneralRDFResourceRelationDB{
 		for(String object : set.keySet()){
 			RDFTypeObjectDB p = new RDFTypeObjectDB(object);
 			try {
-				p.updateObject(true);
+				p.update(true);
 				RDFTypeObjectRelationDB pr = new RDFTypeObjectRelationDB(p.getLodVaderID()+"-"+distributionLODVaderID+"-"+topDatasetLODVaderID);
 				pr.setDatasetID(topDatasetLODVaderID);
 				pr.setDistributionID(distributionLODVaderID);
 				pr.setPredicateID(p.getLodVaderID());
-				pr.setAmount(set.get(object));
-				pr.updateObject(true);
-			} catch (LODVaderLODGeneralException e) {
+				pr.setAmount(set.get(object)); 
+				pr.update(true);
+			} catch (LODVaderMissingPropertiesException | LODVaderObjectAlreadyExistsException | LODVaderNoPKFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -75,7 +62,7 @@ public class RDFTypeObjectRelationDB extends GeneralRDFResourceRelationDB{
 		
 		HashSet<String> result = new HashSet<String>();
 		try {
-			DBCollection collection = DBSuperClass.getInstance().getCollection(
+			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(
 					RDFTypeObjectRelationDB.COLLECTION_NAME);
 
 			// get all objects domain of a distribution

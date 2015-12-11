@@ -6,7 +6,7 @@ public class DistributionObjectNS0DB extends SuperNS {
 	
 	public DistributionObjectNS0DB() {		
 		// Collection name
-		super.COLLECTION_NAME = DistributionObjectNS0DB.COLLECTION_NAME;
+		super(COLLECTION_NAME);
 
 	}	
 

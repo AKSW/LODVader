@@ -1,71 +1,52 @@
 package lodVader.mongodb.collections;
 
-import com.mongodb.DBObject;
+import lodVader.exceptions.LODVaderMissingPropertiesException;
+import lodVader.exceptions.mongodb.LODVaderNoPKFoundException;
+import lodVader.exceptions.mongodb.LODVaderObjectAlreadyExistsException;
+import lodVader.mongodb.DBSuperClass2;
 
-import lodVader.exceptions.LODVaderLODGeneralException;
-import lodVader.mongodb.DBSuperClass;
-
-public class LODVaderCounterDB extends DBSuperClass {
+public class LODVaderCounterDB extends DBSuperClass2 {
 
 	// Collection name
 	public static final String COLLECTION_NAME = "LODVaderCounter";
 
-	public static final String COUNTER = "counter";
+	public static final String COUNTER_VALUE = "counterValue";
 
-	// class properties
-
-	
-	private Integer counter = 0;
-	
+	public static final String COUNTER_NAME = "counterName";
 
 	public LODVaderCounterDB() {
-		super(COLLECTION_NAME, COLLECTION_NAME);
-		loadObject();
+		super(COLLECTION_NAME);
+		addPK(COUNTER_NAME);
+		setCounterName("LodVaderCounter");
+		find(true);
 	}
-
-	public boolean updateObject(boolean checkBeforeInsert) {
-		return false;
-	}
-	private boolean updateObject() {
-		try {
-
-			mongoDBObject.put(COUNTER, counter);
-
-			insert(true);
-			return true;
-		} catch (Exception e2) {
-			// e2.printStackTrace();
-
-			try {
-				if (update())
-					return true;
-				else
-					return false;
-			} catch (LODVaderLODGeneralException e) {
-				e.printStackTrace();
-				return false;
-			}
-		}
-	}
-
-	protected boolean loadObject() {
-		DBObject obj = search();
-
-		if (obj != null) {
-			
-			counter = (Integer) obj.get(COUNTER);
-			
-			return true;
-		}
-		return false;
-	}
-
 	
+	public int getCounterValue() { 
+		return Integer.parseInt(getField(COUNTER_VALUE).toString());
+	}
+
+	public void setCounterValue(int counter) {
+		addField(COUNTER_VALUE, counter);
+	}
+	
+	public String getCounterName() { 
+		return getField(COUNTER_NAME).toString();
+	}
+
+	public void setCounterName(String counter) {
+		addField(COUNTER_NAME, counter);
+	}
+
 	public synchronized int incrementAndGetID(){
-		loadObject(); 
-		counter++;
-		updateObject();
-		return counter.intValue(); 
+		find(true);
+		setCounterValue(getCounterValue()+1);
+		try {
+			update(true);
+		} catch (LODVaderMissingPropertiesException | LODVaderObjectAlreadyExistsException
+				| LODVaderNoPKFoundException e) {
+			e.printStackTrace();
+		}
+		return getCounterValue();
 	}
 
 }

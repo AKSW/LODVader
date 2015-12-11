@@ -3,7 +3,9 @@ package lodVader.mongodb.collections.RDFResources.rdfType;
 import java.util.Iterator;
 import java.util.Set;
 
-import lodVader.exceptions.LODVaderLODGeneralException;
+import lodVader.exceptions.LODVaderMissingPropertiesException;
+import lodVader.exceptions.mongodb.LODVaderNoPKFoundException;
+import lodVader.exceptions.mongodb.LODVaderObjectAlreadyExistsException;
 import lodVader.mongodb.collections.RDFResources.GeneralRDFResourceDB;
 
 public class RDFTypeSubjectDB extends GeneralRDFResourceDB{
@@ -14,15 +16,7 @@ public class RDFTypeSubjectDB extends GeneralRDFResourceDB{
 		super(COLLECTION_NAME, id);
 	}
 	public RDFTypeSubjectDB() {
-		super();
-	}
-
-	@Override
-	public void loadLocalVariables() {
-	}
-
-	@Override
-	public void updateLocalVariables() {
+		super(COLLECTION_NAME);
 	}
 
 	@Override
@@ -32,8 +26,9 @@ public class RDFTypeSubjectDB extends GeneralRDFResourceDB{
 		while(i.hasNext()){
 			t=new RDFTypeSubjectDB(i.next());
 			try {
-				t.updateObject(true);
-			} catch (LODVaderLODGeneralException e) {
+				t.update(true);
+			} catch (LODVaderMissingPropertiesException | LODVaderObjectAlreadyExistsException
+					| LODVaderNoPKFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}

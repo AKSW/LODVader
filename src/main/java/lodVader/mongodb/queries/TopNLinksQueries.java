@@ -8,7 +8,7 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
-import lodVader.mongodb.DBSuperClass;
+import lodVader.mongodb.DBSuperClass2;
 import lodVader.mongodb.collections.toplinks.SuperTop;
 
 public class TopNLinksQueries {
@@ -17,10 +17,8 @@ public class TopNLinksQueries {
 
 		LinkedHashMap<String, Integer> result = new LinkedHashMap<String, Integer>();
 
-		
-		DBCollection collection = DBSuperClass.getInstance()
-				.getCollection(collectionName);
-		
+		DBCollection collection = DBSuperClass2.getDBInstance()
+				.getCollection(collectionName);		
 		
 		BasicDBObject query1 = new BasicDBObject();
 		query1.append(SuperTop.SOURCE_DISTRIBUTION_ID, dataset1);
@@ -33,7 +31,6 @@ public class TopNLinksQueries {
 		and.add(query2);
 		
 		DBCursor cursor = collection.find(new BasicDBObject("$and",and)).sort(new BasicDBObject(SuperTop.AMOUNT, -1));
-//		System.out.println(new BasicDBObject("$and",and));
 		
 		for(DBObject object: cursor){
 			result.put(object.get(SuperTop.LINK).toString(), Integer.parseInt(object.get(SuperTop.AMOUNT).toString()));

@@ -32,8 +32,11 @@ public class DBSuperClass2 {
 	// defining mongodb _id
 	public String ID = "_id";
 
-	// defining PK field
-	public ArrayList<Object> PK = new ArrayList<Object>();
+	// defining PrimaryKeys field
+	public ArrayList<Object> primaryKey = new ArrayList<Object>();
+
+	// defining Keys used to update the object
+	public ArrayList<Object> updateKeys = new ArrayList<Object>();
 
 	// mongodb collection object
 	protected DBCollection collection;
@@ -44,11 +47,6 @@ public class DBSuperClass2 {
 	// list of mandatory fields to check before store the object
 	protected ArrayList<String> mandatoryFields = new ArrayList<String>();
 
-	// abstract public boolean updateObject(boolean checkBeforeInsert) throws
-	// LODVaderLODGeneralException;
-	//
-	// abstract public boolean loadObject();
-
 	protected void addMandatoryField(String field) {
 		mandatoryFields.add(field);
 	}
@@ -57,11 +55,20 @@ public class DBSuperClass2 {
 		this.COLLECTION_NAME = collectionName;
 	}
 
-	public DBSuperClass2() {
+	public DBSuperClass2(String collectionName, DBObject obj) {
+		this.COLLECTION_NAME = collectionName;
+		this.mongoDBObject = obj;
 	}
+
+	// public DBSuperClass2() {
+	// }
 
 	// add pair key/value to the persistence object
 	protected void addField(String key, String val) {
+		mongoDBObject.put(key, val);
+	}
+
+	protected void addField(String key, Double val) {
 		mongoDBObject.put(key, val);
 	}
 
@@ -190,8 +197,10 @@ public class DBSuperClass2 {
 			LODVaderObjectAlreadyExistsException, LODVaderNoPKFoundException {
 
 		if (create)
-			if (!find(false))
+			if (!find(false)){
 				insert(false);
+				return true;
+			}
 
 		checkMandatoryFields();
 		BasicDBList list = new BasicDBList();
@@ -209,7 +218,37 @@ public class DBSuperClass2 {
 				}
 			}
 		}
+		
 		getCollection().update(new BasicDBObject("$or", list), mongoDBObject);
+
+		return true;
+	}
+
+	public boolean updateBasedOnKeys(boolean create) throws LODVaderMissingPropertiesException,
+			LODVaderObjectAlreadyExistsException, LODVaderNoPKFoundException {
+
+		if (create)
+			if (!find(false))
+				insert(false);
+
+		checkMandatoryFields();
+		BasicDBList list = new BasicDBList();
+
+		for (Object pk : getUpdateKeys()) {
+			if (pk instanceof String) {
+				String pks = (String) pk;
+				if (getField(pks) != null) {
+					list.add(new BasicDBObject(pks, getField(pks)));
+				}
+			} else if (pk instanceof Integer) {
+				Integer pks = (Integer) pk;
+				if (getField(pks) != null) {
+					list.add(new BasicDBObject(String.valueOf(pks), getField(pks)));
+				}
+			}
+		}
+		
+		getCollection().update(new BasicDBObject("$and", list), mongoDBObject);
 
 		return true;
 	}
@@ -218,8 +257,10 @@ public class DBSuperClass2 {
 	 * Remove an object
 	 * 
 	 * @return true case successfully removed
+	 * @throws LODVaderMissingPropertiesException
 	 */
-	public boolean remove() {
+	public boolean remove() throws LODVaderMissingPropertiesException {
+		checkMandatoryFields();
 		DBCursor d = collection.find(mongoDBObject);
 		if (d.hasNext()) {
 			collection.remove(d.next());
@@ -243,11 +284,19 @@ public class DBSuperClass2 {
 	}
 
 	public ArrayList<Object> getPK() {
-		return PK;
+		return primaryKey;
+	}
+
+	public ArrayList<Object> getUpdateKeys() {
+		return updateKeys;
 	}
 
 	protected void addPK(String pK) {
-		PK.add(pK);
+		primaryKey.add(pK);
+	}
+
+	protected void addUpdateKey(String key) {
+		updateKeys.add(key);
 	}
 
 	private void checkMandatoryFields() throws LODVaderMissingPropertiesException {

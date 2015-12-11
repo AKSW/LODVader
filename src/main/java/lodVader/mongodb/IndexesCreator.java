@@ -6,6 +6,7 @@ import com.mongodb.DBObject;
 import lodVader.mongodb.collections.DatasetDB;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.LinksetDB;
+import lodVader.mongodb.collections.RDFResources.allPredicates.AllPredicatesDB;
 import lodVader.mongodb.collections.RDFResources.allPredicates.AllPredicatesRelationDB;
 import lodVader.mongodb.collections.RDFResources.owlClass.OwlClassRelationDB;
 import lodVader.mongodb.collections.RDFResources.rdfSubClassOf.RDFSubClassOfRelationDB;
@@ -23,14 +24,6 @@ public class IndexesCreator {
 	
 	public void createIndexes(){
 		
-		// indexes for DistributionObjectDomainsMongoDBObject
-		addIndex(DistributionObjectNSDB.COLLECTION_NAME, DistributionObjectNSDB.DISTRIBUTION_ID, 1); 
-		addIndex(DistributionObjectNSDB.COLLECTION_NAME, DistributionObjectNSDB.NS, 1);
-		
-		// indexes for DistributionSubjectDomainsMongoDBObject
-		addIndex(DistributionSubjectNSDB.COLLECTION_NAME, DistributionSubjectNSDB.DISTRIBUTION_ID, 1);
-		addIndex(DistributionSubjectNSDB.COLLECTION_NAME, DistributionSubjectNSDB.NS, 1); 
-		
 		// indexes for datasets
 		addIndex(DatasetDB.COLLECTION_NAME, DatasetDB.PARENT_DATASETS, 1);
 		addIndex(DatasetDB.COLLECTION_NAME, DatasetDB.TITLE, 1);
@@ -47,6 +40,7 @@ public class IndexesCreator {
 		
 		
 		// indexes for linksets
+		addIndex(LinksetDB.COLLECTION_NAME, LinksetDB.LINKSET_ID, 1);
 		addIndex(LinksetDB.COLLECTION_NAME, LinksetDB.DATASET_SOURCE, 1);
 		addIndex(LinksetDB.COLLECTION_NAME, LinksetDB.DATASET_TARGET, 1);
 		addIndex(LinksetDB.COLLECTION_NAME, LinksetDB.DISTRIBUTION_SOURCE, 1);
@@ -59,24 +53,32 @@ public class IndexesCreator {
 		addIndex(LinksetDB.COLLECTION_NAME, LinksetDB.LINK_STRENGHT, 1);
 				
 		// indexes for predicates resources
+		addIndex(AllPredicatesDB.COLLECTION_NAME, AllPredicatesDB.LOD_VADER_ID, 1);
+		addIndex(AllPredicatesDB.COLLECTION_NAME, AllPredicatesDB.URI, 1);		
+		
 		addIndex(AllPredicatesRelationDB.COLLECTION_NAME, AllPredicatesRelationDB.PREDICATE_ID, 1);
+		addIndex(AllPredicatesRelationDB.COLLECTION_NAME, AllPredicatesRelationDB.ID, 1);
 		addIndex(AllPredicatesRelationDB.COLLECTION_NAME, AllPredicatesRelationDB.DISTRIBUTION_ID, 1);
 		addIndex(AllPredicatesRelationDB.COLLECTION_NAME, AllPredicatesRelationDB.DATASET_ID, 1);	
 				
 		// indexes for predicates resources
 		addIndex(RDFTypeObjectRelationDB.COLLECTION_NAME, RDFTypeObjectRelationDB.PREDICATE_ID, 1);
+		addIndex(RDFTypeObjectRelationDB.COLLECTION_NAME, RDFTypeObjectRelationDB.ID, 1);
 		addIndex(RDFTypeObjectRelationDB.COLLECTION_NAME, RDFTypeObjectRelationDB.DISTRIBUTION_ID, 1);
 		addIndex(RDFTypeObjectRelationDB.COLLECTION_NAME, RDFTypeObjectRelationDB.DATASET_ID, 1);
 		
 		addIndex(RDFTypeSubjectRelationDB.COLLECTION_NAME, RDFTypeSubjectRelationDB.PREDICATE_ID, 1);
+		addIndex(RDFTypeSubjectRelationDB.COLLECTION_NAME, RDFTypeSubjectRelationDB.ID, 1);
 		addIndex(RDFTypeSubjectRelationDB.COLLECTION_NAME, RDFTypeSubjectRelationDB.DISTRIBUTION_ID, 1);
 		addIndex(RDFTypeSubjectRelationDB.COLLECTION_NAME, RDFTypeSubjectRelationDB.DATASET_ID, 1);
 		
 		addIndex(RDFSubClassOfRelationDB.COLLECTION_NAME, RDFSubClassOfRelationDB.PREDICATE_ID, 1);
+		addIndex(RDFSubClassOfRelationDB.COLLECTION_NAME, RDFSubClassOfRelationDB.ID, 1);
 		addIndex(RDFSubClassOfRelationDB.COLLECTION_NAME, RDFSubClassOfRelationDB.DISTRIBUTION_ID, 1);
 		addIndex(RDFSubClassOfRelationDB.COLLECTION_NAME, RDFSubClassOfRelationDB.DATASET_ID, 1);
 		
 		addIndex(OwlClassRelationDB.COLLECTION_NAME, OwlClassRelationDB.PREDICATE_ID, 1);
+		addIndex(OwlClassRelationDB.COLLECTION_NAME, OwlClassRelationDB.ID, 1);
 		addIndex(OwlClassRelationDB.COLLECTION_NAME, OwlClassRelationDB.DISTRIBUTION_ID, 1);
 		addIndex(OwlClassRelationDB.COLLECTION_NAME, OwlClassRelationDB.DATASET_ID, 1);
 		
@@ -103,8 +105,7 @@ public class IndexesCreator {
 		addIndex(TopValidLinks.COLLECTION_NAME, TopValidLinks.SOURCE_DISTRIBUTION_ID, 1);
 		addIndex(TopValidLinks.COLLECTION_NAME, TopValidLinks.TARGET_DISTRIBUTION_ID, 1);
 		addIndex(TopValidLinks.COLLECTION_NAME, TopValidLinks.AMOUNT, 1);
-			
-		
+				
 		// indices for gridFS
 		addIndex("ObjectsBucket.files", SuperBucket.DISTRIBUTION_ID, 1);
 		addIndex("ObjectsBucket.files", SuperBucket.FIRST_RESOURCE, 1);
@@ -118,7 +119,7 @@ public class IndexesCreator {
 	public void addIndex(String collection, String field, int value){
 		DBObject indexOptions = new BasicDBObject();
 		indexOptions.put(field, value);
-		DBSuperClass.getInstance().getCollection(collection).createIndex(indexOptions ); 			
+		DBSuperClass2.getCollection(collection).createIndex(indexOptions ); 			
 		
 	}
 

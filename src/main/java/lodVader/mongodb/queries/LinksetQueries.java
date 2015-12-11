@@ -4,10 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.bson.BSONObject;
 
 import com.mongodb.AggregationOutput;
 import com.mongodb.BasicDBList;
@@ -19,8 +15,7 @@ import com.mongodb.DBObject;
 import lodVader.LODVaderProperties;
 import lodVader.API.core.ServiceAPIOptions;
 import lodVader.API.diagram.DiagramData;
-import lodVader.API.server.CreateD3JSONFormat;
-import lodVader.mongodb.DBSuperClass;
+import lodVader.mongodb.DBSuperClass2;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.LinksetDB;
 
@@ -31,11 +26,11 @@ public class LinksetQueries {
 		ArrayList<LinksetDB> list = new ArrayList<LinksetDB>();
 
 		try {
-			DBCollection collection = DBSuperClass.getInstance().getCollection(LinksetDB.COLLECTION_NAME);
+			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(LinksetDB.COLLECTION_NAME);
 			DBCursor instances = collection.find();
 
 			for (DBObject instance : instances) {
-				list.add(new LinksetDB(instance.get(DBSuperClass.URI).toString()));
+				list.add(new LinksetDB(instance.get(LinksetDB.LINKSET_ID).toString()));
 			}
 
 		} catch (Exception e) {
@@ -49,13 +44,13 @@ public class LinksetQueries {
 		ArrayList<LinksetDB> list = new ArrayList<LinksetDB>();
 
 		try {
-			DBCollection collection = DBSuperClass.getInstance().getCollection(LinksetDB.COLLECTION_NAME);
+			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(LinksetDB.COLLECTION_NAME);
 			DBObject query = new BasicDBObject(LinksetDB.LINK_NUMBER_LINKS,
 					new BasicDBObject("$gt", LODVaderProperties.LINKSET_TRESHOLD));
 			DBCursor instances = collection.find(query);
 
 			for (DBObject instance : instances) {
-				list.add(new LinksetDB(instance.get(DBSuperClass.URI).toString()));
+				list.add(new LinksetDB(instance.get(LinksetDB.LINKSET_ID).toString()));
 			}
 
 		} catch (Exception e) {
@@ -70,7 +65,7 @@ public class LinksetQueries {
 		AggregationOutput output;
 		try {
 
-			DBCollection collection = DBSuperClass.getInstance().getCollection(LinksetDB.COLLECTION_NAME);
+			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(LinksetDB.COLLECTION_NAME);
 
 			// Now the $group operation
 			DBObject groupFields = new BasicDBObject("_id",
@@ -104,11 +99,11 @@ public class LinksetQueries {
 		try {
 			ArrayList<LinksetDB> list = new ArrayList<LinksetDB>();
 
-			DBCollection collection = DBSuperClass.getInstance().getCollection(LinksetDB.COLLECTION_NAME);
+			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(LinksetDB.COLLECTION_NAME);
 			DBCursor instances = collection.find();
 
 			for (DBObject instance : instances) {
-				list.add(new LinksetDB(instance.get(DBSuperClass.URI).toString()));
+				list.add(new LinksetDB(instance.get(LinksetDB.LINKSET_ID).toString()));
 			}
 			return list;
 		} catch (Exception e) {
@@ -124,7 +119,7 @@ public class LinksetQueries {
 		try {
 			ArrayList<LinksetDB> list = new ArrayList<LinksetDB>();
 
-			DBCollection collection = DBSuperClass.getInstance().getCollection(LinksetDB.COLLECTION_NAME);
+			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(LinksetDB.COLLECTION_NAME);
 
 			BasicDBObject query = new BasicDBObject(LinksetDB.DISTRIBUTION_SOURCE, distributionDB.getLODVaderID());
 
@@ -150,12 +145,12 @@ public class LinksetQueries {
 				int lastDataset = -1;
 				for (DBObject instance : instances) {
 					if (lastDataset != Integer.parseInt(instance.get(LinksetDB.DATASET_TARGET).toString()))
-						list.add(new LinksetDB(instance.get(DBSuperClass.URI).toString()));
+						list.add(new LinksetDB(instance.get(LinksetDB.LINKSET_ID).toString()));
 					lastDataset = Integer.parseInt(instance.get(LinksetDB.DATASET_TARGET).toString());
 				}
 			} else
 				for (DBObject instance : instances) {
-					list.add(new LinksetDB(instance.get(DBSuperClass.URI).toString()));
+					list.add(new LinksetDB(instance.get(LinksetDB.LINKSET_ID).toString()));
 				}
 
 			return list;
@@ -169,7 +164,7 @@ public class LinksetQueries {
 
 		ArrayList<LinksetDB> list = new ArrayList<LinksetDB>();
 		try {
-			DBCollection collection = DBSuperClass.getInstance().getCollection(LinksetDB.COLLECTION_NAME);
+			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(LinksetDB.COLLECTION_NAME);
 
 			DBObject clause1 = new BasicDBObject(LinksetDB.DISTRIBUTION_TARGET, id);
 			BasicDBList and = new BasicDBList();
@@ -204,7 +199,7 @@ public class LinksetQueries {
 
 		HashMap<Integer, ArrayList<LinksetDB>> list = new HashMap<Integer, ArrayList<LinksetDB>>();
 		try {
-			DBCollection collection = DBSuperClass.getInstance().getCollection(LinksetDB.COLLECTION_NAME);
+			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(LinksetDB.COLLECTION_NAME);
 
 			BasicDBList and = new BasicDBList();
 			DBObject clause2;
@@ -259,7 +254,7 @@ public class LinksetQueries {
 		ArrayList<LinksetDB> list = new ArrayList<LinksetDB>();
 		try {
 
-			DBCollection collection = DBSuperClass.getInstance().getCollection(LinksetDB.COLLECTION_NAME);
+			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(LinksetDB.COLLECTION_NAME);
 
 			DBObject clause1 = new BasicDBObject(LinksetDB.DISTRIBUTION_SOURCE, id);
 
@@ -289,65 +284,66 @@ public class LinksetQueries {
 		return null;
 	}
 
-	public ArrayList<LinksetDB> getLinksetsInDegreeByDataset(String url) {
-		ArrayList<LinksetDB> list = new ArrayList<LinksetDB>();
-		try {
+//	public ArrayList<LinksetDB> getLinksetsInDegreeByDataset(String url) {
+//		ArrayList<LinksetDB> list = new ArrayList<LinksetDB>();
+//		try {
+//
+//			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(LinksetDB.COLLECTION_NAME);
+//
+//			DBObject clause1 = new BasicDBObject(LinksetDB.DATASET_TARGET, new BasicDBObject("$regex", url + ".*"));
+//			DBObject clause2 = new BasicDBObject(LinksetDB.LINK_NUMBER_LINKS, new BasicDBObject("$gt", 50));
+//
+//			BasicDBList or = new BasicDBList();
+//			or.add(clause1);
+//			or.add(clause2);
+//			DBObject query = new BasicDBObject("$and", or);
+//			DBCursor d = collection.find(query);
+//
+//			while (d.hasNext()) {
+//				list.add(new LinksetDB(d.next().get(DBSuperClass.URI).toString()));
+//			}
+//
+//			return list;
+//
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		return null;
+//	}
+	
 
-			DBCollection collection = DBSuperClass.getInstance().getCollection(LinksetDB.COLLECTION_NAME);
-
-			DBObject clause1 = new BasicDBObject(LinksetDB.DATASET_TARGET, new BasicDBObject("$regex", url + ".*"));
-			DBObject clause2 = new BasicDBObject(LinksetDB.LINK_NUMBER_LINKS, new BasicDBObject("$gt", 50));
-
-			BasicDBList or = new BasicDBList();
-			or.add(clause1);
-			or.add(clause2);
-			DBObject query = new BasicDBObject("$and", or);
-			DBCursor d = collection.find(query);
-
-			while (d.hasNext()) {
-				list.add(new LinksetDB(d.next().get(DBSuperClass.URI).toString()));
-			}
-
-			return list;
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	public ArrayList<LinksetDB> getLinksetsOutDegreeByDataset(String url) {
-		ArrayList<LinksetDB> list = new ArrayList<LinksetDB>();
-		try {
-
-			DBCollection collection = DBSuperClass.getInstance().getCollection(LinksetDB.COLLECTION_NAME);
-
-			DBObject clause1 = new BasicDBObject(LinksetDB.DATASET_SOURCE, new BasicDBObject("$regex", url + ".*"));
-			DBObject clause2 = new BasicDBObject(LinksetDB.LINK_NUMBER_LINKS,
-					new BasicDBObject("$gt", LODVaderProperties.LINKSET_TRESHOLD));
-
-			BasicDBList and = new BasicDBList();
-			and.add(clause1);
-			and.add(clause2);
-			DBObject query = new BasicDBObject("$and", and);
-
-			DBCursor d = collection.find(query);
-
-			while (d.hasNext()) {
-				list.add(new LinksetDB(d.next().get(DBSuperClass.URI).toString()));
-			}
-
-			return list;
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
+//	public ArrayList<LinksetDB> getLinksetsOutDegreeByDataset(String url) {
+//		ArrayList<LinksetDB> list = new ArrayList<LinksetDB>();
+//		try {
+//
+//			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(LinksetDB.COLLECTION_NAME);
+//
+//			DBObject clause1 = new BasicDBObject(LinksetDB.DATASET_SOURCE, new BasicDBObject("$regex", url + ".*"));
+//			DBObject clause2 = new BasicDBObject(LinksetDB.LINK_NUMBER_LINKS,
+//					new BasicDBObject("$gt", LODVaderProperties.LINKSET_TRESHOLD));
+//
+//			BasicDBList and = new BasicDBList();
+//			and.add(clause1);
+//			and.add(clause2);
+//			DBObject query = new BasicDBObject("$and", and);
+//
+//			DBCursor d = collection.find(query);
+//
+//			while (d.hasNext()) {
+//				list.add(new LinksetDB(d.next().get(DBSuperClass.URI).toString()));
+//			}
+//
+//			return list;
+//
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		return null;
+//	}
 
 	public boolean isOnLinksetList(String downloadURLObject, String downloladURLSubject) {
 
-		DBCollection collection = DBSuperClass.getInstance().getCollection(LinksetDB.COLLECTION_NAME);
+		DBCollection collection = DBSuperClass2.getDBInstance().getCollection(LinksetDB.COLLECTION_NAME);
 		BasicDBObject query = new BasicDBObject(LinksetDB.DISTRIBUTION_TARGET, downloladURLSubject);
 		query.append(LinksetDB.DISTRIBUTION_SOURCE, downloadURLObject);
 
@@ -362,7 +358,7 @@ public class LinksetQueries {
 
 	public boolean checkIfDatasetExists(String datasetURL) {
 
-		DBCollection collection = DBSuperClass.getInstance().getCollection(LinksetDB.COLLECTION_NAME);
+		DBCollection collection = DBSuperClass2.getDBInstance().getCollection(LinksetDB.COLLECTION_NAME);
 		BasicDBObject clause1 = new BasicDBObject(LinksetDB.DATASET_TARGET,
 				new BasicDBObject("$regex", datasetURL + ".*"));
 		BasicDBObject clause2 = new BasicDBObject(LinksetDB.DATASET_SOURCE,
@@ -380,11 +376,11 @@ public class LinksetQueries {
 		}
 
 		return false;
-	}
+	} 
 
 	public boolean checkIfDistributionExists(String distributionURL) {
 
-		DBCollection collection = DBSuperClass.getInstance().getCollection(LinksetDB.COLLECTION_NAME);
+		DBCollection collection = DBSuperClass2.getDBInstance().getCollection(LinksetDB.COLLECTION_NAME);
 		BasicDBObject clause1 = new BasicDBObject(LinksetDB.DISTRIBUTION_TARGET,
 				new BasicDBObject("$regex", distributionURL + ".*"));
 		BasicDBObject clause2 = new BasicDBObject(LinksetDB.DISTRIBUTION_SOURCE,

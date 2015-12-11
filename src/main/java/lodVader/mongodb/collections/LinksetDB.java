@@ -2,23 +2,22 @@ package lodVader.mongodb.collections;
 
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
-import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
-import lodVader.API.diagram.Link;
-import lodVader.exceptions.LODVaderLODGeneralException;
-import lodVader.mongodb.DBSuperClass;
+import lodVader.mongodb.DBSuperClass2;
 
-public class LinksetDB extends DBSuperClass {
-	
+public class LinksetDB extends DBSuperClass2 {
+
 	public LinksetDB() {
-		// TODO Auto-generated constructor stub
+		super(COLLECTION_NAME);
 	}
 
 	// Collection name
 	public static final String COLLECTION_NAME = "Linkset";
 
 	// class properties
+	public static final String LINKSET_ID = "linksetId";
+
 	public static final String DISTRIBUTION_TARGET = "distributionTarget";
 
 	public static final String DISTRIBUTION_SOURCE = "distributionSource";
@@ -41,285 +40,187 @@ public class LinksetDB extends DBSuperClass {
 
 	public static final String LINK_NUMBER_LINKS = "links";
 
-	private int distributionTarget;
-
-	private int distributionSource;
-
-	private int datasetTarget;
-
-	private int datasetSource;
-
-	private double predicateSimilarity = 0;
-
-	private double owlClassSimilarity = 0;
-
-	private double rdfTypeSimilarity = 0;
-
-	private double rdfSubClassSimilarity = 0;
-
-	private double strength;
-
-	private int links = 0;
-
-	private int invalidLinks = 0;
-	
-	public LinksetDB(String uri) {
-		super(COLLECTION_NAME, uri);
-		loadObject();
-	}
-
 	public LinksetDB(DBObject object) {
-		super(COLLECTION_NAME, object);
-		load(object);
-	}
-	
-	
-	
-	
-	protected void load(DBObject obj){
-
-		if (obj != null) {
-
-			distributionTarget = ((Number) obj
-					.get(DISTRIBUTION_TARGET)).intValue();
-
-			distributionSource =  ((Number) obj
-					.get(DISTRIBUTION_SOURCE)).intValue();
-
-			datasetSource =  ((Number) obj.get(DATASET_SOURCE)).intValue();
-
-			datasetTarget =  ((Number) obj.get(DATASET_TARGET)).intValue();
-
-			predicateSimilarity =  ((Number) obj.get(PREDICATE_SIMILARITY)).doubleValue();
-
-			owlClassSimilarity =  ((Number) obj.get(OWL_CLASS_SIMILARITY)).doubleValue();
-
-			rdfTypeSimilarity =  ((Number) obj.get(RDF_TYPE_SIMILARITY)).doubleValue();
-
-			rdfSubClassSimilarity =  ((Number) obj.get(RDF_SUBCLASS_SIMILARITY)).doubleValue();
-
-			strength =  ((Number) obj.get(LINK_STRENGHT)).doubleValue();
-
-//			invalidLinks = Integer.valueOf(obj.get(INVALID_LINKS).toString());
-
-			links = ((Number) obj.get(LINK_NUMBER_LINKS)).intValue();
-
-			invalidLinks = ((Number) obj.get(INVALID_LINKS)).intValue();
-
-		}
+		super(COLLECTION_NAME);
+		initializeVariables();
+		mongoDBObject = object;
 	}
 
-	
-	
-	
-	public boolean updateObject(boolean checkBeforeInsert) {
-
-		// save object case it doens't exists
-		try {
-			// updating subjectsTarget on mongodb
-			mongoDBObject.put(DISTRIBUTION_TARGET,
-					distributionTarget);
-
-			// updating objectsTarget on mongodb
-			mongoDBObject.put(DISTRIBUTION_SOURCE,
-					distributionSource);
-
-			// updating subjectsTarget on mongodb
-			mongoDBObject.put(DATASET_TARGET, datasetTarget);
-
-			// updating objectsTarget on mongodb
-			mongoDBObject.put(DATASET_SOURCE, datasetSource);
-
-			// updating links on mongodb
-			mongoDBObject.put(LINK_NUMBER_LINKS, links);
-
-			// updating invalid links on mongodb
-//			mongoDBObject.put(INVALID_LINKS, invalidLinks);
-			
-
-			// updating similarity on mongodb
-			mongoDBObject.put(PREDICATE_SIMILARITY, predicateSimilarity);
-
-			mongoDBObject.put(OWL_CLASS_SIMILARITY, owlClassSimilarity);
-
-			mongoDBObject.put(RDF_SUBCLASS_SIMILARITY, rdfSubClassSimilarity);
-
-			mongoDBObject.put(RDF_TYPE_SIMILARITY, rdfTypeSimilarity);
-
-			mongoDBObject.put(INVALID_LINKS, invalidLinks);
-
-			// updating link strength on mongodb
-			mongoDBObject.put(LINK_STRENGHT, strength);
-
-			insert(checkBeforeInsert);
-		} catch (Exception e2) {
-			// e2.printStackTrace();
-
-			try {
-				if (update())
-					return true;
-				else
-					return false;
-			} catch (LODVaderLODGeneralException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				return false;
-			}
-		}
-		return false;
+	public LinksetDB(String id) {
+		super(COLLECTION_NAME);
+		initializeVariables();
+		setLinksetID(id);
+		find(true);
 	}
 
-	protected boolean loadObject() {
-		DBObject obj = search();
-
-		if (obj != null) {
-
-			distributionTarget = ((Number) obj
-					.get(DISTRIBUTION_TARGET)).intValue();
-
-			distributionSource =  ((Number) obj
-					.get(DISTRIBUTION_SOURCE)).intValue();
-
-			datasetSource =  ((Number) obj.get(DATASET_SOURCE)).intValue();
-
-			datasetTarget =  ((Number) obj.get(DATASET_TARGET)).intValue();
-
-			predicateSimilarity =  ((Number) obj.get(PREDICATE_SIMILARITY)).doubleValue();
-
-			owlClassSimilarity =  ((Number) obj.get(OWL_CLASS_SIMILARITY)).doubleValue();
-
-			rdfSubClassSimilarity =  ((Number) obj.get(RDF_SUBCLASS_SIMILARITY)).doubleValue();
-
-			rdfTypeSimilarity =  ((Number) obj.get(RDF_TYPE_SIMILARITY)).doubleValue();
-
-			strength =  ((Number) obj.get(LINK_STRENGHT)).doubleValue();
-
-//			invalidLinks = Integer.valueOf(obj.get(INVALID_LINKS).toString());
-
-			links = ((Number) obj.get(LINK_NUMBER_LINKS)).intValue();
-
-			invalidLinks= ((Number) obj.get(INVALID_LINKS)).intValue();
-
-			return true;
-		}
-		return false;
+	private void initializeVariables() {
+		addPK(LINKSET_ID);
+		addMandatoryField(LINKSET_ID);
+		addMandatoryField(DISTRIBUTION_SOURCE);
+		addMandatoryField(DISTRIBUTION_TARGET);
+		addMandatoryField(DATASET_SOURCE);
+		addMandatoryField(DATASET_TARGET);
+		addMandatoryField(LINK_NUMBER_LINKS);
+		// addMandatoryField(LINK_STRENGHT);
+		// addMandatoryField(INVALID_LINKS);
+		// addMandatoryField(PREDICATE_SIMILARITY);
+		// addMandatoryField(OWL_CLASS_SIMILARITY);
+		// addMandatoryField(RDF_SUBCLASS_SIMILARITY);
+		// addMandatoryField(RDF_TYPE_SIMILARITY);
 	}
 
 	public int getDistributionTarget() {
-		return distributionTarget;
+		return Integer.parseInt(getField(DISTRIBUTION_TARGET).toString());
 	}
 
-	public void setDistributionTarget(int subjectsDistributionTarget) {
-		this.distributionTarget = subjectsDistributionTarget;
+	public void setDistributionTarget(int distributionTarget) {
+		addField(DISTRIBUTION_TARGET, distributionTarget);
+	}
+
+	public String getLinksetID() {
+		return getField(LINKSET_ID).toString();
+	}
+
+	public void setLinksetID(String id) {
+		addField(LINKSET_ID, id);
 	}
 
 	public int getDistributionSource() {
-		return distributionSource;
+		return Integer.parseInt(getField(DISTRIBUTION_SOURCE).toString());
 	}
 
-	public void setDistributionSource(int objectsDistributionTarget) {
-		this.distributionSource = objectsDistributionTarget;
+	public void setDistributionSource(int distributionSource) {
+		addField(DISTRIBUTION_SOURCE, distributionSource);
 	}
 
 	public int getDatasetTarget() {
-		return datasetTarget;
+		return Integer.parseInt(getField(DATASET_TARGET).toString());
 	}
 
-	public void setDatasetTarget(int subjectsDatasetTarget) {
-		this.datasetTarget = subjectsDatasetTarget;
+	public void setDatasetTarget(int datasetTarget) {
+		addField(DATASET_TARGET, datasetTarget);
 	}
 
 	public int getDatasetSource() {
-		return datasetSource;
+		return Integer.parseInt(getField(DATASET_SOURCE).toString());
 	}
 
-	public void setDatasetSource(int objectsDatasetTarget) {
-		this.datasetSource = objectsDatasetTarget;
+	public void setDatasetSource(int datasetSource) {
+		addField(DATASET_SOURCE, datasetSource);
 	}
 
 	public int getLinks() {
-		return links;
+		try {
+			return Integer.parseInt(getField(LINK_NUMBER_LINKS).toString());
+		} catch (NullPointerException e) {
+			setLinks(0);
+			return 0;
+		}
 	}
-	
-	public String getLinksAsString(){
-		return String.valueOf(links);
+
+	public String getLinksAsString() {
+		return String.valueOf(getField(LINK_NUMBER_LINKS));
 	}
 
 	public void setLinks(int links) {
-		this.links = links;
+		addField(LINK_NUMBER_LINKS, links);
 	}
 
 	public int getInvalidLinks() {
-		return invalidLinks;
+		try {
+			return Integer.parseInt(getField(INVALID_LINKS).toString());
+		} catch (NullPointerException e) {
+			return 0;
+		}
 	}
-	
+
 	public String getInvalidLinksAsString() {
-		return String.valueOf(invalidLinks);
+		return String.valueOf(getField(INVALID_LINKS));
 	}
 
 	public void setInvalidLinks(int invalidLinks) {
-		this.invalidLinks = invalidLinks;
+		addField(INVALID_LINKS, invalidLinks);
 	}
 
 	public double getPredicateSimilarity() {
-		return predicateSimilarity;
+		try {
+			return Double.parseDouble(getField(PREDICATE_SIMILARITY).toString());
+		} catch (NullPointerException e) {
+			return 0;
+		}
 	}
-	
+
 	public String getPredicatesSimilarityAsString() {
-		return String.valueOf(predicateSimilarity);
+		return String.valueOf(getField(PREDICATE_SIMILARITY));
 	}
 
 	public void setPredicateSimilarity(double similarity) {
-		this.predicateSimilarity = similarity;
+		addField(PREDICATE_SIMILARITY, similarity);
 	}
 
-	
-	
 	public double getOwlClassSimilarity() {
-		return owlClassSimilarity;
+		try {
+			return Double.parseDouble(getField(OWL_CLASS_SIMILARITY).toString());
+		} catch (NullPointerException e) {
+			return 0;
+		}
 	}
 
 	public void setOwlClassSimilarity(double owlClassSimilarity) {
-		this.owlClassSimilarity = owlClassSimilarity;
+		addField(OWL_CLASS_SIMILARITY, owlClassSimilarity);
 	}
 
 	public double getRdfTypeSimilarity() {
-		return rdfTypeSimilarity;
+		try {
+			return Double.parseDouble(getField(RDF_TYPE_SIMILARITY).toString());
+		} catch (NullPointerException e) {
+			return 0;
+		}
 	}
 
 	public void setRdfTypeSimilarity(double rdfTypeSimilarity) {
-		this.rdfTypeSimilarity = rdfTypeSimilarity;
+		addField(RDF_TYPE_SIMILARITY, rdfTypeSimilarity);
 	}
 
 	public double getRdfSubClassSimilarity() {
-		return rdfSubClassSimilarity;
+		try {
+			return Double.parseDouble(getField(RDF_SUBCLASS_SIMILARITY).toString());
+		} catch (NullPointerException e) {
+			setRdfSubClassSimilarity(0);
+			return 0;
+		}
+
 	}
 
 	public void setRdfSubClassSimilarity(double rdfSubClassSimilarity) {
-		this.rdfSubClassSimilarity = rdfSubClassSimilarity;
+		addField(RDF_SUBCLASS_SIMILARITY, rdfSubClassSimilarity);
 	}
 
 	public double getStrength() {
-		return strength;
+		try {
+			return Double.parseDouble(getField(LINK_STRENGHT).toString());
+		} catch (NullPointerException e) {
+			return 0;
+		}
 	}
 
 	public String getStrengthAsString() {
-		return String.valueOf(strength);
+		return String.valueOf(getField(LINK_STRENGHT));
 	}
 
 	public void setStrength(double strength) {
-		this.strength = strength;
+		addField(LINK_STRENGHT, strength);
 	}
 
-	public void removeAllLinks(int distributionID){
+	public void removeAllLinks(int distributionID) {
 		BasicDBObject query = new BasicDBObject(LinksetDB.DISTRIBUTION_SOURCE, distributionID);
 		BasicDBObject query2 = new BasicDBObject(LinksetDB.DISTRIBUTION_TARGET, distributionID);
 		BasicDBList or = new BasicDBList();
 		or.add(query);
 		or.add(query2);
-		DBSuperClass.getInstance().getCollection(DistributionDB.COLLECTION_NAME).remove(new BasicDBObject("$or", or));
-		
+		DBSuperClass2.getDBInstance().getCollection(DistributionDB.COLLECTION_NAME)
+				.remove(new BasicDBObject("$or", or));
+
 	}
-	
-	
+
 }

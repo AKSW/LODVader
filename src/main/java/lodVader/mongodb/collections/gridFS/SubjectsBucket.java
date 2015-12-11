@@ -6,15 +6,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
 
-import org.junit.Test;
-
 import com.google.common.hash.BloomFilter;
 import com.mongodb.BasicDBObject;
 import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSDBFile;
 
 import lodVader.bloomfilters.GoogleBloomFilter;
-import lodVader.mongodb.DBSuperClass;
+import lodVader.mongodb.DBSuperClass2;
 
 public class SubjectsBucket extends SuperBucket {
 
@@ -54,7 +52,7 @@ public class SubjectsBucket extends SuperBucket {
 		ArrayList<SubjectsBucket> result = new ArrayList<SubjectsBucket>();
 
 		// get collection
-		GridFS gfs = new GridFS(DBSuperClass.getInstance(), SUBJECTS_BUCKET_COLLECTION_NAME);
+		GridFS gfs = new GridFS(DBSuperClass2.getDBInstance(), SUBJECTS_BUCKET_COLLECTION_NAME);
 
 		// create query
 		BasicDBObject distribution = new BasicDBObject(DISTRIBUTION_ID, distributionID);

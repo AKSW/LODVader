@@ -1,15 +1,13 @@
 package lodVader.linksets;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.TreeSet;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 
 import lodVader.bloomfilters.GoogleBloomFilter;
-import lodVader.mongodb.DBSuperClass;
+import lodVader.mongodb.DBSuperClass2;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.gridFS.ObjectsBucket;
 import lodVader.mongodb.collections.gridFS.SubjectsBucket;
@@ -114,7 +112,7 @@ public class DistributionResourcesData {
 		// query all subjects ns for the distribution
 		BasicDBObject subjectQuery = new BasicDBObject(DistributionSubjectNSDB.DISTRIBUTION_ID, distributionID);
 
-		DBCollection collection = DBSuperClass.getInstance().getCollection(DistributionSubjectNSDB.COLLECTION_NAME);
+		DBCollection collection = DBSuperClass2.getCollection(DistributionSubjectNSDB.COLLECTION_NAME);
 
 		DBCursor cursor = collection.find(subjectQuery);
 
@@ -134,7 +132,7 @@ public class DistributionResourcesData {
 		// doing the same for objects ns
 		BasicDBObject objectQuery = new BasicDBObject(DistributionObjectNSDB.DISTRIBUTION_ID, distributionID);
 
-		collection = DBSuperClass.getInstance().getCollection(DistributionObjectNSDB.COLLECTION_NAME);
+		collection = DBSuperClass2.getCollection(DistributionObjectNSDB.COLLECTION_NAME);
 
 		cursor = collection.find(objectQuery);
 

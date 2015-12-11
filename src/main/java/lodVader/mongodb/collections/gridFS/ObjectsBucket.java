@@ -12,7 +12,7 @@ import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSDBFile;
 
 import lodVader.bloomfilters.GoogleBloomFilter;
-import lodVader.mongodb.DBSuperClass;
+import lodVader.mongodb.DBSuperClass2;
 
 public class ObjectsBucket  extends SuperBucket{
 	
@@ -52,7 +52,7 @@ public class ObjectsBucket  extends SuperBucket{
 		ArrayList<ObjectsBucket> result = new ArrayList<ObjectsBucket>();
 
 		// get collection
-		GridFS gfs = new GridFS(DBSuperClass.getInstance(), OBJECTS_BUCKET_COLLECTION_NAME);
+		GridFS gfs = new GridFS(DBSuperClass2.getDBInstance(), OBJECTS_BUCKET_COLLECTION_NAME);
 
 		// create query
 		BasicDBObject distribution = new BasicDBObject(DISTRIBUTION_ID, distributionID);

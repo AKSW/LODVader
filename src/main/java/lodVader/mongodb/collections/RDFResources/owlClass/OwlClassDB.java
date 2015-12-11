@@ -10,41 +10,28 @@ public class OwlClassDB extends GeneralRDFResourceDB{
 
 	public static final String COLLECTION_NAME = "OWLClasses";
 
-	public OwlClassDB(String id) {
-		super(COLLECTION_NAME, id);
-		loadObject();
-	}
-	public OwlClassDB(int id) {
-		super(COLLECTION_NAME, id);
-		loadObject();
+	public OwlClassDB() {
+		super(COLLECTION_NAME); 
 	}
 	
-	public OwlClassDB() {
-		super();
+	public OwlClassDB(int lodVaderId) {
+		super(COLLECTION_NAME, lodVaderId);
+	}
+	
+	public OwlClassDB(String url) {
+		super(COLLECTION_NAME,url);
 	}
 
-	@Override
-	public void loadLocalVariables() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void updateLocalVariables() {
-		// TODO Auto-generated method stub
-		
-	}
 
 	@Override
 	public void insertSet(Set<String> set) {
 		Iterator<String> i = set.iterator();
 		OwlClassDB t = null;
-		while(i.hasNext()){
-			t=new OwlClassDB(i.next());
+		while(i.hasNext()){ 
+			t=new OwlClassDB(i.next()); 
 			try {
-				t.updateObject(true);
-			} catch (LODVaderLODGeneralException e) {
-				// TODO Auto-generated catch block
+				t.update(true);
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}

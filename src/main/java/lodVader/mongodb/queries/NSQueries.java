@@ -4,7 +4,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 
-import lodVader.mongodb.DBSuperClass;
+import lodVader.mongodb.DBSuperClass2;
 import lodVader.mongodb.collections.namespaces.DistributionObjectNSDB;
 
 public class NSQueries {
@@ -14,7 +14,7 @@ public class NSQueries {
 		int result=0;
 		try {
 
-			DBCollection collection = DBSuperClass.getInstance().getCollection(
+			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(
 					DistributionObjectNSDB.COLLECTION_NAME);
 
 			// get all objects domain of a distribution

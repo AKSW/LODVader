@@ -176,10 +176,10 @@ public class APIStatistics {
 			collectionName = RDFTypeObjectRelationDB.COLLECTION_NAME;
 		}
 
-		List<GeneralRDFResourceRelationDB> list = new GeneralRDFResourceRelationDB().getTopNPredicates(collectionName,
+		List<GeneralRDFResourceRelationDB> list = new GeneralRDFResourceRelationDB(collectionName).getTopNPredicates(
 				distributionID, topN);
 
-		for (GeneralRDFResourceRelationDB d : list) {
+		for (GeneralRDFResourceRelationDB d : list) { 
 			JSONArray jsonObj = new JSONArray();
 
 			if (type.equals(ServiceAPIOptions.DATASET_TYPE_CLASSES))
@@ -187,7 +187,7 @@ public class APIStatistics {
 			else if (type.equals(ServiceAPIOptions.DATASET_TYPE_SUBCLASSES))
 				jsonObj.put(new RDFSubClassOfDB(d.getPredicateID()).getUri());
 			else if (type.equals(ServiceAPIOptions.DATASET_TYPE_RDF_TYPE))
-				jsonObj.put(new RDFTypeObjectDB(d.getPredicateID()).getUri());
+				jsonObj.put(new RDFTypeObjectDB(d.getPredicateID()).getUri()); 
 			else
 				jsonObj.put(new AllPredicatesDB(d.getPredicateID()).getUri());
 
@@ -342,7 +342,7 @@ public class APIStatistics {
 
 		intersection = makeIntersecion(values1, values2);
 
-		Set<GeneralRDFResourceRelationDB> relations = new GeneralRDFResourceRelationDB().getPredicatesIn(collectionName,
+		Set<GeneralRDFResourceRelationDB> relations = new GeneralRDFResourceRelationDB(collectionName).getPredicatesIn( 
 				intersection, distribution1.getLODVaderID(), distribution2.getLODVaderID());
 
 		// group by predicate value
