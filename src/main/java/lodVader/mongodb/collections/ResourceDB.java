@@ -28,7 +28,11 @@ public abstract class ResourceDB extends DBSuperClass2 {
 	}
 
 	public String getTitle() {
-		return getField(TITLE).toString();
+		try {
+			return getField(TITLE).toString();
+		} catch (NullPointerException e) {
+			return "";
+		}
 	}
 
 	public boolean getIsVocabulary() {
@@ -44,7 +48,11 @@ public abstract class ResourceDB extends DBSuperClass2 {
 	}
 
 	public String getLabel() {
-		return getField(LABEL).toString();
+		try {
+			return getField(LABEL).toString();
+		} catch (NullPointerException e) {
+			return "";
+		}
 	}
 
 	public Integer getLODVaderID() {
@@ -58,7 +66,7 @@ public abstract class ResourceDB extends DBSuperClass2 {
 		return getField(URI).toString();
 	}
 
-	public void setUri(String uri){
+	public void setUri(String uri) {
 		addField(URI, uri);
 	}
 }

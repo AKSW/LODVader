@@ -29,7 +29,7 @@ public abstract class GeneralRDFResourceDB extends DBSuperClass2  {
 		setVariables();
 		setUri(uri);
 		if(!find(true))
-			setLODVaderID(new LODVaderCounterDB().getCounterValue());
+			setLODVaderID(new LODVaderCounterDB().incrementAndGetID());
 		
 	}
 	

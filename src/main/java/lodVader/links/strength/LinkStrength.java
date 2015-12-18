@@ -30,8 +30,7 @@ public class LinkStrength {
 	public void updateLinks(DistributionDB distribution){
 		
 		// get all distributions except for the current one
-		ArrayList<DistributionDB> distributions = new DistributionQueries().getDistributions(true);
-		
+		ArrayList<DistributionDB> distributions = new DistributionQueries().getDistributions(null, null);
 		
 		for(DistributionDB d: distributions){
 			if(d.getLODVaderID() != distribution.getLODVaderID()){

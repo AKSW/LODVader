@@ -3,6 +3,7 @@ package lodVader.mongodb.collections;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
@@ -24,7 +25,7 @@ public class DatasetDB extends ResourceDB {
 
 	public static final String SUBJECT_FILTER_FILENAME = "subjectFileName";
 
-	public static final String ACCESS_URL = "accessUrl";
+	public static final String DESCRIPTION_FILE_URL = "descriptionFileURL";
 
 	public DatasetDB(String uri) { 
 		super(COLLECTION_NAME);
@@ -54,6 +55,7 @@ public class DatasetDB extends ResourceDB {
 		addPK(URI);
 		addPK(LOD_VADER_ID);
 		addMandatoryField(URI);
+		addMandatoryField(DESCRIPTION_FILE_URL);
 		addMandatoryField(SUBSET_IDS);
 		addMandatoryField(DISTRIBUTIONS_IDS);
 	}
@@ -98,6 +100,7 @@ public class DatasetDB extends ResourceDB {
 		return (ArrayList<Integer>) getField(DISTRIBUTIONS_IDS);
 	}
 
+	@JsonIgnore
 	public ArrayList<DistributionDB> getDistributionsAsMongoDBObjects() {
 		return new DatasetQueries().getDistributionsAsMongoDBObject(this);
 	}
@@ -106,16 +109,30 @@ public class DatasetDB extends ResourceDB {
 		return (ArrayList<Integer>) getField(SUBSET_IDS);
 	}
 
+	@JsonIgnore
 	public ArrayList<DatasetDB> getSubsetsAsMongoDBObject() {
 		return new DatasetQueries().getSubsetsAsMongoDBObject(this);
 	}
 
+	public void setDescriptionFileURL(String descriptionFileURL){
+		addField(DESCRIPTION_FILE_URL, descriptionFileURL);
+	}
+
+	public String getDescriptionFileURL(){
+		return getField(DESCRIPTION_FILE_URL).toString();
+	}
+	
 	public ArrayList<Integer> getParentDatasetID() {
+		try{
 		ArrayList<Integer> parentDatasetsIDs = (ArrayList<Integer>) getField(PARENT_DATASETS);
 		if (parentDatasetsIDs.get(0) != 0 || parentDatasetsIDs.size() >= 1)
 			return parentDatasetsIDs;
 		else
 			return new ArrayList<Integer>();
+		}
+		catch(NullPointerException e){
+			return new ArrayList<Integer>();
+		}
 	}
 
 	public void addParentDatasetID(int id) {

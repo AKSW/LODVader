@@ -4,67 +4,66 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
-import org.json.JSONObject;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class Link {
 
-	Bubble source;
+	@JsonIgnore
+	Node nodeSource;
 
-	Bubble target;
+	@JsonIgnore
+	Node nodeTarget;
 
+	@JsonIgnore
 	String links;
-	
 
-	public Link(Bubble source, Bubble target, String links) {
-		this.source = source;
-		this.target = target;
+	public Link(Node source, Node target, String links) {
+		this.nodeSource = source;
+		this.nodeTarget = target;
 		this.links = links;
 	}
+
+	public Node getNodeSource() {
+		return nodeSource;
+	}
+
+	public void setNodeSource(Node source) {
+		this.nodeSource = source;
+	}
+
+	public Node getNodeTarget() {
+		return nodeTarget;
+	}
+
+	public void setNodeTarget(Node target) {
+		this.nodeTarget = target;
+	}
 	
-	public JSONObject getJSON(){
-		NumberFormat formatter = new DecimalFormat("#.#######");  
-		formatter.setRoundingMode(RoundingMode.CEILING);
+	public String getValue(){
+		return links;
+	}
 	
-		JSONObject link = new JSONObject();
-		
-		link.put("target", target
-				.getID());
-		link.put("source", source
-				.getID());
-		if(!links.equals("S") && Double.valueOf(links) <= 1){
-			double l = Double.valueOf(links);
-			link.put("value", formatter.format(l));
-		}
-		else
-			link.put("value", links);			
-		
-		return link;
+	public int getSource(){
+		return nodeSource.getID();
 	}
-
-	public Bubble getSource() {
-		return source;
-	}
-
-	public void setSource(Bubble source) {
-		this.source = source;
-	}
-
-	public Bubble getTarget() {
-		return target;
-	}
-
-	public void setTarget(Bubble target) {
-		this.target = target;
+	
+	public int getTarget(){
+		return nodeTarget.getID();
 	}
 
 	public String getLinks() {
-		return links;
+		NumberFormat formatter = new DecimalFormat("#.#######");
+		formatter.setRoundingMode(RoundingMode.CEILING);
+
+		if (!links.equals("S") && Double.valueOf(links) <= 1) {
+			double l = Double.valueOf(links);
+			return formatter.format(l);
+		} else
+			return links;
 	}
 
 	public void setLinks(String links) {
 		this.links = links;
 	}
-
-	
 
 }

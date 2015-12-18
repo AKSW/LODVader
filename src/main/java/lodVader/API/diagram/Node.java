@@ -1,69 +1,49 @@
 package lodVader.API.diagram;
 
-import org.json.JSONObject;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lodVader.mongodb.collections.DatasetDB;
 import lodVader.mongodb.collections.DistributionDB;
 
-public class Bubble {
+public class Node {
 
 	Object dynLodObject;
 
+	@JsonIgnore
 	int id;
 
 	String text;
 
-	String name;
+	@JsonIgnore
+	String url;
 
 	String color;
-	
-	boolean visible = false; 
-	
+
+	@JsonIgnore
+	boolean visible = false;
+
 	int radius;
-	
+
 	int group;
-	
+
 	boolean isVocab = false;
 
-	
-	public JSONObject getJSON() {
-		JSONObject node = new JSONObject();
-
-		node.put("text", getText());
-		node.put("group", group);
-		DatasetDB d = new DatasetDB(group);
-		
-		if(!d.getTitle().equals(""))
-			node.put("group_name", d.getTitle());
-		else if(!d.getLabel().equals(""))
-			node.put("group_name", d.getLabel());
-		else
-			node.put("group_name", group);		
-		node.put("color", getColor());
-		node.put("name", getID());
-		node.put("radius", getRadius());
-		node.put("isVocab", isVocab);
-		
-
-		return node;
-	}
-
-	public Bubble(Object source, boolean visible) {
+	public Node(Object source, boolean visible) {
 		this.visible = visible;
 		startBubble(source);
 	}
-	
-	public Bubble(Object source, boolean visible, int group) {
+
+	public Node(Object source, boolean visible, int group) {
 		this.visible = visible;
 		this.group = group;
 		startBubble(source);
 	}
-	
-	public Bubble(Object source) {
+
+	public Node(Object source) {
 		startBubble(source);
 	}
-	
-	private void startBubble(Object source){
+
+	private void startBubble(Object source) {
 		if (source instanceof DistributionDB) {
 
 			DistributionDB tmp = (DistributionDB) source;
@@ -73,17 +53,15 @@ public class Bubble {
 				setText(tmp.getTitle());
 			else
 				setText(tmp.getUri());
-			setName(tmp.getDownloadUrl());
+			setUrl(tmp.getDownloadUrl());
 			setID(tmp.getLODVaderID());
-	
-				setRadius(31);
 
+			setRadius(31);
 
-			if (tmp.getIsVocabulary()){
+			if (tmp.getIsVocabulary()) {
 				setColor("rgb(253, 174, 107)");
 				setRadius(30);
-			}
-			else
+			} else
 				setColor("rgb(66, 136, 78)");
 
 			dynLodObject = (DistributionDB) source;
@@ -99,19 +77,17 @@ public class Bubble {
 				setText(tmp.getLabel());
 			else
 				setText(tmp.getUri());
-			
-			setName(tmp.getUri());
+
+			setUrl(tmp.getUri());
 			setID(tmp.getLODVaderID());
-		
 
 			setRadius(31);
 
-			if (tmp.getIsVocabulary()){
+			if (tmp.getIsVocabulary()) {
 				setColor("rgb(253, 174, 107)");
 				setRadius(27);
-			}
-			else
-			setColor("rgb(116, 196, 118)");
+			} else
+				setColor("rgb(116, 196, 118)");
 
 			dynLodObject = (DatasetDB) source;
 		}
@@ -126,23 +102,41 @@ public class Bubble {
 			setText(text.substring(0, 145) + "...");
 		}
 		return text;
-//		return String.valueOf(isVisible());
+		// return String.valueOf(isVisible());
 	}
 
 	public void setText(String text) {
 		this.text = text;
 	}
 
-	public String getName() {
-		return name;
+	public String getUrl() {
+		return url;
+	}
+	
+	public int getName() {
+		return getID();
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public String getGroup_name() {
+		DatasetDB d = new DatasetDB(group);
+		if (!d.getTitle().equals(""))
+			return d.getTitle();
+		else if (!d.getLabel().equals(""))
+			return d.getLabel();
+		else
+			return String.valueOf(group);
+	}
+
+	public void setUrl(String url) {
+		this.url = url;
 	}
 
 	public String getColor() {
 		return color;
+	}
+	
+	public int getGroup() {
+		return group;
 	}
 
 	public void setColor(String color) {
@@ -172,8 +166,13 @@ public class Bubble {
 	public void setVisible(boolean visible) {
 		this.visible = visible;
 	}
+
+	public void setVocab(boolean isVocab) {
+		this.isVocab = isVocab;
+	}
 	
-	
-	
+	public boolean getIsVocab(){
+		return isVocab;
+	}
 
 }

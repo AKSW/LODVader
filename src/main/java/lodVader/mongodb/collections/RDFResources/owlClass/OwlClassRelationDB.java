@@ -48,7 +48,7 @@ public class OwlClassRelationDB extends GeneralRDFResourceRelationDB{
 	}
 	
 	/**
-	 * Return a set of predicates of distribution
+	 * Return the set of predicates of distribution
 	 * @param distributionID
 	 * @return set of string
 	 */

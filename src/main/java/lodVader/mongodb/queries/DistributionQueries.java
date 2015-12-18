@@ -36,10 +36,8 @@ import lodVader.utils.NSUtils;
 public class DistributionQueries {
 
 	final static Logger logger = LoggerFactory.getLogger(DistributionQueries.class);
-
-	public int getDistributionQuerySize;
-
-	NSUtils nsUtils = new NSUtils();
+	public int distributionQuerySize;
+	private NSUtils nsUtils = new NSUtils();
 
 	public ArrayList<DistributionDB> getDistributionsByOutdegree(ArrayList<String> nsToSearch,
 			ConcurrentHashMap<Integer, DistributionResourcesData> distributionFilter) {
@@ -64,7 +62,6 @@ public class DistributionQueries {
 				if (!distributionFilter.containsKey(distribution.getLODVaderID())) {
 					distributionFilter.put(distribution.getLODVaderID(),
 							new DistributionResourcesData(distribution.getLODVaderID()));
-
 				}
 			}
 
@@ -81,7 +78,8 @@ public class DistributionQueries {
 					.getCollection(DistributionSubjectNS0DB.COLLECTION_NAME);
 			cursor = collection.distinct(DistributionSubjectNS0DB.NS);
 		} else {
-			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(DistributionObjectNS0DB.COLLECTION_NAME);
+			DBCollection collection = DBSuperClass2.getDBInstance()
+					.getCollection(DistributionObjectNS0DB.COLLECTION_NAME);
 			cursor = collection.distinct(DistributionObjectNS0DB.NS);
 		}
 		int size = cursor.size();
@@ -127,7 +125,8 @@ public class DistributionQueries {
 
 		if (resourceType.equals(LODVaderProperties.TYPE_OBJECT)) {
 
-			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(DistributionObjectNSDB.COLLECTION_NAME);
+			DBCollection collection = DBSuperClass2.getDBInstance()
+					.getCollection(DistributionObjectNSDB.COLLECTION_NAME);
 
 			g = new GoogleBloomFilter(collection.find().size() + LODVaderProperties.BF_BUFFER_RANGE, 0.0001);
 
@@ -143,7 +142,8 @@ public class DistributionQueries {
 
 		} else if (resourceType.equals(LODVaderProperties.TYPE_SUBJECT)) {
 
-			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(DistributionSubjectNSDB.COLLECTION_NAME);
+			DBCollection collection = DBSuperClass2.getDBInstance()
+					.getCollection(DistributionSubjectNSDB.COLLECTION_NAME);
 
 			g = new GoogleBloomFilter(collection.find().size() + LODVaderProperties.BF_BUFFER_RANGE, 0.0001);
 
@@ -166,13 +166,10 @@ public class DistributionQueries {
 		ArrayList<DistributionDB> list = new ArrayList<DistributionDB>();
 		try {
 
-			// find distributions with subjects
-			// BasicDBObject query = new
-			// BasicDBObject(DistributionObjectNSDB.OBJECT_NS,
-			// new BasicDBObject("$in", fqdnToSearch));
 			BasicDBObject query = new BasicDBObject(DistributionObjectNS0DB.NS, new BasicDBObject("$in", fqdnToSearch));
 
-			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(DistributionObjectNS0DB.COLLECTION_NAME);
+			DBCollection collection = DBSuperClass2.getDBInstance()
+					.getCollection(DistributionObjectNS0DB.COLLECTION_NAME);
 
 			DBCursor cursor = collection.find(query);
 
@@ -229,20 +226,39 @@ public class DistributionQueries {
 	}
 
 	/**
-	 * Get distributions
+	 * Get all distributions
 	 * 
-	 * @param withVocabularies
-	 *            specifies whether should vocabularies are added to the return
-	 *            list
+	 * @param vocabularies
+	 *            specifies whether should vocabularies be added in the return
+	 *            list. If the value is null, vocabularies ans distrubitions
+	 *            will be returned
 	 * @return a ArrayList of DistributionMongoDBObject
 	 */
-	public ArrayList<DistributionDB> getDistributions(boolean withVocabularies) {
+	public ArrayList<DistributionDB> getDistributions(Boolean vocabularies, String status) {
 
 		ArrayList<DistributionDB> list = new ArrayList<DistributionDB>();
 
+		DBCursor instances;
+
 		try {
 			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(DistributionDB.COLLECTION_NAME);
-			DBCursor instances = collection.find();
+
+			BasicDBList and = new BasicDBList();
+
+			if (vocabularies != null) {
+				if (vocabularies)
+					and.add(new BasicDBObject(DistributionDB.IS_VOCABULARY, true));
+				else
+					and.add(new BasicDBObject(DistributionDB.IS_VOCABULARY, false));
+			}
+
+			if (status != null && status != "")
+				and.add(new BasicDBObject(DistributionDB.STATUS, status));
+
+			if(and.size()>0)
+				instances = collection.find(new BasicDBObject("$and", and));
+			else
+				instances = collection.find();
 
 			for (DBObject instance : instances) {
 				list.add(new DistributionDB(instance));
@@ -255,16 +271,23 @@ public class DistributionQueries {
 	}
 
 	/**
-	 * Get distributions in a range
+	 * Get distributions using filters
 	 * 
 	 * @param skip
-	 *            initial value of range
+	 *            how many distribution to skip
 	 * @param limit
-	 *            final value of range
+	 *            size of the range
+	 * @param searchVocabularies
+	 *            true only for vocabularies, false only for datasets and null
+	 *            for vocabularies and datasets
+	 * @param seach
+	 *            string to compare with distribution name or downloadurl
+	 * @param searchStatus
+	 *            search status: DONE, ERROR, WAITING_TO_STREAM or STREAMING.
 	 * @return a ArrayList of DistributionMongoDBObject
 	 */
-	public ArrayList<DistributionDB> getDistributions(int skip, int limit, int searchVocabularies,
-			String downloadURLSearch, List<Integer> in, int searchStatus) {
+	public ArrayList<DistributionDB> getDistributions(int skip, int limit, Boolean searchVocabularies, String search,
+			List<Integer> in, String searchStatus) {
 
 		ArrayList<DistributionDB> list = new ArrayList<DistributionDB>();
 
@@ -272,26 +295,13 @@ public class DistributionQueries {
 			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(DistributionDB.COLLECTION_NAME);
 
 			DBObject query = null;
-			// query = new BasicDBObject(DistributionDB.IS_VOCABULARY, true);
 
-			if (downloadURLSearch != null) {
+			if (search != "") {
 				DBObject query2;
 				DBObject query3;
-				// System.out.println(search);
-				// System.out.println(isVocabulary);
-				// query3 = new BasicDBObject(DistributionDB.IS_VOCABULARY,
-				// isVocabulary);
-				// query2 = new
-				// BasicDBObject(DistributionMongoDBObject.DOWNLOAD_URL, new
-				// BasicDBObject("$regex",""+search+""));
-				query2 = new BasicDBObject(DistributionDB.DOWNLOAD_URL,
-						java.util.regex.Pattern.compile(downloadURLSearch));
-				query3 = new BasicDBObject(DistributionDB.TITLE, java.util.regex.Pattern.compile(downloadURLSearch));
+				query2 = new BasicDBObject(DistributionDB.DOWNLOAD_URL, java.util.regex.Pattern.compile(search));
+				query3 = new BasicDBObject(DistributionDB.TITLE, java.util.regex.Pattern.compile(search));
 
-				// DatasetMongoDBObject.URI, /.*m.*/
-				// new BasicDBObject("$regex", topDataset + ".*")
-
-				// make a AND operator
 				BasicDBList or = new BasicDBList();
 				or.add(query3);
 				or.add(query2);
@@ -306,45 +316,23 @@ public class DistributionQueries {
 				query = new BasicDBObject("$and", and);
 			}
 
-			if (searchVocabularies == 0) {
+			if (searchVocabularies != null) {
 				BasicDBList and = new BasicDBList();
 				if (query != null)
 					and.add(query);
-				and.add(new BasicDBObject(DistributionDB.IS_VOCABULARY, true));
-				query = new BasicDBObject("$and", and);
-			}
-			if (searchVocabularies == 1) {
-				BasicDBList and = new BasicDBList();
-				if (query != null)
-					and.add(query);
-				and.add(new BasicDBObject(DistributionDB.IS_VOCABULARY, false));
+				and.add(new BasicDBObject(DistributionDB.IS_VOCABULARY, searchVocabularies));
 				query = new BasicDBObject("$and", and);
 			}
 
-			if (searchStatus == 0) {
+			if (!searchStatus.equals("")) {
 				BasicDBList and = new BasicDBList();
 				if (query != null)
 					and.add(query);
-				and.add(new BasicDBObject(DistributionDB.STATUS, DistributionDB.STATUS_DONE));
-				query = new BasicDBObject("$and", and);
-			} else if (searchStatus == 1) {
-				BasicDBList and = new BasicDBList();
-				if (query != null)
-					and.add(query);
-				and.add(new BasicDBObject(DistributionDB.STATUS, DistributionDB.STATUS_WAITING_TO_STREAM));
-				query = new BasicDBObject("$and", and);
-			} else if (searchStatus == 2) {
-				BasicDBList and = new BasicDBList();
-				if (query != null)
-					and.add(query);
-				and.add(new BasicDBObject(DistributionDB.STATUS, DistributionDB.STATUS_ERROR));
+				and.add(new BasicDBObject(DistributionDB.STATUS, searchStatus));
 				query = new BasicDBObject("$and", and);
 			}
-
-			// DBCursor inst = collection.find(new BasicDBObject("$and", and));
-
 			DBCursor instances = collection.find(query);
-			getDistributionQuerySize = instances.size();
+			distributionQuerySize = instances.size();
 			BasicDBObject sort = new BasicDBObject(DistributionDB.TRIPLES, -1);
 			instances = collection.find(query).skip(skip).limit(limit).sort(sort);
 
@@ -359,7 +347,7 @@ public class DistributionQueries {
 	}
 
 	// return all distributions
-	public ArrayList<DistributionDB> getDistributionsByTopDatasetID(String topDataset) {
+	public ArrayList<DistributionDB> getDistributionsByTopDatasetURL(String topDataset) {
 
 		ArrayList<DistributionDB> distributionList = new ArrayList<DistributionDB>();
 
@@ -371,7 +359,7 @@ public class DistributionQueries {
 		BasicDBObject uriQuery = new BasicDBObject(DatasetDB.URI, new BasicDBObject("$regex", topDataset + ".*"));
 
 		// ... or by access url
-		BasicDBObject accessQuery = new BasicDBObject(DatasetDB.ACCESS_URL,
+		BasicDBObject accessQuery = new BasicDBObject(DatasetDB.DESCRIPTION_FILE_URL,
 				new BasicDBObject("$regex", topDataset + ".*"));
 
 		// make a OR operator
@@ -422,11 +410,11 @@ public class DistributionQueries {
 		return distributionList;
 	}
 
-//	@Test
-//	public void queryDistribution(){ 
-		public HashSet<DistributionDB> queryDistribution(String resource, String type) {
-//		String resource = "http://www.w3.org/2005/11/its/rdf#taSource";
-//		String type = LODVaderProperties.TYPE_SUBJECT;
+	// @Test
+	// public void queryDistribution(){
+	public HashSet<DistributionDB> queryDistribution(String resource, String type) {
+		// String resource = "http://www.w3.org/2005/11/its/rdf#taSource";
+		// String type = LODVaderProperties.TYPE_SUBJECT;
 		HashSet<DistributionDB> setOfDistributionNS = new HashSet<DistributionDB>();
 
 		// get resource fqdn
@@ -459,12 +447,12 @@ public class DistributionQueries {
 				}
 			}
 
-//			System.out.println("asasa");
+			// System.out.println("asasa");
 			for (LoadedBloomFiltersCache l : cache) {
-				
-//				System.out.println(l.s.resource);
+
+				// System.out.println(l.s.resource);
 				if (l.found) {
-//					System.out.println("oie");
+					// System.out.println("oie");
 
 					setOfDistributionNS.add(l.distribution);
 				}
@@ -472,7 +460,8 @@ public class DistributionQueries {
 		}
 
 		else if (type.equals(LODVaderProperties.TYPE_OBJECT)) {
-			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(DistributionObjectNSDB.COLLECTION_NAME);
+			DBCollection collection = DBSuperClass2.getDBInstance()
+					.getCollection(DistributionObjectNSDB.COLLECTION_NAME);
 
 			DBObject query;
 			query = new BasicDBObject(DistributionObjectNSDB.NS, ns);

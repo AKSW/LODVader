@@ -149,6 +149,7 @@ public class LOV extends SuperStream {
 			}
 
 			dataset.setIsVocabulary(true);
+			dataset.setDescriptionFileURL(LODVaderProperties.LOV_URL);
 			dataset.setSubsetIds(new ArrayList<Integer>());
 			dataset.setDistributionsIds(new ArrayList<Integer>());
 			dataset.update(true);

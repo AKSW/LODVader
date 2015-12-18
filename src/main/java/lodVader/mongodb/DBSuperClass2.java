@@ -3,6 +3,7 @@ package lodVader.mongodb;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -27,16 +28,16 @@ public class DBSuperClass2 {
 	private static DB db;
 
 	// defining collection name
+	@JsonIgnore
 	public String COLLECTION_NAME = null;
 
 	// defining mongodb _id
+	@JsonIgnore
 	public String ID = "_id";
 
 	// defining PrimaryKeys field
+	@JsonIgnore
 	public ArrayList<Object> primaryKey = new ArrayList<Object>();
-
-	// defining Keys used to update the object
-	public ArrayList<Object> updateKeys = new ArrayList<Object>();
 
 	// mongodb collection object
 	protected DBCollection collection;
@@ -84,7 +85,10 @@ public class DBSuperClass2 {
 
 	// get a value given a key
 	protected Object getField(String key) {
-		return mongoDBObject.get(key);
+//		if (mongoDBObject.get(key) != null)
+			return mongoDBObject.get(key);
+//		else
+//			return new Object();
 	}
 
 	// get a value given a key
@@ -197,7 +201,7 @@ public class DBSuperClass2 {
 			LODVaderObjectAlreadyExistsException, LODVaderNoPKFoundException {
 
 		if (create)
-			if (!find(false)){
+			if (!find(false)) {
 				insert(false);
 				return true;
 			}
@@ -218,7 +222,7 @@ public class DBSuperClass2 {
 				}
 			}
 		}
-		
+
 		getCollection().update(new BasicDBObject("$or", list), mongoDBObject);
 
 		return true;
@@ -227,14 +231,15 @@ public class DBSuperClass2 {
 	public boolean updateBasedOnKeys(boolean create) throws LODVaderMissingPropertiesException,
 			LODVaderObjectAlreadyExistsException, LODVaderNoPKFoundException {
 
+		checkMandatoryFields();
+
 		if (create)
 			if (!find(false))
 				insert(false);
 
-		checkMandatoryFields();
 		BasicDBList list = new BasicDBList();
 
-		for (Object pk : getUpdateKeys()) {
+		for (Object pk : getPK()) {
 			if (pk instanceof String) {
 				String pks = (String) pk;
 				if (getField(pks) != null) {
@@ -247,7 +252,7 @@ public class DBSuperClass2 {
 				}
 			}
 		}
-		
+
 		getCollection().update(new BasicDBObject("$and", list), mongoDBObject);
 
 		return true;
@@ -269,6 +274,7 @@ public class DBSuperClass2 {
 		return false;
 	}
 
+	@JsonIgnore
 	protected DBCollection getCollection() {
 		if (collection == null) {
 			collection = getDBInstance().getCollection(COLLECTION_NAME);
@@ -283,20 +289,13 @@ public class DBSuperClass2 {
 		return null;
 	}
 
+	@JsonIgnore
 	public ArrayList<Object> getPK() {
 		return primaryKey;
 	}
 
-	public ArrayList<Object> getUpdateKeys() {
-		return updateKeys;
-	}
-
 	protected void addPK(String pK) {
 		primaryKey.add(pK);
-	}
-
-	protected void addUpdateKey(String key) {
-		updateKeys.add(key);
 	}
 
 	private void checkMandatoryFields() throws LODVaderMissingPropertiesException {

@@ -13,11 +13,11 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
 import lodVader.LODVaderProperties;
-import lodVader.API.core.ServiceAPIOptions;
 import lodVader.API.diagram.DiagramData;
 import lodVader.mongodb.DBSuperClass2;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.LinksetDB;
+import lodVader.spring.REST.ServiceAPIOptions;
 
 public class LinksetQueries {
 
@@ -124,6 +124,7 @@ public class LinksetQueries {
 			BasicDBObject query = new BasicDBObject(LinksetDB.DISTRIBUTION_SOURCE, distributionDB.getLODVaderID());
 
 			BasicDBObject sort;
+			
 			if (type.equals(ServiceAPIOptions.DATASET_TYPE_LINKS))
 				sort = new BasicDBObject(LinksetDB.LINK_NUMBER_LINKS, -1);
 			else if (type.equals(ServiceAPIOptions.DATASET_TYPE_TOP_BAD_LINKS))

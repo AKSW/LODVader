@@ -56,14 +56,27 @@ public class DatasetQueries {
 		return numberOfDatasets;
 	}
 
-	// return all datasets
-	public ArrayList<DatasetDB> getDatasets() {
+	/**
+	 * Get all datasets
+	 * @return list of datasets
+	 */
+	public ArrayList<DatasetDB> getDatasets(Boolean vocabularies) {
 
 		ArrayList<DatasetDB> list = new ArrayList<DatasetDB>();
 		try {
 			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(
 					DatasetDB.COLLECTION_NAME);
-			DBCursor instances = collection.find();
+			
+			DBCursor instances ;
+			
+			if(vocabularies==null)
+				instances = collection.find();
+			else if(vocabularies)
+				instances = collection.find(new BasicDBObject(DatasetDB.IS_VOCABULARY, true));
+			else
+				instances = collection.find(new BasicDBObject(DatasetDB.IS_VOCABULARY, false));
+			
+			instances = collection.find();
 
 			for (DBObject instance : instances) {
 				list.add(new DatasetDB(instance));

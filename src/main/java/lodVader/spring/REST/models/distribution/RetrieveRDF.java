@@ -1,4 +1,4 @@
-package lodVader.API.services;
+package lodVader.spring.REST.models.distribution;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -12,49 +12,32 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
 
 import lodVader.LODVaderProperties;
-import lodVader.API.core.API;
 import lodVader.exceptions.LODVaderNoDatasetFoundException;
 import lodVader.exceptions.api.DynamicLODAPINoLinksFoundException;
 import lodVader.mongodb.collections.DatasetDB;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.LinksetDB;
 import lodVader.mongodb.queries.DatasetQueries;
-import lodVader.mongodb.queries.DistributionQueries;
 import lodVader.mongodb.queries.LinksetQueries;
 import lodVader.ontology.NS;
 import lodVader.ontology.RDFProperties;
 
-public class APIRetrieveRDF extends API {
-
+public class RetrieveRDF {
 	public Model outModel = null;
 
-	final static Logger logger = LoggerFactory.getLogger(APIRetrieveRDF.class);
+	public String publicURL;
 
-	@Override
-	public void run() {
-		// TODO Auto-generated method stub
+	final static Logger logger = LoggerFactory.getLogger(RetrieveRDF.class);
 
-	}
-
-	public APIRetrieveRDF() {
-		// TODO Auto-generated constructor stub
-	}
-
-	// @Test
-	// public void t() throws DynamicLODNoDatasetFoundException,
-	// DynamicLODAPINoLinksFoundException {
-	// outModelInit();
-	// getDatasetChildren(new DatasetMongoDBObject(
-	// "http://gerbil.aksw.org/gerbil/dataId/corpora/N3-RSS-500#dataset"));
-	// printModel();
-	// }
-
-	public APIRetrieveRDF(String source, String target)
+	public RetrieveRDF(String source, String target, String pulicURL)
 			throws LODVaderNoDatasetFoundException, DynamicLODAPINoLinksFoundException {
+		this.publicURL = pulicURL;
 		retrieveRDF(source, target);
 	}
 
-	public APIRetrieveRDF(String URI) throws LODVaderNoDatasetFoundException, DynamicLODAPINoLinksFoundException {
+	public RetrieveRDF(String URI, String pulicURL)
+			throws LODVaderNoDatasetFoundException, DynamicLODAPINoLinksFoundException {
+		this.publicURL = pulicURL;
 		retrieveRDF(URI, (String) null);
 	}
 
@@ -63,17 +46,25 @@ public class APIRetrieveRDF extends API {
 		outModelInit();
 
 		// try to find by distribution
-		DistributionDB dist;
+		DistributionDB dist; 
 		try {
+			boolean found = false;
 			dist = new DistributionDB(source);
 
-			if (dist.getDefaultDatasets().size() > 0) {
-				retrieveByDistribution(dist.getUri());
-				logger.debug("APIRetrieve found a distribution to retrieve RDF: " + dist.getUri());
+			if (dist.getDefaultDatasets() != null) {
+				if (dist.getDefaultDatasets().size() > 0) {
+					retrieveByDistribution(dist.getUri());
+					logger.debug("APIRetrieve found a distribution to retrieve RDF: " + dist.getUri());
+					found = true;
+				}
 			} else {
 				DatasetDB d = new DatasetDB(source);
 				getDatasetChildren(d);
+				found = true;
 			}
+			if (!found)
+				throw new LODVaderNoDatasetFoundException("We couldn't find the dataset: " + source);
+
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -97,7 +88,8 @@ public class APIRetrieveRDF extends API {
 		outModel.write(System.out, "TURTLE");
 	}
 
-	public void retrieveByDistribution(String distributionURI) throws DynamicLODAPINoLinksFoundException, MalformedURLException {
+	public void retrieveByDistribution(String distributionURI)
+			throws DynamicLODAPINoLinksFoundException, MalformedURLException {
 		// get indegree and outdegree for a distribution
 		DistributionDB dis = new DistributionDB(distributionURI);
 
@@ -139,11 +131,6 @@ public class APIRetrieveRDF extends API {
 			}
 
 		}
-
-		// if(!linksetsFound)
-		// throw new DynamicLODAPINoLinksFoundException ("Your dataset still
-		// doesn't not contains links with our stored datasets.");
-
 	}
 
 	private void addDistributionToModel(DistributionDB distribution) {
@@ -185,10 +172,10 @@ public class APIRetrieveRDF extends API {
 		if (!datasetSource.getIsVocabulary() && !datasetTarget.getIsVocabulary()) {
 			// add linksets
 			// String linksetURI = target + "_" + source;
-			String linksetURI = lodVader.API.server.ServiceAPI.getServerURL() + "?retrieveDataset&source="
-					+ datasetSource.getUri() + "&target=" + datasetTarget.getUri();
+			String linksetURI = publicURL + "?retrieveDataset&source=" + datasetSource.getUri() + "&target="
+					+ datasetTarget.getUri();
 			Resource r = outModel.createResource(linksetURI);
-			Resource wasDerivedFrom = outModel.createResource(lodVader.API.server.ServiceAPI.getServerURL());
+			Resource wasDerivedFrom = outModel.createResource(publicURL);
 
 			r.addProperty(RDFProperties.type, ResourceFactory.createResource(NS.VOID_URI + "Linkset"));
 			r.addProperty(ResourceFactory.createProperty(NS.VOID_URI + "objectsTarget"),

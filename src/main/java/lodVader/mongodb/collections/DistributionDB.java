@@ -1,6 +1,7 @@
 package lodVader.mongodb.collections;
 
 import java.net.MalformedURLException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import com.mongodb.DBObject;
@@ -119,7 +120,11 @@ public class DistributionDB extends ResourceDB {
 	}
 
 	public String getHttpByteSize() {
-		return getField(HTTP_BYTE_SIZE).toString();
+		try {
+			return getField(HTTP_BYTE_SIZE).toString();
+		} catch (NullPointerException e) {
+			return "";
+		}
 	}
 
 	public void setHttpByteSize(String httpByteSize) {
@@ -151,7 +156,11 @@ public class DistributionDB extends ResourceDB {
 	}
 
 	public String getHttpFormat() {
-		return getField(HTTP_FORMAT).toString();
+		try {
+			return getField(HTTP_FORMAT).toString();
+		} catch (NullPointerException e) {
+			return "";
+		}
 	}
 
 	public void setHttpFormat(String httpFormat) {
@@ -159,7 +168,11 @@ public class DistributionDB extends ResourceDB {
 	}
 
 	public String getHttpLastModified() {
-		return getField(LAST_TIME_STREAMED).toString();
+		try {
+			return getField(LAST_TIME_STREAMED).toString();
+		} catch (NullPointerException e) {
+			return "";
+		}
 	}
 
 	public void setHttpLastModified(String httpLastModified) {
@@ -168,6 +181,11 @@ public class DistributionDB extends ResourceDB {
 
 	public Integer getTriples() {
 		return ((Number) getField(TRIPLES)).intValue();
+	}
+	
+	public String getTriplesStringFormat() {
+		DecimalFormat formatter = new DecimalFormat("#,###,###,###,###");
+		return formatter.format(((Number) getField(TRIPLES)).intValue());
 	}
 
 	public void setTriples(Integer triples) {
@@ -191,8 +209,8 @@ public class DistributionDB extends ResourceDB {
 	}
 
 	public String getLastMsg() {
-		
-		if(getField(LAST_MSG) == null)
+
+		if (getField(LAST_MSG) == null)
 			return "";
 		return getField(LAST_MSG).toString();
 	}
@@ -219,7 +237,11 @@ public class DistributionDB extends ResourceDB {
 	}
 
 	public String getResourceUri() {
-		return getField(RESOURCE_URI).toString();
+		try {
+			return getField(RESOURCE_URI).toString();
+		} catch (NullPointerException e) {
+			return "";
+		}
 	}
 
 	public void setResourceUri(String resourceUri) {

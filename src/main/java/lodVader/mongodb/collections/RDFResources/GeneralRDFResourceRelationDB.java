@@ -26,25 +26,25 @@ public class GeneralRDFResourceRelationDB extends DBSuperClass2{
 	
 	public static final String ID = "id";
 	
-	public static String COLLECTION;
+	public static String COLLECTION_NAME;
 
 	
 	public GeneralRDFResourceRelationDB(String collection, DBObject obj) {
 		super(collection,obj);
 		setParameters();
-		COLLECTION = collection;
+		COLLECTION_NAME = collection;
 	}
 	
 	public GeneralRDFResourceRelationDB(String collection) { 
 		super(collection);
 		setParameters();
-		COLLECTION = collection;
+		COLLECTION_NAME = collection;
 	}
 	
 	
 	public GeneralRDFResourceRelationDB(String collection, String id) {
 		super(collection);
-		COLLECTION = collection;
+		COLLECTION_NAME = collection;
 		setParameters();
 		setId(id);
 		find(true);
@@ -106,7 +106,7 @@ public class GeneralRDFResourceRelationDB extends DBSuperClass2{
 	
 	public Set<String> getSetOfPredicates(int distributionDynLODID){return null;}
 	
-	public List<GeneralRDFResourceRelationDB> getTopNPredicates(int distributinID, int topN){
+	public List<GeneralRDFResourceRelationDB> getTopNPredicates(int distributionID, int topN){
 		List<GeneralRDFResourceRelationDB> result = new ArrayList<GeneralRDFResourceRelationDB>();
 		
 		try {
@@ -117,7 +117,7 @@ public class GeneralRDFResourceRelationDB extends DBSuperClass2{
 			// query all fqdn
 			BasicDBObject query = new BasicDBObject(
 					GeneralRDFResourceRelationDB.DISTRIBUTION_ID,
-					distributinID);
+					distributionID);
 			BasicDBObject sort = new BasicDBObject(GeneralRDFResourceRelationDB.AMOUNT, -1);
 
 			DBCursor cursor = collection.find(query).sort(sort).limit(topN);
@@ -125,7 +125,7 @@ public class GeneralRDFResourceRelationDB extends DBSuperClass2{
 			// save a list with distribution and fqdn
 			while (cursor.hasNext()) {
 				DBObject instance = cursor.next();
-				GeneralRDFResourceRelationDB r = new GeneralRDFResourceRelationDB(COLLECTION, instance);
+				GeneralRDFResourceRelationDB r = new GeneralRDFResourceRelationDB(COLLECTION_NAME, instance);
 				result.add(r);
 			}
 
@@ -170,10 +170,10 @@ public class GeneralRDFResourceRelationDB extends DBSuperClass2{
 
 			DBCursor cursor = collection.find(query);
 
-			// save a list with distribution and fqdn
+			// save a list with distribution and fqdn 
 			while (cursor.hasNext()) {
 				DBObject instance = cursor.next();
-				GeneralRDFResourceRelationDB r = new GeneralRDFResourceRelationDB(COLLECTION, instance);
+				GeneralRDFResourceRelationDB r = new GeneralRDFResourceRelationDB(COLLECTION_NAME, instance);
 				result.add(r);
 			} 
 

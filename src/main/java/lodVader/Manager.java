@@ -156,13 +156,13 @@ public class Manager {
 		logger.info("We are done reading your distributions.");
 	}
 
-	public Manager(List<DistributionDB> distributionsLinksToBeAdded) {
+	public Manager(List<DistributionDB> distributionsToBeAdded) {
 		if (LODVaderProperties.CHECK_LOV)
 			checkLOV();
 		try {
-			for (DistributionDB dist : distributionsLinksToBeAdded) {
-				distributionsLinks.add(dist);
-				logger.info("Adding new distribution to the queue: " + dist.getDownloadUrl());
+			for (DistributionDB distribution : distributionsToBeAdded) {
+				distributionsLinks.add(distribution);
+				logger.info("Adding new distribution to the queue: " + distribution.getDownloadUrl());
 			}
 			if (!consumingQueue) {
 				streamAndCreateFilters();

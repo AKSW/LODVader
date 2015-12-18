@@ -174,6 +174,8 @@ public class DescriptionFileParser {
 				datasetMongoDBObj.setSubsetIds(new ArrayList<Integer>());
 			if(datasetMongoDBObj.getDistributionsIDs() == null)
 				datasetMongoDBObj.setDistributionsIds(new ArrayList<Integer>());
+			
+			datasetMongoDBObj.setDescriptionFileURL(access_url);
 
 			try {
 				datasetMongoDBObj.update(true);
