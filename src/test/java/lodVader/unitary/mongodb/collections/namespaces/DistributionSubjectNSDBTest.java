@@ -6,6 +6,8 @@ import org.junit.Test;
 import com.mongodb.BasicDBObject;
 
 import lodVader.exceptions.LODVaderMissingPropertiesException;
+import lodVader.exceptions.mongodb.LODVaderNoPKFoundException;
+import lodVader.exceptions.mongodb.LODVaderObjectAlreadyExistsException;
 import lodVader.mongodb.collections.namespaces.DistributionSubjectNSDB;
 
 public class DistributionSubjectNSDBTest {
@@ -16,14 +18,14 @@ public class DistributionSubjectNSDBTest {
 	final String ns = "http://lodvader.aksw.org/ns";
 
 	@Test
-	public void makeObjectsTest() throws LODVaderMissingPropertiesException {
+	public void makeObjectsTest() throws LODVaderMissingPropertiesException, LODVaderObjectAlreadyExistsException, LODVaderNoPKFoundException {
 
 		DistributionSubjectNSDB dist = new DistributionSubjectNSDB();
 		dist.setDatasetID(datasetID);
 		dist.setDistributionID(distributionID);
 		dist.setNS(ns);
 		dist.setNumberOfResources(numberOfResources);
-		dist.updateObject(true);
+		dist.update(true);
 
 		dist = new DistributionSubjectNSDB();
 		dist.setDatasetID(datasetID);
@@ -36,8 +38,8 @@ public class DistributionSubjectNSDBTest {
 		query.put(DistributionSubjectNSDB.DISTRIBUTION_ID, distributionID);
 		query.put(DistributionSubjectNSDB.NS, ns);
 
-		Assert.assertTrue(dist.getCollection().find(query).size() > 0);
-		Assert.assertTrue(dist.getCollection().remove(query).getN() > 0);
+		Assert.assertTrue(dist.getCollection(dist.COLLECTION_NAME).find(query).size() > 0);
+		Assert.assertTrue(dist.getCollection(dist.COLLECTION_NAME).remove(query).getN() > 0);
 
 	}
 
