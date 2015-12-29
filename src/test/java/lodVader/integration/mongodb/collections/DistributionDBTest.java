@@ -35,12 +35,21 @@ public class DistributionDBTest {
 	ArrayList<Integer> defaultDatasets = new ArrayList<Integer>();
 
 	@Test
-	public void testDistribution() throws MalformedURLException {
+	public void testDistribution() throws MalformedURLException, LODVaderObjectAlreadyExistsException, LODVaderNoPKFoundException {
 		
 		new LODVaderProperties().loadProperties();
 		FileUtils.checkIfFolderExists();
 		LODVaderProperties.MONGODB_DB = LODVaderProperties.MONGODB_DB + "Test";
 		DBSuperClass2.getCollection(DistributionDB.COLLECTION_NAME).drop();
+		// checking counter
+		try {
+			new LODVaderCounterDB().incrementAndGetID();
+		} catch (Exception e) {
+			LODVaderCounterDB c = new LODVaderCounterDB();
+			c.setCounterValue(1);
+			c.insert(false);
+		}
+
 
 
 		int id = 0;
@@ -50,6 +59,7 @@ public class DistributionDBTest {
 
 		// testing distributions
 		DistributionDB dist = new DistributionDB();
+		dist.setUri(downloadURL);
 		dist.setDownloadUrl(downloadURL);
 		dist.setFormat(format);
 		dist.setHttpByteSize(byteSize);
@@ -81,6 +91,8 @@ public class DistributionDBTest {
 
 		dist = new DistributionDB();
 		dist.setDownloadUrl(downloadURL);
+		dist.setUri(downloadURL);
+
 		
 		if(dist.find(true))
 		testDist(dist);
@@ -100,6 +112,7 @@ public class DistributionDBTest {
 
 		dist = new DistributionDB();
 		dist.setDownloadUrl(downloadURL);
+		dist.setUri(downloadURL);
 		dist.find(true);
 
 		testDist(dist);
@@ -115,7 +128,8 @@ public class DistributionDBTest {
 
 		Assert.assertTrue(dist.getDownloadUrl().equals(downloadURL));
 		
-//		DBSuperClass2.getCollection(DistributionDB.COLLECTION_NAME).drop();
+		DBSuperClass2.getCollection(DistributionDB.COLLECTION_NAME).drop();
+
 	
 	}
 	
