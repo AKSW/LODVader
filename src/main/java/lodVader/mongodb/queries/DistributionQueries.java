@@ -286,7 +286,7 @@ public class DistributionQueries {
 	 *            search status: DONE, ERROR, WAITING_TO_STREAM or STREAMING.
 	 * @return a ArrayList of DistributionMongoDBObject
 	 */
-	public ArrayList<DistributionDB> getDistributions(int skip, int limit, Boolean searchVocabularies, String search,
+	public ArrayList<DistributionDB> getDistributions(int skip, int limit, Boolean searchVocabularies, String searchNameOrURL,
 			List<Integer> in, String searchStatus) {
 
 		ArrayList<DistributionDB> list = new ArrayList<DistributionDB>();
@@ -296,11 +296,11 @@ public class DistributionQueries {
 
 			DBObject query = null;
 
-			if (search != "") {
+			if (searchNameOrURL != "") {
 				DBObject query2;
 				DBObject query3;
-				query2 = new BasicDBObject(DistributionDB.DOWNLOAD_URL, java.util.regex.Pattern.compile(search));
-				query3 = new BasicDBObject(DistributionDB.TITLE, java.util.regex.Pattern.compile(search));
+				query2 = new BasicDBObject(DistributionDB.DOWNLOAD_URL, java.util.regex.Pattern.compile(searchNameOrURL));
+				query3 = new BasicDBObject(DistributionDB.TITLE, java.util.regex.Pattern.compile(searchNameOrURL));
 
 				BasicDBList or = new BasicDBList();
 				or.add(query3);
@@ -331,8 +331,11 @@ public class DistributionQueries {
 				and.add(new BasicDBObject(DistributionDB.STATUS, searchStatus));
 				query = new BasicDBObject("$and", and);
 			}
+			
+			logger.debug("MongoDB query: "+query);
 			DBCursor instances = collection.find(query);
 			distributionQuerySize = instances.size();
+			
 			BasicDBObject sort = new BasicDBObject(DistributionDB.TRIPLES, -1);
 			instances = collection.find(query).skip(skip).limit(limit).sort(sort);
 

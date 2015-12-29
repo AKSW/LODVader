@@ -8,9 +8,13 @@ import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.LinksetDB;
 import lodVader.mongodb.collections.RDFResources.allPredicates.AllPredicatesDB;
 import lodVader.mongodb.collections.RDFResources.allPredicates.AllPredicatesRelationDB;
+import lodVader.mongodb.collections.RDFResources.owlClass.OwlClassDB;
 import lodVader.mongodb.collections.RDFResources.owlClass.OwlClassRelationDB;
+import lodVader.mongodb.collections.RDFResources.rdfSubClassOf.RDFSubClassOfDB;
 import lodVader.mongodb.collections.RDFResources.rdfSubClassOf.RDFSubClassOfRelationDB;
+import lodVader.mongodb.collections.RDFResources.rdfType.RDFTypeObjectDB;
 import lodVader.mongodb.collections.RDFResources.rdfType.RDFTypeObjectRelationDB;
+import lodVader.mongodb.collections.RDFResources.rdfType.RDFTypeSubjectDB;
 import lodVader.mongodb.collections.RDFResources.rdfType.RDFTypeSubjectRelationDB;
 import lodVader.mongodb.collections.gridFS.SuperBucket;
 import lodVader.mongodb.collections.namespaces.DistributionObjectNS0DB;
@@ -61,21 +65,38 @@ public class IndexesCreator {
 		addIndex(AllPredicatesRelationDB.COLLECTION_NAME, AllPredicatesRelationDB.DISTRIBUTION_ID, 1);
 		addIndex(AllPredicatesRelationDB.COLLECTION_NAME, AllPredicatesRelationDB.DATASET_ID, 1);	
 				
-		// indexes for predicates resources
+		
+		
+		addIndex(RDFTypeObjectDB.COLLECTION_NAME, RDFTypeObjectDB.LOD_VADER_ID, 1);
+		addIndex(RDFTypeObjectDB.COLLECTION_NAME, RDFTypeObjectDB.URI, 1);		
+
 		addIndex(RDFTypeObjectRelationDB.COLLECTION_NAME, RDFTypeObjectRelationDB.PREDICATE_ID, 1);
 		addIndex(RDFTypeObjectRelationDB.COLLECTION_NAME, RDFTypeObjectRelationDB.ID, 1);
 		addIndex(RDFTypeObjectRelationDB.COLLECTION_NAME, RDFTypeObjectRelationDB.DISTRIBUTION_ID, 1);
 		addIndex(RDFTypeObjectRelationDB.COLLECTION_NAME, RDFTypeObjectRelationDB.DATASET_ID, 1);
+		
+		
+		
+		addIndex(RDFTypeSubjectDB.COLLECTION_NAME, RDFTypeSubjectDB.LOD_VADER_ID, 1);
+		addIndex(RDFTypeSubjectDB.COLLECTION_NAME, RDFTypeSubjectDB.URI, 1);		
 		
 		addIndex(RDFTypeSubjectRelationDB.COLLECTION_NAME, RDFTypeSubjectRelationDB.PREDICATE_ID, 1);
 		addIndex(RDFTypeSubjectRelationDB.COLLECTION_NAME, RDFTypeSubjectRelationDB.ID, 1);
 		addIndex(RDFTypeSubjectRelationDB.COLLECTION_NAME, RDFTypeSubjectRelationDB.DISTRIBUTION_ID, 1);
 		addIndex(RDFTypeSubjectRelationDB.COLLECTION_NAME, RDFTypeSubjectRelationDB.DATASET_ID, 1);
 		
+		
+		addIndex(RDFSubClassOfDB.COLLECTION_NAME, RDFSubClassOfDB.LOD_VADER_ID, 1);
+		addIndex(RDFSubClassOfDB.COLLECTION_NAME, RDFSubClassOfDB.URI, 1);	
+		
 		addIndex(RDFSubClassOfRelationDB.COLLECTION_NAME, RDFSubClassOfRelationDB.PREDICATE_ID, 1);
 		addIndex(RDFSubClassOfRelationDB.COLLECTION_NAME, RDFSubClassOfRelationDB.ID, 1);
 		addIndex(RDFSubClassOfRelationDB.COLLECTION_NAME, RDFSubClassOfRelationDB.DISTRIBUTION_ID, 1);
 		addIndex(RDFSubClassOfRelationDB.COLLECTION_NAME, RDFSubClassOfRelationDB.DATASET_ID, 1);
+		
+		
+		addIndex(OwlClassDB.COLLECTION_NAME, OwlClassDB.LOD_VADER_ID, 1);
+		addIndex(OwlClassDB.COLLECTION_NAME, OwlClassDB.URI, 1);	
 		
 		addIndex(OwlClassRelationDB.COLLECTION_NAME, OwlClassRelationDB.PREDICATE_ID, 1);
 		addIndex(OwlClassRelationDB.COLLECTION_NAME, OwlClassRelationDB.ID, 1);

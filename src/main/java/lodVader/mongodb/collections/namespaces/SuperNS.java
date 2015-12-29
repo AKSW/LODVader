@@ -56,18 +56,16 @@ public class SuperNS extends DBSuperClass2{
 	
 	public void bulkSave(Set<String> nsSet, DistributionDB distribution){
 		getCollection().remove(new BasicDBObject(DISTRIBUTION_ID, distribution.getLODVaderID()));
+		int distributionLodVaderID = distribution.getLODVaderID();
+		int topDatasetID = distribution.getTopDatasetID();
 		for (String s : nsSet) {
+			mongoDBObject = new BasicDBObject();
+			setDistributionID(distributionLodVaderID);
+			setNS(s);
+			setDatasetID(topDatasetID);
 			try {
-				mongoDBObject = new BasicDBObject();
-				setDistributionID(distribution.getLODVaderID());
-				setNS(s);
-				setDatasetID(distribution.getTopDatasetID());
-				try {
-					update(true);
-				} catch (LODVaderObjectAlreadyExistsException | LODVaderNoPKFoundException e) {
-					e.printStackTrace();
-				}
-			} catch (LODVaderMissingPropertiesException e) {
+				insert(true);
+			} catch (LODVaderObjectAlreadyExistsException | LODVaderNoPKFoundException e) {
 				e.printStackTrace();
 			}
 		}

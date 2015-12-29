@@ -46,8 +46,6 @@ public class LODVaderProperties {
 				e.printStackTrace();
 			}
 			
-			
-			
 			USE_MULTITHREAD = prop.getProperty("USE_MULTITHREAD");
 			FILTER_PATH = BASE_PATH + "filters/";
 			SUBJECT_PATH = BASE_PATH + "subjects/";

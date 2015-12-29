@@ -280,15 +280,16 @@ public abstract class ProcessNSFromTuple extends Thread {
 		}
 	}
 
+	//external-links_en.nt
 	private boolean saveNamespaces() {
-		logger.debug("Saving NS0...");
+		logger.info("Saving NS0...");
 		if (tuplePart.equals(TuplePart.SUBJECT)) {
 			new DistributionSubjectNS0DB().bulkSave(countTotalNS0.keySet(), distribution);
 		} else {
 			new DistributionObjectNS0DB().bulkSave(countTotalNS0.keySet(), distribution);
 		}
 
-		logger.debug("Saving NS...");
+		logger.info("Saving NS...");
 		if (tuplePart.equals(TuplePart.SUBJECT)) {
 			DistributionSubjectNSDB d = new DistributionSubjectNSDB();
 			d.bulkSave(countTotalNS, distribution);

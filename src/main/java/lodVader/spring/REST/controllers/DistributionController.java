@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -127,14 +128,14 @@ public class DistributionController {
 	}
 
 	@RequestMapping(value = "/distribution/search")
-	public StatusPageModel search(@RequestParam(value = "search[value]", required = false) String searchValue,
+	public StatusPageModel search(@RequestParam(value = "search[value]", required = false, defaultValue = "") String searchValue,
 			@RequestParam(value = "searchVocabularies", required = false) Boolean searchVocabularies,
-			@RequestParam(value = "searchStatus", required = false, defaultValue = "0") String searchStatus,
+			@RequestParam(value = "searchStatus", required = false, defaultValue = "DONE") String searchStatus,
 			@RequestParam(value = "start", required = false, defaultValue = "0") int start,
 			@RequestParam(value = "length", required = false, defaultValue = "5") int length,
-			@RequestParam(value = "searchSubject", required = false) String searchSubject,
-			@RequestParam(value = "searchProperty", required = false) String searchProperty,
-			@RequestParam(value = "searchObject", required = false) String searchObject) {
+			@RequestParam(value = "searchSubject", required = false, defaultValue = "") String searchSubject,
+			@RequestParam(value = "searchProperty", required = false, defaultValue = "") String searchProperty,
+			@RequestParam(value = "searchObject", required = false, defaultValue = "") String searchObject) {
 
 		StatusPageModel model = new StatusPageModel();
 		model.search(start, length, searchVocabularies, searchValue, searchSubject, searchProperty, searchObject,

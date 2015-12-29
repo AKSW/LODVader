@@ -7,7 +7,7 @@ public class DatasetResourcesData {
 	
 	public DatasetResourcesData(int datasetId) {
 		this.dataset  = new DatasetDB(datasetId);
-		int size = this.dataset.getDatasetSize();
+		int size = this.dataset.getDatasetTriples();
 		if(size<100000)
 			size = 100000;
 		filterObjects = new GoogleBloomFilter(size, 0.0000001);

@@ -31,18 +31,29 @@ public class StatusPageModel {
 		this.totalSize = totalSize;
 	}
 	
-	public void search(int skip, int limit, Boolean searchVocabularies, String search,
+	public void search(int skip, int limit, Boolean searchVocabularies, String searchNameOrURL,
 			String searchSubject, String searchProperty, String searchObject, String searchStatus) {
+		
+
+//		System.out.println(skip);
+//		System.out.println(limit);
+//		System.out.println(searchVocabularies);
+//		System.out.println(searchNameOrURL);
+//		System.out.println("-"+searchSubject+"-");
+//		System.out.println("-"+searchProperty+"-");
+//		System.out.println("-"+searchObject+"-");
+//		System.out.println(searchStatus);
 
 		boolean hasResource = false;
 		boolean resourceFound = false;
 
-		if (((searchSubject != "") || (searchProperty != "") || (searchObject != "")))
+		if (((searchSubject != "") || (searchProperty != "") || (searchObject != ""))){
 			hasResource = true;
+		}
 
 		List<Set<Integer>> setOfSetsOfDistributions = new ArrayList<Set<Integer>>();
 
-		if (searchSubject != "") {
+		if (!searchSubject.equals("")) {
 			HashSet<Integer> i = new HashSet<Integer>();
 			for (DistributionDB n : new DistributionQueries().queryDistribution(searchSubject,
 					LODVaderProperties.TYPE_SUBJECT)) {
@@ -51,28 +62,31 @@ public class StatusPageModel {
 			setOfSetsOfDistributions.add(i);
 			if (i.size() > 0){
 				resourceFound = true;
-			}
-			
+			}	
 		}
-		if (searchObject != "") {
+		
+		if (!searchObject.equals("")) {
 			HashSet<Integer> i = new HashSet<Integer>();
 			for (DistributionDB n : new DistributionQueries().queryDistribution(searchObject,
 					LODVaderProperties.TYPE_OBJECT)) {
 				i.add(n.getLODVaderID());
 			}
 			setOfSetsOfDistributions.add(i);
-			if (i.size() > 0)
+			if (i.size() > 0){
 				resourceFound = true;
+			}
 		}
-		if (searchProperty != "") {
+		
+		if (!searchProperty.equals("")) {
 			HashSet<Integer> i = new HashSet<Integer>();
 			for (DistributionDB n : new DistributionQueries().queryDistribution(searchProperty,
 					LODVaderProperties.TYPE_PROPERTY)) {
 				i.add(n.getLODVaderID());
 			}
 			setOfSetsOfDistributions.add(i);
-			if (i.size() > 0)
+			if (i.size() > 0){
 				resourceFound = true;
+			}
 		}
 
 		List<Integer> in = new ArrayList<Integer>();
@@ -90,12 +104,13 @@ public class StatusPageModel {
 
 		if ((!resourceFound && hasResource) || (hasResource && in.size() == 0)) {
 			this.distributions = new ArrayList<DistributionDB>();
+			return;
 		}
 		
 		// search by name
 		DistributionQueries dq = new DistributionQueries();
 		
-		ArrayList<DistributionDB> distributions = dq.getDistributions(skip, limit, searchVocabularies, search, in,
+		ArrayList<DistributionDB> distributions = dq.getDistributions(skip, limit, searchVocabularies, searchNameOrURL, in,
 				searchStatus);
 		totalSize = dq.distributionQuerySize;
 

@@ -35,6 +35,8 @@ public class DistributionSubjectNSDB extends SuperNS {
 		getCollection().remove(new BasicDBObject(DISTRIBUTION_ID, distribution.getLODVaderID()));
 
 		DistributionSubjectNSDB d2 ;
+		int distributionLODVaderID = distribution.getLODVaderID();
+		int topDatasetLODVaderID = distribution.getTopDatasetID();
 		
 		while (it.hasNext()) {
 			Map.Entry pair = (Map.Entry) it.next();
@@ -43,8 +45,8 @@ public class DistributionSubjectNSDB extends SuperNS {
 			d2 = new DistributionSubjectNSDB();
 			d2.setNS(d);
 			d2.setNumberOfResources(count);
-			d2.setDatasetID(distribution.getTopDatasetID());
-			d2.setDistributionID(distribution.getLODVaderID());
+			d2.setDatasetID(topDatasetLODVaderID);
+			d2.setDistributionID(distributionLODVaderID);
 			
 			// add to current BF
 			if(!LoadedBloomFiltersCache.describedSubjectsNS.compare(d)){
@@ -53,12 +55,8 @@ public class DistributionSubjectNSDB extends SuperNS {
 			}
 
 			try {
-				try {
-					d2.update(true);
-				} catch (LODVaderObjectAlreadyExistsException | LODVaderNoPKFoundException e) {
-					e.printStackTrace();
-				}
-			} catch (LODVaderMissingPropertiesException e) {
+				d2.insert(true);
+			} catch (LODVaderObjectAlreadyExistsException | LODVaderNoPKFoundException e) {
 				e.printStackTrace();
 			}
 		}

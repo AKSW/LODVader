@@ -149,7 +149,7 @@ public class DatasetDB extends ResourceDB {
 		}
 	}
 
-	public int getDatasetSize() {
+	public int getDatasetTriples() {
 		BasicDBObject query = new BasicDBObject(DistributionDB.TOP_DATASET, getLODVaderID());
 		DBCursor list = getCollection(DistributionDB.COLLECTION_NAME).find(query);
 		int triples = 0;

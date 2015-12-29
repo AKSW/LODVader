@@ -287,12 +287,13 @@ public class LOV extends SuperStream {
 		new AllPredicatesRelationDB().insertSet(allPredicates, distribution.getLODVaderID(),
 				distribution.getTopDatasetID());
 
+		logger.info("Saving RDF type objects...");
 		new RDFTypeObjectDB().insertSet(rdfTypeObjects.keySet());
-		new RDFSubClassOfDB().insertSet(rdfSubClassOf.keySet());
-		// new RDFTypeSubjectDB().insertSet(rdfTypeSubjects.keySet());
-
 		new RDFTypeObjectRelationDB().insertSet(rdfTypeObjects, distribution.getLODVaderID(),
 				distribution.getTopDatasetID());
+
+		logger.info("Saving subClassOf...");
+		new RDFSubClassOfDB().insertSet(rdfSubClassOf.keySet());
 		new RDFSubClassOfRelationDB().insertSet(rdfSubClassOf, distribution.getLODVaderID(),
 				distribution.getTopDatasetID());
 		// new RDFTypeSubjectRelationDB().insertSet(rdfTypeSubjects,

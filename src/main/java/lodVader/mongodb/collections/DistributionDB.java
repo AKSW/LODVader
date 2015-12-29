@@ -140,7 +140,11 @@ public class DistributionDB extends ResourceDB {
 	}
 
 	public int getNumberOfSubjectTriples() {
-		return ((Number) getField(NUMBER_OF_SUBJECT_TRIPLES)).intValue();
+		try {
+			return ((Number) getField(NUMBER_OF_SUBJECT_TRIPLES)).intValue();
+		} catch (NullPointerException e) {
+			return 0;
+		}
 	}
 
 	public void setNumberOfSubjectTriples(int numberOfSubjectTriples) {
@@ -182,7 +186,7 @@ public class DistributionDB extends ResourceDB {
 	public Integer getTriples() {
 		return ((Number) getField(TRIPLES)).intValue();
 	}
-	
+
 	public String getTriplesStringFormat() {
 		DecimalFormat formatter = new DecimalFormat("#,###,###,###,###");
 		return formatter.format(((Number) getField(TRIPLES)).intValue());
