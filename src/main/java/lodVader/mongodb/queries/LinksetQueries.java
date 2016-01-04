@@ -217,8 +217,6 @@ public class LinksetQueries {
 			DBObject orderBy = new BasicDBObject(LinksetDB.DISTRIBUTION_TARGET, 1);
 			DBObject query = new BasicDBObject("$and", and);
 
-			System.out.println(query);
-
 			DBCursor d = collection.find(query).sort(orderBy);
 
 			int lastDistributionId = 0;

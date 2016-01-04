@@ -66,7 +66,7 @@ public class DistributionController {
 	}
 
 	@RequestMapping(value = "/distribution/size")
-	public String size(@RequestParam(value = "searchStatus", required = false) String status,
+	public String size(@RequestParam(value = "searchStatus", required = false, defaultValue="DONE") String status,
 			@RequestParam(value = "searchVocabularies", required = false) Boolean vocabularies) {
 		DecimalFormat format = new DecimalFormat("###,###,###,###");
 		return format.format(new DistributionQueries().getDistributions(vocabularies, status).size());

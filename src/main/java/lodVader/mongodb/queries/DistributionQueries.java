@@ -239,7 +239,7 @@ public class DistributionQueries {
 		ArrayList<DistributionDB> list = new ArrayList<DistributionDB>();
 
 		DBCursor instances;
-
+		
 		try {
 			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(DistributionDB.COLLECTION_NAME);
 
@@ -259,7 +259,7 @@ public class DistributionQueries {
 				instances = collection.find(new BasicDBObject("$and", and));
 			else
 				instances = collection.find();
-
+			
 			for (DBObject instance : instances) {
 				list.add(new DistributionDB(instance));
 			}

@@ -34,20 +34,10 @@ public class StatusPageModel {
 	public void search(int skip, int limit, Boolean searchVocabularies, String searchNameOrURL,
 			String searchSubject, String searchProperty, String searchObject, String searchStatus) {
 		
-
-//		System.out.println(skip);
-//		System.out.println(limit);
-//		System.out.println(searchVocabularies);
-//		System.out.println(searchNameOrURL);
-//		System.out.println("-"+searchSubject+"-");
-//		System.out.println("-"+searchProperty+"-");
-//		System.out.println("-"+searchObject+"-");
-//		System.out.println(searchStatus);
-
 		boolean hasResource = false;
 		boolean resourceFound = false;
 
-		if (((searchSubject != "") || (searchProperty != "") || (searchObject != ""))){
+		if ((!searchSubject.equals("") || !searchProperty.equals("") || !searchObject.equals(""))){
 			hasResource = true;
 		}
 

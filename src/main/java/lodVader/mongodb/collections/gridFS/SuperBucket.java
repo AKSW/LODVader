@@ -234,7 +234,6 @@ public class SuperBucket {
 		GoogleBloomFilter filter = null;
 		if (file != null)
 			try {
-				System.out.println(file.get(FIRST_RESOURCE));
 				filter = new GoogleBloomFilter();
 				filter.filter = BloomFilter.readFrom(file.getInputStream(), filter.funnel);
 				this.lastResource = file.get(LAST_RESOURCE).toString();
