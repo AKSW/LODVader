@@ -2,6 +2,7 @@ package lodVader.spring.REST.models.dataset;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.UnknownHostException;
 
 import org.apache.jena.riot.RiotException;
 
@@ -38,7 +39,8 @@ public class AddDatasetModel extends RESTMsg implements Runnable {
 			inputRDFParser.parseDistributions();
 
 			if (inputRDFParser.distributionsLinks.size() > 0) {
-				setParserMsg(inputRDFParser.distributionsLinks.size() + " distributions found. We are processing them!");
+				setParserMsg(
+						inputRDFParser.distributionsLinks.size() + " distributions found. We are processing them!");
 
 				// stream distributions
 				Manager m = new Manager(inputRDFParser.distributionsLinks);
@@ -63,8 +65,14 @@ public class AddDatasetModel extends RESTMsg implements Runnable {
 			setParserMsg(e.getMessage());
 			error = true;
 			e.printStackTrace();
+
 		} catch (FileNotFoundException e) {
-			setParserMsg("Impossible to reach the file: "+e.getMessage());
+			setParserMsg("Impossible to reach the file: " + e.getMessage());
+			error = true;
+			e.printStackTrace();
+
+		} catch (UnknownHostException e) {
+			setParserMsg("Unknown Host: " + e.getMessage());
 			error = true;
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -94,7 +102,6 @@ public class AddDatasetModel extends RESTMsg implements Runnable {
 	public void setFormat(String format) {
 		this.format = format;
 	}
-
 
 	public Boolean getError() {
 		return error;

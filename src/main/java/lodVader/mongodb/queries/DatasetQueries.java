@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
 
+import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
@@ -18,12 +19,6 @@ import lodVader.mongodb.collections.LinksetDB;
 public class DatasetQueries {
 
 	static long triples = 0;
-
-	public long getNumberOfTripless(String dataset) {
-		triples = 0;
-		getNumberOfTriples(new DatasetDB(dataset));
-		return triples;
-	}
 
 	public long getNumberOfTriples(DatasetDB dataset) {
 		triples = 0;
@@ -43,19 +38,29 @@ public class DatasetQueries {
 		}
 	}
 
-	// return number of datasets (vocabularies and not)
-	public int getNumberOfDatasets() {
-		int numberOfDatasets = 0;
-		try {
-			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(
-					DatasetDB.COLLECTION_NAME);
-			numberOfDatasets = (int) collection.count();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return numberOfDatasets;
-	}
 
+	/**
+	 * Get distribution based on the description file address
+	 * @param descriptionFileAddress
+	 * @return list of datasets
+	 */
+	public ArrayList<DatasetDB> getDatasetsBasedOnDescriptionFile(String descriptionFileAddress){
+
+		ArrayList<DatasetDB> datasetList = new ArrayList<DatasetDB>();
+
+		DBCollection collection = DBSuperClass2.getDBInstance().getCollection(DatasetDB.COLLECTION_NAME);
+
+		BasicDBObject uriQuery = new BasicDBObject(DatasetDB.DESCRIPTION_FILE_URL, descriptionFileAddress);
+
+		DBCursor inst = collection.find(uriQuery);
+
+		while (inst.hasNext()) {
+			datasetList.add(new DatasetDB(inst.next()));
+		}
+		return datasetList;
+	}
+	
+	
 	/**
 	 * Get all datasets
 	 * @return list of datasets
@@ -76,9 +81,6 @@ public class DatasetQueries {
 			else
 				instances = collection.find(new BasicDBObject(DatasetDB.IS_VOCABULARY, false));
 			
-			
-//			instances = collection.find();
-
 			for (DBObject instance : instances) {
 				list.add(new DatasetDB(instance));
 			}
@@ -111,28 +113,6 @@ public class DatasetQueries {
 		return list;
 	}
 
-	// return all datasets
-	public ArrayList<DatasetDB> getDatasetsNotVocab() {
-//		public ArrayList<DatasetMongoDBObject> getDatasetsNotVocab() {
-
-		ArrayList<DatasetDB> list = new ArrayList<DatasetDB>();
-		try {
-			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(
-					DatasetDB.COLLECTION_NAME);
-			BasicDBObject query = new BasicDBObject(
-					DatasetDB.IS_VOCABULARY, false);
-			DBCursor instances = collection.find(query).sort(
-					new BasicDBObject(DatasetDB.TITLE, 1));
-
-			for (DBObject instance : instances) {
-				list.add(new DatasetDB(instance));
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return list;
-	}
 	
 	// return all datasets
 	public ArrayList<DatasetDB> getTopDatasetsNotVocab() {
@@ -164,32 +144,6 @@ public class DatasetQueries {
 	}
 	
 	
-	// return all datasets
-	public ArrayList<DatasetDB> getDatasetsByID(ArrayList<Integer> ids) {
-//		public ArrayList<DatasetMongoDBObject> getDatasetsNotVocab() {
-
-		ArrayList<DatasetDB> list = new ArrayList<DatasetDB>();
-		try {
-			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(
-					DatasetDB.COLLECTION_NAME);
-			BasicDBObject query = new BasicDBObject(
-					DatasetDB.IS_VOCABULARY, false);
-			DBCursor instances = collection.find(query).sort(
-					new BasicDBObject(DatasetDB.TITLE, 1));
-
-			for (DBObject instance : instances) {
-				list.add(new DatasetDB(instance));
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return list;
-	}
-
-	// return all datasets not vocabularies with links
-
-	// public void getDatasetsNotVocabWithLinks() {
 	public ArrayList<DatasetDB> getDatasetsNotVocabWithLinks() {
 
 		ArrayList<DatasetDB> list = new ArrayList<DatasetDB>();
@@ -220,28 +174,6 @@ public class DatasetQueries {
 
 			DBCursor instances = collection.find(query).sort(
 					new BasicDBObject(DatasetDB.TITLE, 1));
-
-			for (DBObject instance : instances) {
-				list.add(new DatasetDB(instance));
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return list;
-	}
-
-	// return all datasets
-	public ArrayList<DatasetDB> getDatasetsVocab() {
-
-		ArrayList<DatasetDB> list = new ArrayList<DatasetDB>();
-		try {
-			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(
-					DatasetDB.COLLECTION_NAME);
-			BasicDBObject query = new BasicDBObject(
-					DatasetDB.IS_VOCABULARY, true);
-			// query.append("$where", "this.distributions_uris.length > 0");
-			DBCursor instances = collection.find(query);
 
 			for (DBObject instance : instances) {
 				list.add(new DatasetDB(instance));

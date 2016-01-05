@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -19,6 +20,11 @@ import lodVader.spring.REST.models.dataset.StatusModel;
 @RestController
 public class DatasetController {
 
+	/**
+	 * Get 
+	 * @param id
+	 * @return
+	 */
 	@RequestMapping(value = "/dataset/{id}", method = RequestMethod.GET)
 	public DatasetDB dataset(@PathVariable int id) {
 		return new DatasetDB(id);
@@ -34,9 +40,8 @@ public class DatasetController {
 		return new DatasetQueries().getDatasets(false).size();
 	}
 
-	@RequestMapping(value = "/dataset/status")
+	@RequestMapping(value = "/dataset/status", produces=MediaType.APPLICATION_JSON_VALUE)
 	public StatusModel status(@RequestParam(value = "dataset", required = true) String datasetAddress) {
-
 		return new StatusModel(datasetAddress);
 	}
 

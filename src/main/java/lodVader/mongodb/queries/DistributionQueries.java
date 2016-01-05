@@ -348,38 +348,18 @@ public class DistributionQueries {
 		}
 		return list;
 	}
-
+	
 	// return all distributions
-	public ArrayList<DistributionDB> getDistributionsByTopDatasetURL(String topDataset) {
+	public ArrayList<DistributionDB> getDistributionsByTopDatasetURL(DatasetDB topDataset) {
 
 		ArrayList<DistributionDB> distributionList = new ArrayList<DistributionDB>();
 
-		ArrayList<Integer> datasetList = new ArrayList<Integer>();
-
-		DBCollection collection = DBSuperClass2.getDBInstance().getCollection(DatasetDB.COLLECTION_NAME);
-
-		// find address by URI...
-		BasicDBObject uriQuery = new BasicDBObject(DatasetDB.URI, new BasicDBObject("$regex", topDataset + ".*"));
-
-		// ... or by access url
-		BasicDBObject accessQuery = new BasicDBObject(DatasetDB.DESCRIPTION_FILE_URL,
-				new BasicDBObject("$regex", topDataset + ".*"));
-
-		// make a OR operator
-		BasicDBList or = new BasicDBList();
-		or.add(uriQuery);
-		or.add(accessQuery);
-
-		DBCursor inst = collection.find(new BasicDBObject("$or", or));
-
-		while (inst.hasNext()) {
-			datasetList.add(((Number) inst.next().get(DatasetDB.LOD_VADER_ID)).intValue());
-		}
+		DBCollection collection;
 
 		try {
 			collection = DBSuperClass2.getDBInstance().getCollection(DistributionDB.COLLECTION_NAME);
 			DBCursor instances = collection
-					.find(new BasicDBObject(DistributionDB.DEFAULT_DATASETS, new BasicDBObject("$in", datasetList)));
+					.find(new BasicDBObject(DistributionDB.DEFAULT_DATASETS, topDataset.getLODVaderID()));
 
 			for (DBObject instance : instances) {
 				distributionList.add(new DistributionDB(instance));
