@@ -76,7 +76,8 @@ public class DatasetQueries {
 			else
 				instances = collection.find(new BasicDBObject(DatasetDB.IS_VOCABULARY, false));
 			
-			instances = collection.find();
+			
+//			instances = collection.find();
 
 			for (DBObject instance : instances) {
 				list.add(new DatasetDB(instance));
