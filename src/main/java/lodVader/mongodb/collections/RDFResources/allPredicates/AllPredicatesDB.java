@@ -3,6 +3,8 @@ package lodVader.mongodb.collections.RDFResources.allPredicates;
 import java.util.Iterator;
 import java.util.Set;
 
+import com.mongodb.DBObject;
+
 import lodVader.exceptions.LODVaderMissingPropertiesException;
 import lodVader.exceptions.mongodb.LODVaderNoPKFoundException;
 import lodVader.exceptions.mongodb.LODVaderObjectAlreadyExistsException;
@@ -22,6 +24,11 @@ public class AllPredicatesDB extends GeneralRDFResourceDB {
 	
 	public AllPredicatesDB() {
 		super(COLLECTION_NAME);
+	}
+	
+	public AllPredicatesDB(DBObject object) {
+		super(COLLECTION_NAME);
+		mongoDBObject = object;
 	}
 
 	@Override

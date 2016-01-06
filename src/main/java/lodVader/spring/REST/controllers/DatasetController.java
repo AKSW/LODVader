@@ -21,7 +21,7 @@ import lodVader.spring.REST.models.dataset.StatusModel;
 public class DatasetController {
 
 	/**
-	 * Get 
+	 * Get details of a specific dataset
 	 * @param id
 	 * @return
 	 */

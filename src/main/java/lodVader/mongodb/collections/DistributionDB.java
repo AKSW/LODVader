@@ -30,7 +30,7 @@ public class DistributionDB extends ResourceDB {
 		super(COLLECTION_NAME);
 		setKeys();
 		setLodVaderID(id);
-		find(true);
+		find(true, LOD_VADER_ID, id);
 		if (getLODVaderID() == null)
 			setLodVaderID(new LODVaderCounterDB().incrementAndGetID());
 	}

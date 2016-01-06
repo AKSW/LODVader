@@ -118,6 +118,7 @@ public class StatusModel extends RESTMsg {
 	public StatusModel(String url) {
 
 		ArrayList<DatasetDB> datasetsDB = new DatasetQueries().getDatasetsBasedOnDescriptionFile(url);
+		setCoreMsgSuccess();
 
 		if (datasetsDB.size() == 0)
 			datasetsDB.add(new DatasetDB(url));
@@ -126,7 +127,6 @@ public class StatusModel extends RESTMsg {
 			return;
 
 
-		setCoreMsgSuccess();
 
 		for (DatasetDB datasetDB : datasetsDB) {
 			

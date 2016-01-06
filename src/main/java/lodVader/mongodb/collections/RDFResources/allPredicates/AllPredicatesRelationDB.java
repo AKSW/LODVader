@@ -6,6 +6,7 @@ import java.util.HashSet;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
 
 import lodVader.exceptions.LODVaderMissingPropertiesException;
 import lodVader.exceptions.mongodb.LODVaderNoPKFoundException;
@@ -23,6 +24,11 @@ public class AllPredicatesRelationDB extends GeneralRDFResourceRelationDB{
 
 	public AllPredicatesRelationDB() {
 		super(COLLECTION_NAME);
+	}
+	
+	public AllPredicatesRelationDB(DBObject object) {
+		super(COLLECTION_NAME);
+		mongoDBObject = object;
 	}
 	
 	

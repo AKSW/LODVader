@@ -8,9 +8,9 @@ import lodVader.mongodb.collections.gridFS.SuperBucket;
 
 public class LoadedBloomFiltersCache extends Thread{
 	
-	public SuperBucket s;
+	private SuperBucket s;
 	
-	public DistributionDB distribution;
+	private DistributionDB distribution;
 	
 	String query;
 	
@@ -40,6 +40,14 @@ public class LoadedBloomFiltersCache extends Thread{
 		s.resource=query;
 		if (s.query(distribution.getLODVaderID())) 
 			found= true;
+	}
+	
+	public void setDistribution(DistributionDB distribution) {
+		this.distribution = distribution;
+	}
+	
+	public DistributionDB getDistribution() {
+		return distribution;
 	}
 	
 }

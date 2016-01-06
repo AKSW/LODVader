@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
@@ -372,7 +373,7 @@ public class DistributionQueries {
 	}
 
 	// return all distributions
-	public ArrayList<DistributionDB> getSetOfDistributions(HashSet<Integer> set) {
+	public ArrayList<DistributionDB> getSetOfDistributions(Set<Integer> set) {
 
 		ArrayList<DistributionDB> distributionList = new ArrayList<DistributionDB>();
 
@@ -437,7 +438,7 @@ public class DistributionQueries {
 				if (l.found) {
 					// System.out.println("oie");
 
-					setOfDistributionNS.add(l.distribution);
+					setOfDistributionNS.add(l.getDistribution());
 				}
 			}
 		}
@@ -470,7 +471,7 @@ public class DistributionQueries {
 
 			for (LoadedBloomFiltersCache l : cache) {
 				if (l.found)
-					setOfDistributionNS.add(l.distribution);
+					setOfDistributionNS.add(l.getDistribution());
 
 			}
 		}

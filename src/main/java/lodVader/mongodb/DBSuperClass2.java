@@ -186,6 +186,26 @@ public class DBSuperClass2 {
 		} else
 			return false;
 	}
+	
+	/**
+	 * Query a object based on the a key
+	 * 
+	 * @param update
+	 *            update object case found.
+	 * @return true case the object is found.
+	 */
+	public boolean find(Boolean update, String key, Object value) {
+
+		DBCursor cursor = getCollection().find(new BasicDBObject(key, value));
+
+		if (cursor.size() > 0) {
+			if (update) {
+				mongoDBObject = cursor.next();
+			}
+			return true;
+		} else
+			return false;
+	}
 
 	/**
 	 * Update an object.

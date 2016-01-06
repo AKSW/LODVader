@@ -1,6 +1,7 @@
 package lodVader.utils;
 
 import org.apache.commons.lang.StringUtils;
+import org.junit.Test;
 
 public class NSUtils {
 
@@ -20,13 +21,13 @@ public class NSUtils {
 			url = split[0] + "//" + split[2] + "/" + split[3] + "/";
 		return url;
 	}
-
+	
 	public String getNSFromString(String url) {
 
 		String[] split =url.split("/");
 		int total = split.length;
 		
-		if (total < 7) {
+		if (total <= 7) {
 			int index = url.lastIndexOf("#");
 			if (index == -1)
 				index = url.lastIndexOf("/");
