@@ -46,7 +46,7 @@ public class ListModel {
 				else
 					addCSVField(predicateSearch);
 				addCSVField(predicate);
-				addCSVField(topDatasetTitle);
+				addCSVField(topDatasetTitle.replace(",", ""));
 				addCSVField(downloadURL);
 				addCSVField(triples);
 				addCSVLastField(predicates.get(predicate).toString());
