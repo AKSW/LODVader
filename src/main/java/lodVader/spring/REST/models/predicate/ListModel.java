@@ -42,13 +42,13 @@ public class ListModel {
 			for (String predicate : predicates.keySet()) {
 				
 				if(predicateSearch.equals(""))
-					addCSVField(new NSUtils().getNSFromString(predicate));
+					addCSVFieldString(new NSUtils().getNSFromString(predicate));
 				else
-					addCSVField(predicateSearch);
-				addCSVField(predicate);
-				addCSVField(topDatasetTitle.replace(",", ""));
-				addCSVField(downloadURL);
-				addCSVField(triples);
+					addCSVFieldString(predicateSearch);
+				addCSVFieldString(predicate);
+				addCSVFieldString(topDatasetTitle);
+				addCSVFieldString(downloadURL);
+				addCSVFieldInt(triples);
 				addCSVLastField(predicates.get(predicate).toString());
 				addCSVLine();
 			}
@@ -60,7 +60,11 @@ public class ListModel {
 		csv.append("Ontology OR namespace, Ontology Class / Property URI, Dataset Name, distribution, Total nr triples, Nr of triples with Class/Property \n");
 	}
 
-	private void addCSVField(String field) {
+	private void addCSVFieldString(String field) {
+		csv.append("\""+field + "\",");
+	}
+	
+	private void addCSVFieldInt(String field) {
 		csv.append(field + ",");
 	}
 	
