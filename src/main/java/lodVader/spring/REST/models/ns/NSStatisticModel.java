@@ -73,8 +73,6 @@ public class NSStatisticModel {
 			}
 			str.append("\n");
 			str.append("\n");
-
-			System.out.println(str.toString());
 		}
 	}
 }
