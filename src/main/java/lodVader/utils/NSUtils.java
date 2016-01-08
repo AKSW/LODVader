@@ -38,7 +38,29 @@ public class NSUtils {
 			int index = StringUtils.ordinalIndexOf(url, "/", 7);
 			return url.substring(0, index + 1); 
 		}
+	}
+	
+	@Test
+	public void oi(){
+		System.out.println(getNSFromString("http://www.ciro.com/1/2/3/4/5", 2));
+	}
+	
+	public String getNSFromString(String url, int nsLevel) {
+		nsLevel = nsLevel + 3;
+		String[] split =url.split("/");
+		int total = split.length;
+		
+		if (total <= nsLevel) {
+			int index = url.lastIndexOf("#");
+			if (index == -1)
+				index = url.lastIndexOf("/");
 
+			return url.substring(0, index + 1);
+		}
+		else{
+			int index = StringUtils.ordinalIndexOf(url, "/", nsLevel);
+			return url.substring(0, index + 1); 
+		}
 	}
 
 	/**

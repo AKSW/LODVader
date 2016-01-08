@@ -9,12 +9,13 @@ import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.namespaces.DistributionSubjectNSDB;
 import lodVader.mongodb.queries.DistributionQueries;
 import lodVader.mongodb.queries.NSQueries;
+import lodVader.utils.NSUtils;
 
 public class NSStatisticModel {
 
 	public StringBuilder str = new StringBuilder();
 
-	public void getStatistics(Integer datasetID) {
+	public void getStatistics(Integer datasetID, Integer nsLevel) {
 
 		ArrayList<DistributionDB> distributions;
 
@@ -35,13 +36,32 @@ public class NSStatisticModel {
 			ArrayList<DistributionSubjectNSDB> nsList = new NSQueries()
 					.getSubjectNSByDistribution(distribution.getLODVaderID());
 
-			HashMap<String, Integer> tmp = new HashMap<String, Integer>();
+			HashMap<String, Double> tmp = new HashMap<String, Double>();
 
 			double total = 0.0;
+			NSUtils nsUtils = new NSUtils();
 
-			for (DistributionSubjectNSDB ns : nsList) {
-				tmp.put(ns.getNS(), ns.getNumberOfResources());
-				total = total + ns.getNumberOfResources();
+			// if nsLevel is set
+			if (nsLevel != null) {
+				for (DistributionSubjectNSDB ns : nsList) {
+					Double amount = tmp.get(nsUtils.getNSFromString(ns.getNS(), nsLevel));
+					if (amount == null) {
+						tmp.put(nsUtils.getNSFromString(ns.getNS(), nsLevel), (double) ns.getNumberOfResources());
+					} else {
+						tmp.put(nsUtils.getNSFromString(ns.getNS(), nsLevel), ns.getNumberOfResources() + amount);
+					}
+				}
+
+				for (DistributionSubjectNSDB ns : nsList) {
+					total = total + (double) ns.getNumberOfResources();
+				}
+
+			} else {
+
+				for (DistributionSubjectNSDB ns : nsList) {
+					tmp.put(ns.getNS(), (double) ns.getNumberOfResources());
+					total = total + (double) ns.getNumberOfResources();
+				}
 			}
 
 			str.append("\nTotal number os NS: " + formatter2.format(total));
@@ -54,11 +74,7 @@ public class NSStatisticModel {
 			str.append("\n");
 			str.append("\n");
 
-
+			System.out.println(str.toString());
 		}
-
-		System.out.println(str.toString());
-
 	}
-
 }
