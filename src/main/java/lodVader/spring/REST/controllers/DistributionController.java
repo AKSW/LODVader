@@ -40,7 +40,7 @@ public class DistributionController {
 
 	@RequestMapping(value = "/distribution/list")
 	public ArrayList<DistributionDB> list() {
-		return new DistributionQueries().getDistributions(null, null);
+		return new DistributionQueries().getDistributions(null, null, null);
 	}
 
 	@RequestMapping(value = rdfPath, produces = "application/json; charset=utf-8")
@@ -69,7 +69,7 @@ public class DistributionController {
 	public String size(@RequestParam(value = "searchStatus", required = false, defaultValue="DONE") String status,
 			@RequestParam(value = "searchVocabularies", required = false) Boolean vocabularies) {
 		DecimalFormat format = new DecimalFormat("###,###,###,###");
-		return format.format(new DistributionQueries().getDistributions(vocabularies, status).size());
+		return format.format(new DistributionQueries().getDistributions(vocabularies, status, null).size());
 	}
 
 	@RequestMapping(value = "/distribution/detail")

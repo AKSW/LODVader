@@ -31,7 +31,7 @@ public abstract class LinkSimilarity {
 		this.type = type;
 		
 		// get all distributions except for the current one
-		ArrayList<DistributionDB> distributions = new DistributionQueries().getDistributions(null, null);
+		ArrayList<DistributionDB> distributions = new DistributionQueries().getDistributions(null, null, null);
 		
 //		PredicatesQueries predicates = new PredicatesQueries();
 		HashSet<String> set1 ;

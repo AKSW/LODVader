@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
 
 import lodVader.LoadedBloomFiltersCache;
 import lodVader.exceptions.LODVaderMissingPropertiesException;
@@ -20,6 +21,11 @@ public class DistributionSubjectNSDB extends SuperNS {
 
 	public DistributionSubjectNSDB() {
 		super(COLLECTION_NAME);
+	}
+	
+	public DistributionSubjectNSDB(DBObject object) {
+		super(COLLECTION_NAME);
+		mongoDBObject = object; 
 	}
 
 	public int getNumberOfResources() {

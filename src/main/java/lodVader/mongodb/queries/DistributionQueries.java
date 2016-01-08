@@ -235,7 +235,7 @@ public class DistributionQueries {
 	 *            will be returned
 	 * @return a ArrayList of DistributionMongoDBObject
 	 */
-	public ArrayList<DistributionDB> getDistributions(Boolean vocabularies, String status) {
+	public ArrayList<DistributionDB> getDistributions(Boolean vocabularies, String status, Integer datasetID) {
 
 		ArrayList<DistributionDB> list = new ArrayList<DistributionDB>();
 
@@ -255,6 +255,9 @@ public class DistributionQueries {
 
 			if (status != null && status != "")
 				and.add(new BasicDBObject(DistributionDB.STATUS, status));
+			
+			if (datasetID != null)
+				and.add(new BasicDBObject(DistributionDB.TOP_DATASET, datasetID));
 
 			if(and.size()>0)
 				instances = collection.find(new BasicDBObject("$and", and));
