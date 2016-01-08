@@ -44,7 +44,7 @@ public class NSStatisticModel {
 			// if nsLevel is set
 			if (nsLevel != null) {
 				for (DistributionSubjectNSDB ns : nsList) {
-					Double amount = tmp.get(nsUtils.getNSFromString(ns.getNS(), nsLevel));
+					Double amount = tmp.get(nsUtils.getNSFromString(ns.getNS(), nsLevel)); 
 					if (amount == null) {
 						tmp.put(nsUtils.getNSFromString(ns.getNS(), nsLevel), (double) ns.getNumberOfResources());
 					} else {

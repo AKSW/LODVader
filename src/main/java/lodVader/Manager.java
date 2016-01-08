@@ -10,9 +10,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import lodVader.exceptions.LODVaderMissingPropertiesException;
-import lodVader.exceptions.mongodb.LODVaderNoPKFoundException;
-import lodVader.exceptions.mongodb.LODVaderObjectAlreadyExistsException;
 import lodVader.links.similarity.JaccardSimilarity;
 import lodVader.links.similarity.LinkSimilarity;
 import lodVader.lov.LOV;
@@ -22,7 +19,6 @@ import lodVader.mongodb.collections.RDFResources.allPredicates.AllPredicatesRela
 import lodVader.mongodb.collections.RDFResources.owlClass.OwlClassRelationDB;
 import lodVader.mongodb.collections.RDFResources.rdfSubClassOf.RDFSubClassOfRelationDB;
 import lodVader.mongodb.collections.RDFResources.rdfType.RDFTypeObjectRelationDB;
-import lodVader.parsers.descriptionfileparser.DescriptionFileParser;
 import lodVader.streaming.CheckWhetherToStream;
 import lodVader.streaming.StreamAndProcess;
 import lodVader.streaming.StreamAndSaveDump;
@@ -33,8 +29,6 @@ public class Manager {
 
 	// list of subset and their distributions
 	public static Queue<DistributionDB> distributionsLinks = new LinkedBlockingQueue<DistributionDB>();
-
-	DescriptionFileParser fileInputParserModel = new DescriptionFileParser();
 
 	static boolean consumingQueue = false;
 

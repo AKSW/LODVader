@@ -45,6 +45,16 @@ public class DatasetController {
 		return new StatusModel(datasetAddress);
 	}
 
+	
+	
+	@RequestMapping(value = "/dataset/addCLOD")
+	public void add2(HttpServletRequest request) {
+
+		DatasetModelFactory.createDatasetCLOD();
+		
+		
+	}
+	
 	@RequestMapping(value = "/dataset/add")
 	public AddDatasetModel add(@RequestParam(value = "descriptionFileURL", required = true) String descriptionFileURL,
 			@RequestParam(value = "format", required = true) String format, HttpServletRequest request) {

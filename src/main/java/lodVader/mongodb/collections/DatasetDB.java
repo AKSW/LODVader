@@ -56,8 +56,8 @@ public class DatasetDB extends ResourceDB {
 		addPK(LOD_VADER_ID);
 		addMandatoryField(URI);
 		addMandatoryField(DESCRIPTION_FILE_URL);
-		addMandatoryField(SUBSET_IDS);
-		addMandatoryField(DISTRIBUTIONS_IDS);
+//		addMandatoryField(SUBSET_IDS);
+//		addMandatoryField(DISTRIBUTIONS_IDS);
 	}
 
 	public void setSubsetIds(ArrayList<Integer> ids) {
