@@ -87,6 +87,7 @@ public abstract class SuperStream {
 	private void openConnection() throws IOException, LODVaderLODGeneralException  {
 		httpConn = (HttpURLConnection) downloadUrl.openConnection();
 
+		
 		httpConn.setReadTimeout(5000);
 		httpConn.setConnectTimeout(5000);
 		int responseCode = httpConn.getResponseCode();

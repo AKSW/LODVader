@@ -99,9 +99,9 @@ public class Manager {
 					distributionMongoDBObj.setSuccessfullyDownloaded(true);
 					distributionMongoDBObj.update(true);
 
-					logger.debug("Checking Similarity among distributions...");
-					distributionMongoDBObj.setStatus(DistributionDB.STATUS_CREATING_JACCARD_SIMILARITY);
-					distributionMongoDBObj.update(true);
+//					logger.debug("Checking Similarity among distributions...");
+//					distributionMongoDBObj.setStatus(DistributionDB.STATUS_CREATING_JACCARD_SIMILARITY);
+//					distributionMongoDBObj.update(true);
 					// Saving link similarities
 
 //					logger.debug("Checking Jaccard Similarities...");

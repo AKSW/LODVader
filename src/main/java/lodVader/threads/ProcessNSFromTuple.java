@@ -192,6 +192,7 @@ public abstract class ProcessNSFromTuple extends Thread {
 
 	private void saveLinks() {
 		new LinksetDB().removeAllLinks(distribution.getLODVaderID());
+		
 		for (DistributionDataSlaveThread dataThread : mapOfWorkerThreads.values()) {
 			logger.debug("Saving links for " + dataThread.targetDistributionTitle);
 			LinksetDB linkset;
