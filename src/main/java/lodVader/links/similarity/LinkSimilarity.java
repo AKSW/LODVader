@@ -111,11 +111,6 @@ public abstract class LinkSimilarity {
 //		if(link.getDistributionTarget()==0)
 			link.setDistributionTarget(dist2.getLODVaderID());		
 		
-		try {
-			link.update(true);
-		} catch (LODVaderMissingPropertiesException | LODVaderObjectAlreadyExistsException
-				| LODVaderNoPKFoundException e) {
-			e.printStackTrace();
-		}
+			link.update(true,LinksetDB.LINKSET_ID,id);
 	}
 }

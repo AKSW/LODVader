@@ -310,22 +310,4 @@ public class StreamAndProcess extends SuperStream {
 		
 
 	}
-
-//	public TreeSet<String> getUniqueItemsFromFile1(String fileName) {
-//		BufferedReader br;
-//		String sCurrentLine;
-//		TreeSet<String> items = new TreeSet<String>();
-//		try {
-//			br = new BufferedReader(new FileReader(fileName));
-//
-//			while ((sCurrentLine = br.readLine()) != null) {
-//				items.add(sCurrentLine);
-//			}
-//		} catch (Exception e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		return items;
-//	}
-
 }
