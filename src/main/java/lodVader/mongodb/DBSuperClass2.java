@@ -85,10 +85,10 @@ public class DBSuperClass2 {
 
 	// get a value given a key
 	protected Object getField(String key) {
-//		if (mongoDBObject.get(key) != null)
-			return mongoDBObject.get(key);
-//		else
-//			return new Object();
+		// if (mongoDBObject.get(key) != null)
+		return mongoDBObject.get(key);
+		// else
+		// return new Object();
 	}
 
 	// get a value given a key
@@ -186,7 +186,7 @@ public class DBSuperClass2 {
 		} else
 			return false;
 	}
-	
+
 	/**
 	 * Query a object based on the a key
 	 * 
@@ -205,6 +205,35 @@ public class DBSuperClass2 {
 			return true;
 		} else
 			return false;
+	}
+
+	/**
+	 * Update a object based on the a key
+	 * 
+	 * @param create
+	 *            create object case not found.
+	 * @return true case the object is found.
+	 */
+	public void update(Boolean create, String key, Object value) {
+
+		try {
+			checkMandatoryFields();
+			DBCursor cursor = getCollection().find(new BasicDBObject(key, value));
+
+			if (cursor.size() > 0) {
+				mongoDBObject = cursor.next();
+				getCollection().update(new BasicDBObject(key, value), mongoDBObject);
+			} else {
+				if (create) {
+					getCollection().insert(mongoDBObject);
+				}
+			}
+
+		} catch (LODVaderMissingPropertiesException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 
 	/**

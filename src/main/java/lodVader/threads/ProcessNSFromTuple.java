@@ -83,7 +83,7 @@ public abstract class ProcessNSFromTuple extends Thread {
 		this.countTotalNS = new ConcurrentHashMap<String, Integer>();
 		this.countTotalNS0 = new ConcurrentHashMap<String, Integer>();
 		this.distribution = new DistributionDB(uri);
-		
+
 		if (LoadedBloomFiltersCache.describedSubjectsNSCurrentSize > LODVaderProperties.BF_BUFFER_RANGE
 				|| LoadedBloomFiltersCache.describedSubjectsNS == null)
 			LoadedBloomFiltersCache.describedSubjectsNS = new DistributionQueries()
@@ -193,27 +193,27 @@ public abstract class ProcessNSFromTuple extends Thread {
 	private void saveLinks() {
 		for (DistributionDataSlaveThread dataThread : mapOfWorkerThreads.values()) {
 			logger.debug("Saving links for " + dataThread.targetDistributionTitle);
-			LinksetDB l;
+			LinksetDB linkset;
 			new LinksetDB().removeAllLinks(distribution.getLODVaderID());
 
 			Timer t = new Timer();
 			t.startTimer();
 
-			String mongoDBURL;
+			String linksetID;
 
 			if (tuplePart.equals(TuplePart.SUBJECT)) {
-				mongoDBURL = dataThread.targetDistributionID + "-" + dataThread.dourceDistributionID;
-				l = new LinksetDB(mongoDBURL);
-				l.setDistributionSource(dataThread.targetDistributionID);
-				l.setDistributionTarget(dataThread.dourceDistributionID);
-				l.setDatasetSource(dataThread.targetDatasetID);
-				l.setDatasetTarget(dataThread.sourceDatasetID);
+				linksetID = dataThread.targetDistributionID + "-" + dataThread.dourceDistributionID;
+				linkset = new LinksetDB(linksetID);
+				linkset.setDistributionSource(dataThread.targetDistributionID);
+				linkset.setDistributionTarget(dataThread.dourceDistributionID);
+				linkset.setDatasetSource(dataThread.targetDatasetID);
+				linkset.setDatasetTarget(dataThread.sourceDatasetID);
 
 				// save top N valid and invalid links
 				TopValidLinks validLinks = new TopValidLinks();
 				validLinks.saveAll(dataThread.getAllValidLinks(), dataThread.targetDistributionID,
 						dataThread.dourceDistributionID);
-				l.setLinks(dataThread.getAllValidLinks().size());
+				linkset.setLinks(dataThread.getAllValidLinks().size());
 				dataThread.setValidLinks(null);
 
 				TopInvalidLinks invalidLinks = new TopInvalidLinks();
@@ -228,23 +228,23 @@ public abstract class ProcessNSFromTuple extends Thread {
 
 				invalidLinks.saveAll(invalidLinksMapFinal, dataThread.targetDistributionID,
 						dataThread.dourceDistributionID);
-				l.setInvalidLinks(invalidLinksMapFinal.size());
+				linkset.setInvalidLinks(invalidLinksMapFinal.size());
 				dataThread.setInvalidLinks(null);
 
 			} else {
-				mongoDBURL = dataThread.dourceDistributionID + "-" + dataThread.targetDistributionID;
-				l = new LinksetDB(mongoDBURL);
+				linksetID = dataThread.dourceDistributionID + "-" + dataThread.targetDistributionID;
+				linkset = new LinksetDB(linksetID);
 
-				l.setDistributionSource(dataThread.dourceDistributionID);
-				l.setDistributionTarget(dataThread.targetDistributionID);
-				l.setDatasetSource(dataThread.sourceDatasetID);
-				l.setDatasetTarget(dataThread.targetDatasetID);
+				linkset.setDistributionSource(dataThread.dourceDistributionID);
+				linkset.setDistributionTarget(dataThread.targetDistributionID);
+				linkset.setDatasetSource(dataThread.sourceDatasetID);
+				linkset.setDatasetTarget(dataThread.targetDatasetID);
 
 				// save top N valid and invalid links
 				TopValidLinks validLinks = new TopValidLinks();
 				validLinks.saveAll(dataThread.getAllValidLinks(), dataThread.dourceDistributionID,
 						dataThread.targetDistributionID);
-				l.setLinks(dataThread.getAllValidLinks().size());
+				linkset.setLinks(dataThread.getAllValidLinks().size());
 				dataThread.setValidLinks(null);
 
 				TopInvalidLinks invalidLinks = new TopInvalidLinks();
@@ -262,25 +262,20 @@ public abstract class ProcessNSFromTuple extends Thread {
 				// System.out.println();
 				invalidLinks.saveAll(invalidLinksMapFinal, dataThread.dourceDistributionID,
 						dataThread.targetDistributionID);
-				l.setInvalidLinks(invalidLinksMapFinal.size());
+				linkset.setInvalidLinks(invalidLinksMapFinal.size());
 				dataThread.setInvalidLinks(null);
 
 			}
 
-			if (l.getLinks() > 0 || l.getInvalidLinks() > 0)
-				try {
-					l.update(true);
-				} catch (LODVaderMissingPropertiesException | LODVaderObjectAlreadyExistsException
-						| LODVaderNoPKFoundException e) {
-					e.printStackTrace();
-				}
+			if (linkset.getLinks() > 0 || linkset.getInvalidLinks() > 0)
+				linkset.update(true, LinksetDB.LINKSET_ID, linksetID);
 
-			logger.debug("Saved links: " + l.getLinks() + " (good) " + l.getInvalidLinks() + " (bad) in "
+			logger.debug("Saved links: " + linkset.getLinks() + " (good) " + linkset.getInvalidLinks() + " (bad) in "
 					+ t.stopTimer() + "s");
 		}
 	}
 
-	//external-links_en.nt
+	// external-links_en.nt
 	private boolean saveNamespaces() {
 		logger.info("Saving NS0...");
 		if (tuplePart.equals(TuplePart.SUBJECT)) {

@@ -84,8 +84,6 @@ public class CLODFileParser implements FileParserInterface {
 			distribution.setFormat(Formats
 					.getEquivalentFormat(otherIterator.next().getObject().asLiteral().getString()));
 
-			System.out.println(stmt.getObject().toString());
-
 			distribution.insert(false);
 			distributionsLinks.add(distribution);
 			
