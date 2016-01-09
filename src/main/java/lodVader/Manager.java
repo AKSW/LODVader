@@ -104,13 +104,13 @@ public class Manager {
 					distributionMongoDBObj.update(true);
 					// Saving link similarities
 
-					logger.debug("Checking Jaccard Similarities...");
-					// Checking Jaccard Similarities...
-					LinkSimilarity linkSimilarity = new JaccardSimilarity();
-					linkSimilarity.updateLinks(distributionMongoDBObj, new AllPredicatesRelationDB());
-					linkSimilarity.updateLinks(distributionMongoDBObj, new RDFTypeObjectRelationDB());
-					linkSimilarity.updateLinks(distributionMongoDBObj, new RDFSubClassOfRelationDB());
-					linkSimilarity.updateLinks(distributionMongoDBObj, new OwlClassRelationDB());
+//					logger.debug("Checking Jaccard Similarities...");
+//					// Checking Jaccard Similarities...
+//					LinkSimilarity linkSimilarity = new JaccardSimilarity();
+//					linkSimilarity.updateLinks(distributionMongoDBObj, new AllPredicatesRelationDB());
+//					linkSimilarity.updateLinks(distributionMongoDBObj, new RDFTypeObjectRelationDB());
+//					linkSimilarity.updateLinks(distributionMongoDBObj, new RDFSubClassOfRelationDB());
+//					linkSimilarity.updateLinks(distributionMongoDBObj, new OwlClassRelationDB());
 
 					logger.debug("Updating link strength among distributions...");
 					distributionMongoDBObj.setStatus(DistributionDB.STATUS_UPDATING_LINK_STRENGTH);
