@@ -69,7 +69,7 @@ public class CLODFileParser implements FileParserInterface {
 			dataset.setIsVocabulary(false);
 			dataset.setDescriptionFileURL(URL);
 			dataset.setTitle(stmt.getObject().toString());
-			dataset.update(true);
+			dataset.insert(false);
 			
 			DistributionDB distribution = new DistributionDB();
 			distribution.setUri(stmt.getObject().toString());
@@ -86,7 +86,7 @@ public class CLODFileParser implements FileParserInterface {
 
 			System.out.println(stmt.getObject().toString());
 
-			distribution.update(true);
+			distribution.insert(false);
 			distributionsLinks.add(distribution);
 			
 			
