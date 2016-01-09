@@ -1,10 +1,15 @@
 package lodVader.mongodb.collections.namespaces;
 
+import java.util.ArrayList;
 import java.util.Set;
 
-import com.mongodb.BasicDBObject;
+import org.bson.Document;
 
-import lodVader.exceptions.LODVaderMissingPropertiesException;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+
 import lodVader.exceptions.mongodb.LODVaderNoPKFoundException;
 import lodVader.exceptions.mongodb.LODVaderObjectAlreadyExistsException;
 import lodVader.mongodb.DBSuperClass2;
@@ -58,17 +63,18 @@ public class SuperNS extends DBSuperClass2{
 		getCollection().remove(new BasicDBObject(DISTRIBUTION_ID, distribution.getLODVaderID()));
 		int distributionLodVaderID = distribution.getLODVaderID();
 		int topDatasetID = distribution.getTopDatasetID();
+		ArrayList<DBObject> bulkList = new ArrayList<DBObject>();
+		
 		for (String s : nsSet) {
 			mongoDBObject = new BasicDBObject();
 			setDistributionID(distributionLodVaderID);
 			setNS(s);
 			setDatasetID(topDatasetID);
-			try {
-				insert(true);
-			} catch (LODVaderObjectAlreadyExistsException | LODVaderNoPKFoundException e) {
-				e.printStackTrace();
-			}
+			bulkList.add(mongoDBObject);
 		}
+		
+		bulkSave2(bulkList);
+		
 	}
 
 }

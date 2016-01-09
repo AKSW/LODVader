@@ -2,10 +2,13 @@ package lodVader.mongodb;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
+import com.mongodb.BulkWriteOperation;
+import com.mongodb.BulkWriteResult;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
@@ -22,7 +25,7 @@ import lodVader.exceptions.mongodb.LODVaderObjectAlreadyExistsException;
 public class DBSuperClass2 {
 
 	// defining mongodb connection
-	private static MongoClient mongo = null;
+	protected static MongoClient mongo = null;
 
 	// defining mongodb database
 	private static DB db;
@@ -321,6 +324,21 @@ public class DBSuperClass2 {
 			return true;
 		}
 		return false;
+	}
+	
+	/**
+	 * MongoDB bulk save 
+	 * @return
+	 */
+	
+	protected boolean bulkSave2(List<DBObject> objects){
+        BulkWriteOperation builder = getCollection().initializeUnorderedBulkOperation();
+        for(DBObject doc :objects)
+        {
+            builder.insert(doc);
+        }
+        BulkWriteResult result = builder.execute();
+        return result.isAcknowledged();
 	}
 
 	@JsonIgnore

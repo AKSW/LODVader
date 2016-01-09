@@ -16,8 +16,8 @@ import lodVader.spring.REST.models.RESTMsg;
 
 public class AddDatasetCLODModel extends RESTMsg implements Runnable {
 
+//	private String datasetURI = "http://localhost/dbpedia/urls";
 	private String datasetURI = "http://cirola2000.cloudapp.net/files/urls";
-
 	private String format = "nt";
 
 	private String apiCall;

@@ -28,7 +28,7 @@ import lodVader.bloomfilters.GoogleBloomFilter;
 import lodVader.exceptions.LODVaderLODGeneralException;
 import lodVader.mongodb.DBSuperClass2;
 
-public class SuperBucket {
+public class SuperBucket extends Thread {
 
 	final static Logger logger = LoggerFactory.getLogger(SuperBucket.class);
 
@@ -77,7 +77,7 @@ public class SuperBucket {
 	}
 
 	// @SuppressWarnings("unchecked")
-	public void makeBucket() {
+	public void run() {
 
 		// first we have to remove the old BFs for this distribution
 		removeBFs(distributionID);
@@ -119,8 +119,8 @@ public class SuperBucket {
 						chunk = new ArrayList<String>();
 					}
 				}
-
 				resourcesFileSorted.delete();
+				
 			} else {
 				throw new LODVaderLODGeneralException("No items to load in BF!");
 			}

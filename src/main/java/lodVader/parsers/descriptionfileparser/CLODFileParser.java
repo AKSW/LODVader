@@ -20,6 +20,7 @@ import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 
+import arq.arq;
 import lodVader.exceptions.LODVaderNoDatasetFoundException;
 import lodVader.mongodb.collections.DatasetDB;
 import lodVader.mongodb.collections.DistributionDB;
@@ -69,7 +70,7 @@ public class CLODFileParser implements FileParserInterface {
 			dataset.setIsVocabulary(false);
 			dataset.setDescriptionFileURL(URL);
 			dataset.setTitle(stmt.getObject().toString());
-			dataset.insert(false);
+			dataset.update(true, DatasetDB.URI, stmt.getObject().toString());
 			
 			DistributionDB distribution = new DistributionDB();
 			distribution.setUri(stmt.getObject().toString());
@@ -78,13 +79,26 @@ public class CLODFileParser implements FileParserInterface {
 			distribution.setTopDatasetTitle(stmt.getObject().toString());
 			distribution.setTopDataset(dataset.getLODVaderID());
 			distribution.setIsVocabulary(false);
+			
+			ArrayList<Integer> defaultDatasets = new ArrayList<Integer>();
+			defaultDatasets.add(dataset.getLODVaderID());
+			distribution.setDefaultDatasets(defaultDatasets);
+			
+			
+			
 			distribution.setStatus(DistributionDB.STATUS_WAITING_TO_STREAM);
 
 			StmtIterator otherIterator = inModel.listStatements(stmt.getSubject().asResource(), formatProp, (RDFNode) null);
 			distribution.setFormat(Formats
 					.getEquivalentFormat(otherIterator.next().getObject().asLiteral().getString()));
 
-			distribution.insert(false);
+			distribution.update(true, DistributionDB.URI, stmt.getObject().toString());
+			
+			ArrayList<Integer> distributionList = new ArrayList<Integer>();
+			distributionList.add(distribution.getLODVaderID());
+			dataset.setDistributionsIds(defaultDatasets);
+			dataset.update(false, DatasetDB.URI, stmt.getObject().toString());
+
 			distributionsLinks.add(distribution);
 			
 			
