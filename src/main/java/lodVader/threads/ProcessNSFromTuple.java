@@ -13,9 +13,6 @@ import lodVader.LODVaderProperties;
 import lodVader.LoadedBloomFiltersCache;
 import lodVader.TuplePart;
 import lodVader.bloomfilters.GoogleBloomFilter;
-import lodVader.exceptions.LODVaderMissingPropertiesException;
-import lodVader.exceptions.mongodb.LODVaderNoPKFoundException;
-import lodVader.exceptions.mongodb.LODVaderObjectAlreadyExistsException;
 import lodVader.linksets.DatasetResourcesData;
 import lodVader.linksets.DistributionResourcesData;
 import lodVader.mongodb.collections.DistributionDB;
@@ -85,13 +82,18 @@ public abstract class ProcessNSFromTuple extends Thread {
 		this.distribution = new DistributionDB(uri);
 
 		if (LoadedBloomFiltersCache.describedSubjectsNSCurrentSize > LODVaderProperties.BF_BUFFER_RANGE
-				|| LoadedBloomFiltersCache.describedSubjectsNS == null)
+				|| LoadedBloomFiltersCache.describedSubjectsNS == null){
 			LoadedBloomFiltersCache.describedSubjectsNS = new DistributionQueries()
 					.getDescribedNS(LODVaderProperties.TYPE_SUBJECT);
+			LoadedBloomFiltersCache.describedSubjectsNSCurrentSize = 0;
+		}
+		
 		if (LoadedBloomFiltersCache.describedObjectsNSCurrentSize > LODVaderProperties.BF_BUFFER_RANGE
-				|| LoadedBloomFiltersCache.describedObjectsNS == null)
+				|| LoadedBloomFiltersCache.describedObjectsNS == null){
+			LoadedBloomFiltersCache.describedObjectsNSCurrentSize = 0;
 			LoadedBloomFiltersCache.describedObjectsNS = new DistributionQueries()
 					.getDescribedNS(LODVaderProperties.TYPE_OBJECT);
+		}
 
 	}
 
