@@ -34,17 +34,14 @@ public class CLODFileParser implements FileParserInterface {
 
 	Property urlProp = ResourceFactory.createProperty("http://lodlaundromat.org/ontology/url");
 	Property formatProp = ResourceFactory.createProperty("http://lodlaundromat.org/ontology/fileExtension");
-	
+
 	public List<DistributionDB> distributionsLinks = new ArrayList<DistributionDB>();
-	
+
 	@Test
-	public void oi (){
-		try {
-			readModel("http://localhost/dbpedia/urls", "nt");
-		} catch (RiotException | IOException | LODVaderNoDatasetFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public void oi() {
+		String url = "http://www.google.com/ciro";
+		url = url.split("#")[0];
+		System.out.println(url);
 	}
 
 	// read dataID file and return the dataset uri
@@ -62,53 +59,54 @@ public class CLODFileParser implements FileParserInterface {
 
 		StmtIterator someIterator = inModel.listStatements(null, urlProp, (RDFNode) null);
 
-		while(someIterator.hasNext()){
+		while (someIterator.hasNext()) {
 			Statement stmt = someIterator.next();
-			
+
 			try {
-			DatasetDB dataset = new DatasetDB(stmt.getObject().toString());
-			dataset.setIsVocabulary(false);
-			dataset.setDescriptionFileURL(URL);
-			dataset.setTitle(stmt.getObject().toString());
-			dataset.update(true, DatasetDB.URI, stmt.getObject().toString());
-			
-			DistributionDB distribution = new DistributionDB();
-			distribution.setUri(stmt.getObject().toString());
-			distribution.setDownloadUrl(stmt.getObject().toString());
-			distribution.setTitle(stmt.getObject().toString());
-			distribution.setTopDatasetTitle(stmt.getObject().toString());
-			distribution.setTopDataset(dataset.getLODVaderID());
-			distribution.setIsVocabulary(false);
-			
-			ArrayList<Integer> defaultDatasets = new ArrayList<Integer>();
-			defaultDatasets.add(dataset.getLODVaderID());
-			distribution.setDefaultDatasets(defaultDatasets);
-			
-			
-			
-			distribution.setStatus(DistributionDB.STATUS_WAITING_TO_STREAM);
 
-			StmtIterator otherIterator = inModel.listStatements(stmt.getSubject().asResource(), formatProp, (RDFNode) null);
-			distribution.setFormat(Formats
-					.getEquivalentFormat(otherIterator.next().getObject().asLiteral().getString()));
+				String url = stmt.getObject().toString();
+				url = url.split("#")[0];
 
-			distribution.update(true, DistributionDB.URI, stmt.getObject().toString());
-			
-			ArrayList<Integer> distributionList = new ArrayList<Integer>();
-			distributionList.add(distribution.getLODVaderID());
-			dataset.setDistributionsIds(defaultDatasets);
-			dataset.update(false, DatasetDB.URI, stmt.getObject().toString());
+				DatasetDB dataset = new DatasetDB(url);
+				dataset.setIsVocabulary(false);
+				dataset.setDescriptionFileURL(URL);
+				dataset.setTitle(stmt.getObject().toString());
+				dataset.update(true, DatasetDB.URI, url);
 
-			distributionsLinks.add(distribution);
-			
-			
+				DistributionDB distribution = new DistributionDB();
+				distribution.setUri(url);
+				distribution.setDownloadUrl(url);
+				distribution.setTitle(url);
+				distribution.setTopDatasetTitle(url);
+				distribution.setTopDataset(dataset.getLODVaderID());
+				distribution.setIsVocabulary(false);
+
+				ArrayList<Integer> defaultDatasets = new ArrayList<Integer>();
+				defaultDatasets.add(dataset.getLODVaderID());
+				distribution.setDefaultDatasets(defaultDatasets);
+
+				distribution.setStatus(DistributionDB.STATUS_WAITING_TO_STREAM);
+
+				StmtIterator otherIterator = inModel.listStatements(stmt.getSubject().asResource(), formatProp,
+						(RDFNode) null);
+				distribution.setFormat(
+						Formats.getEquivalentFormat(otherIterator.next().getObject().asLiteral().getString()));
+
+				distribution.update(true, DistributionDB.URI, url);
+
+				ArrayList<Integer> distributionList = new ArrayList<Integer>();
+				distributionList.add(distribution.getLODVaderID());
+				dataset.setDistributionsIds(defaultDatasets);
+				dataset.update(false, DatasetDB.URI, url);
+
+				distributionsLinks.add(distribution);
+
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
-		}	
-		
+
+		}
 
 		return someDatasetURI;
 	}
