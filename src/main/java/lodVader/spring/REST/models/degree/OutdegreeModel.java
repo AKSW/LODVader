@@ -7,13 +7,17 @@ import com.mongodb.DBObject;
 import com.mongodb.MapReduceCommand;
 
 import lodVader.mongodb.DBSuperClass2;
+import lodVader.mongodb.collections.DatasetDB;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.LinksetDB;
+import lodVader.mongodb.collections.ResourceDB;
 import lodVader.mongodb.collections.TmpMapReduce;
 
 public class OutdegreeModel {
 
 	public StringBuilder result = new StringBuilder();
+	
+	public boolean isDataset = false;
 	
 	/**
 	 * MapReduce functions for outdegree linksets
@@ -62,7 +66,7 @@ public class OutdegreeModel {
 
 		printTableOutdegree(instances);
 
-		instances = collection.find().sort(new BasicDBObject("value.totalDistributionsOutdegree", -1)).limit(n);
+		instances = collection.find().sort(new BasicDBObject("value.totalOutdegree", -1)).limit(n);
 
 		result.append("=====================================================\n");
 		result.append("Top " + n + " by number of outdegree distributions\n");
@@ -94,7 +98,7 @@ public class OutdegreeModel {
 
 		printTableOutdegree(instances);
 
-		instances = collection.find().sort(new BasicDBObject("value.totalDistributionsOutdegree", -1)).limit(n);
+		instances = collection.find().sort(new BasicDBObject("value.totalOutdegree", -1)).limit(n);
 
 		result.append("=====================================================\n");
 		result.append("Top " + n + " by number of outdegree distributions\n");
@@ -113,15 +117,19 @@ public class OutdegreeModel {
 		result.append("Name\t Outdegree \t Links \n");
 
 		BasicDBObject values = null;
-		DistributionDB tmpDistribution;
+		ResourceDB tmpDistribution;
 
 		for (DBObject instance : instances) {
 
-			tmpDistribution = new DistributionDB(((Number) (instance.get("_id"))).intValue());
+			if (!isDataset)
+				tmpDistribution = new DistributionDB(((Number) (instance.get("_id"))).intValue());
+			else
+				tmpDistribution = new DatasetDB(((Number) (instance.get("_id"))).intValue());
+
 			values = new BasicDBObject((BasicDBObject) instance.get("value"));
 
 			result.append(tmpDistribution.getTitle());
-			result.append("\t" + values.get("totalDistributionsOutdegree"));
+			result.append("\t" + values.get("totalOutdegree"));
 			result.append("\t" + values.getString("links"));
 
 			result.append("\n");

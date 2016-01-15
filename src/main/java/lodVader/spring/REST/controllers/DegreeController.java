@@ -13,11 +13,11 @@ public class DegreeController {
 
 	
 	/**
-	 * Valid Links
+	 * Valid distribution Links
 	 */
 	
 	
-	@RequestMapping(value = "/linkset/valid/indegree", produces=MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/linkset/valid/distributions/indegree", produces=MediaType.APPLICATION_JSON_VALUE)
 	public String indegree(@RequestParam(value = "n", required = false, defaultValue="0") int n) {
 		
 		
@@ -26,25 +26,24 @@ public class DegreeController {
 		model.mapIndegreeWithVocabs = "function() { "
 				+ "if ( this.links > 0 && this.distributionSourceIsVocabulary == true )"
 				+ "emit(this.distributionTarget, {'distribution': this.distributionTarget, "
-				+ "'totalDistributionsIndegree': 1," + "'links': this.links});" + "};";
+				+ "'totalIndegree': 1," + "'links': this.links});" + "};";
 
 		model.mapIndegreeNoVocabs = "function() { "
 				+ "if ( this.links > 0 && this.distributionSourceIsVocabulary == false )"
 				+ "emit(this.distributionTarget, {'distribution': this.distributionTarget, "
-				+ "'totalDistributionsIndegree': 1," + "'links': this.links});" + "};";
+				+ "'totalIndegree': 1," + "'links': this.links});" + "};";
 
 		model.reduceInDegree = "function(key, values) {" + "var linksSum = 0;" + "var distributionSum = 0;"
 				+ "values.forEach(function(linkset) {" + "linksSum += linkset.links;" + "distributionSum += 1;" + "});"
-				+ "return {'distribution': key, 'totalDistributionsIndegree':distributionSum,'links':linksSum};" + "};";
+				+ "return {'distribution': key, 'totalIndegree':distributionSum,'links':linksSum};" + "};";
 		
 		
 		model.mapReduceInDegree(n);
 		
 		return model.result.toString();
-		
 	}
 	
-	@RequestMapping(value = "/linkset/valid/outdegree", produces=MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/linkset/valid/distributions/outdegree", produces=MediaType.APPLICATION_JSON_VALUE)
 	public String outdegree(@RequestParam(value = "n", required = false, defaultValue="0") int n) {
 		
 		OutdegreeModel model = new OutdegreeModel();
@@ -52,45 +51,102 @@ public class DegreeController {
 		
 		model.mapOutdegreeWithVocabs = "function() { " + "if ( this.links > 0 && this.distributionTargetIsVocabulary == true )"
 				+ "emit(this.distributionSource, {'distribution': this.distributionSource, "
-				+ "'totalDistributionsOutdegree': 1," + "'links': this.links});" + "};";
+				+ "'totalOutdegree': 1," + "'links': this.links});" + "};";
 		
 		model.mapOutdegreeNoVocabs = "function() { " + "if ( this.links > 0 && this.distributionTargetIsVocabulary == false )"
 				+ "emit(this.distributionSource, {'distribution': this.distributionSource, "
-				+ "'totalDistributionsOutdegree': 1," + "'links': this.links});" + "};";
+				+ "'totalOutdegree': 1," + "'links': this.links});" + "};";
 
 		model.reduceOutDegree = "function(key, values) {" + "var linksSum = 0;" + "var distributionSum = 0;"
 				+ "values.forEach(function(linkset) {" + "linksSum += linkset.links;" + "distributionSum += 1;" + "});"
-				+ "return {'distribution': key, 'totalDistributionsOutdegree':distributionSum,'links':linksSum};" + "};";
+				+ "return {'distribution': key, 'totalOutdegree':distributionSum,'links':linksSum};" + "};";
 		
 		model.mapReduceOutDegree(n);
 		return model.result.toString();
 	}
 
 	
+	/**
+	 * Valid dataset Links
+	 */
+		
+	@RequestMapping(value = "/linkset/valid/datasets/indegree", produces=MediaType.APPLICATION_JSON_VALUE)
+	public String indegreeDataset(@RequestParam(value = "n", required = false, defaultValue="0") int n) {
+		
+		
+		IndegreeModel model = new IndegreeModel();
+		model.isDataset = true;
+		
+		model.mapIndegreeWithVocabs = "function() { "
+				+ "if ( this.links > 0 && this.distributionSourceIsVocabulary == true )"
+				+ "emit(this.datasetTarget, {'distribution': this.datasetTarget, "
+				+ "'totalIndegree': 1," + "'links': this.links});" + "};";
+
+		model.mapIndegreeNoVocabs = "function() { "
+				+ "if ( this.links > 0 && this.distributionSourceIsVocabulary == false )"
+				+ "emit(this.datasetTarget, {'distribution': this.datasetTarget, "
+				+ "'totalIndegree': 1," + "'links': this.links});" + "};";
+
+		model.reduceInDegree = "function(key, values) {" + "var linksSum = 0;" + "var datasetSum = 0;"
+				+ "values.forEach(function(linkset) {" + "linksSum += linkset.links;" + "datasetSum += 1;" + "});"
+				+ "return {'distribution': key, 'totalIndegree':datasetSum,'links':linksSum};" + "};";
+		
+		
+		model.mapReduceInDegree(n);
+		
+		return model.result.toString();
+	}
+	
+	@RequestMapping(value = "/linkset/valid/datasets/outdegree", produces=MediaType.APPLICATION_JSON_VALUE)
+	public String outdegreeDatasets(@RequestParam(value = "n", required = false, defaultValue="0") int n) {
+		
+		OutdegreeModel model = new OutdegreeModel();
+		model.isDataset = true;
+
+		
+		model.mapOutdegreeWithVocabs = "function() { " + "if ( this.links > 0 && this.distributionTargetIsVocabulary == true )"
+				+ "emit(this.datasetSource, {'distribution': this.datasetSource, "
+				+ "'totalOutdegree': 1," + "'links': this.links});" + "};";
+		
+		model.mapOutdegreeNoVocabs = "function() { " + "if ( this.links > 0 && this.distributionTargetIsVocabulary == false )"
+				+ "emit(this.datasetSource, {'distribution': this.datasetSource, "
+				+ "'totalOutdegree': 1," + "'links': this.links});" + "};";
+
+		model.reduceOutDegree = "function(key, values) {" + "var linksSum = 0;" + "var datasetSum = 0;"
+				+ "values.forEach(function(linkset) {" + "linksSum += linkset.links;" + "datasetSum += 1;" + "});"
+				+ "return {'distribution': key, 'totalOutdegree':datasetSum,'links':linksSum};" + "};";
+		
+		model.mapReduceOutDegree(n);
+		return model.result.toString();
+	}
+	
+	
 	
 	/**
-	 * Dead links
+	 * Dead datasetslinks
 	 */
 	
-	@RequestMapping(value = "/linkset/dead/indegree", produces=MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/linkset/dead/datasets/indegree", produces=MediaType.APPLICATION_JSON_VALUE)
 	public String deadIndegree(@RequestParam(value = "n", required = false, defaultValue="0") int n) {
 		
 		
 		IndegreeModel model = new IndegreeModel();
+		model.isDataset = true;
+
 		
 		model.mapIndegreeWithVocabs = "function() { "
 				+ "if ( this.invalidlinks > 0 && this.distributionSourceIsVocabulary == true )"
 				+ "emit(this.datasetTarget, {'dataset': this.datasetTarget, "
-				+ "'totalDatasetIndegree': 1," + "'invalidlinks': this.invalidlinks});" + "};";
+				+ "'totalIndegree': 1," + "'invalidlinks': this.invalidlinks});" + "};";
 
 		model.mapIndegreeNoVocabs = "function() { "
 				+ "if ( this.invalidlinks > 0 && this.distributionSourceIsVocabulary == false )"
 				+ "emit(this.datasetTarget, {'dataset': this.datasetTarget, "
-				+ "'totalDatasetIndegree': 1," + "'invalidlinks': this.invalidlinks});" + "};";
+				+ "'totalIndegree': 1," + "'invalidlinks': this.invalidlinks});" + "};";
 
 		model.reduceInDegree = "function(key, values) {" + "var linksSum = 0;" + "var datasetSum = 0;"
 				+ "values.forEach(function(linkset) {" + "linksSum += linkset.invalidlinks;" + "datasetSum += 1;" + "});"
-				+ "return {'dataset': key, 'totalDatasetsIndegree':datasetSum,'links':linksSum};" + "};";
+				+ "return {'dataset': key, 'totalIndegree':datasetSum,'links':linksSum};" + "};";
 		
 		
 		model.mapReduceInDegree(n);
@@ -99,23 +155,24 @@ public class DegreeController {
 		
 	}
 	
-	@RequestMapping(value = "/linkset/dead/outdegree", produces=MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/linkset/dead/datasets/outdegree", produces=MediaType.APPLICATION_JSON_VALUE)
 	public String deadoutdegree(@RequestParam(value = "n", required = false, defaultValue="0") int n) {
 		
 		OutdegreeModel model = new OutdegreeModel();
-		
+		model.isDataset = true;
+
 		
 		model.mapOutdegreeWithVocabs = "function() { " + "if ( this.invalidlinks > 0 && this.distributionTargetIsVocabulary == true )"
 				+ "emit(this.datasetSource, {'distribution': this.datasetSource, "
-				+ "'totalDatasetOutdegree': 1," + "'invalidlinks': this.invalidlinks});" + "};";
+				+ "'totalOutdegree': 1," + "'invalidlinks': this.invalidlinks});" + "};";
 		
 		model.mapOutdegreeNoVocabs = "function() { " + "if ( this.links > 0 && this.distributionTargetIsVocabulary == false )"
 				+ "emit(this.datasetSource, {'distribution': this.datasetSource, "
-				+ "'totalDatasetOutdegree': 1," + "'invalidlinks': this.invalidlinks});" + "};";
+				+ "'totalOutdegree': 1," + "'invalidlinks': this.invalidlinks});" + "};";
 
 		model.reduceOutDegree = "function(key, values) {" + "var linksSum = 0;" + "var datasetSum = 0;"
 				+ "values.forEach(function(linkset) {" + "linksSum += linkset.invalidlinks;" + "datasetSum += 1;" + "});"
-				+ "return {'datasetS': key, 'totalDatasetsOutdegree':datasetSum,'links':linksSum};" + "};";
+				+ "return {'datasetS': key, 'totalOutdegree':datasetSum,'links':linksSum};" + "};";
 		
 		model.mapReduceOutDegree(n);
 		return model.result.toString();
