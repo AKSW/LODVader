@@ -46,7 +46,7 @@ public class DBSuperClass2 {
 	protected DBCollection collection;
 
 	// mongodb object the will persist with this class
-	protected DBObject mongoDBObject = new BasicDBObject();
+	public DBObject mongoDBObject = new BasicDBObject();
 
 	// list of mandatory fields to check before store the object
 	protected ArrayList<String> mandatoryFields = new ArrayList<String>();
@@ -224,7 +224,7 @@ public class DBSuperClass2 {
 			DBCursor cursor = getCollection().find(new BasicDBObject(key, value));
 
 			if (cursor.size() > 0) {
-				mongoDBObject = cursor.next();
+//				mongoDBObject = cursor.next();
 				getCollection().update(new BasicDBObject(key, value), mongoDBObject);
 			} else {
 				if (create) {
