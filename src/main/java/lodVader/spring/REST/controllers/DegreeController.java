@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.mongodb.BasicDBObject;
 
@@ -11,6 +12,7 @@ import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.LinksetDB;
 import lodVader.mongodb.queries.LinksetQueries;
 
+@RestController
 public class DegreeController {
 
 	
