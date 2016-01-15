@@ -23,19 +23,11 @@ public class IndegreeModel {
 	 * MapReduce functions for indegree linksets
 	 */
 
-	public String mapIndegreeWithVocabs = "function() { "
-			+ "if ( this.links > 0 && this.distributionSourceIsVocabulary == true )"
-			+ "emit(this.distributionTarget, {'distribution': this.distributionTarget, "
-			+ "'totalDistributionsIndegree': 1," + "'links': this.links});" + "};";
+	public String mapIndegreeWithVocabs;
 
-	public String mapIndegreeNoVocabs = "function() { "
-			+ "if ( this.links > 0 && this.distributionSourceIsVocabulary == false )"
-			+ "emit(this.distributionTarget, {'distribution': this.distributionTarget, "
-			+ "'totalDistributionsIndegree': 1," + "'links': this.links});" + "};";
+	public String mapIndegreeNoVocabs;
 
-	public String reduceInDegree = "function(key, values) {" + "var linksSum = 0;" + "var distributionSum = 0;"
-			+ "values.forEach(function(linkset) {" + "linksSum += linkset.links;" + "distributionSum += 1;" + "});"
-			+ "return {'distribution': key, 'totalDistributionsIndegree':distributionSum,'links':linksSum};" + "};";
+	public String reduceInDegree ;
 
 	public void mapReduceInDegree(int n) {
 		/**

@@ -23,17 +23,11 @@ public class OutdegreeModel {
 	 * MapReduce functions for outdegree linksets
 	 */
 
-	public  String mapOutdegreeWithVocabs = "function() { " + "if ( this.links > 0 && this.distributionTargetIsVocabulary == true )"
-			+ "emit(this.distributionSource, {'distribution': this.distributionSource, "
-			+ "'totalDistributionsOutdegree': 1," + "'links': this.links});" + "};";
+	public  String mapOutdegreeWithVocabs;
 	
-	public String mapOutdegreeNoVocabs = "function() { " + "if ( this.links > 0 && this.distributionTargetIsVocabulary == false )"
-			+ "emit(this.distributionSource, {'distribution': this.distributionSource, "
-			+ "'totalDistributionsOutdegree': 1," + "'links': this.links});" + "};";
+	public String mapOutdegreeNoVocabs;
 
-	public String reduceOutDegree = "function(key, values) {" + "var linksSum = 0;" + "var distributionSum = 0;"
-			+ "values.forEach(function(linkset) {" + "linksSum += linkset.links;" + "distributionSum += 1;" + "});"
-			+ "return {'distribution': key, 'totalDistributionsOutdegree':distributionSum,'links':linksSum};" + "};";
+	public String reduceOutDegree;
 	
 	
 	
