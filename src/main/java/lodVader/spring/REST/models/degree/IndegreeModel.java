@@ -11,106 +11,94 @@ import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.LinksetDB;
 import lodVader.mongodb.collections.TmpMapReduce;
 
-public class OutdegreeModel {
+public class IndegreeModel {
 
 	public StringBuilder result = new StringBuilder();
-	
+
 	/**
-	 * MapReduce functions for outdegree linksets
+	 * MapReduce functions for indegree linksets
 	 */
 
-	public  String mapOutdegreeWithVocabs = "function() { " + "if ( this.links > 0 && this.distributionTargetIsVocabulary == true )"
-			+ "emit(this.distributionSource, {'distribution': this.distributionSource, "
-			+ "'totalDistributionsOutdegree': 1," + "'links': this.links});" + "};";
-	
-	public String mapOutdegreeNoVocabs = "function() { " + "if ( this.links > 0 && this.distributionTargetIsVocabulary == false )"
-			+ "emit(this.distributionSource, {'distribution': this.distributionSource, "
-			+ "'totalDistributionsOutdegree': 1," + "'links': this.links});" + "};";
+	public String mapIndegreeWithVocabs = "function() { "
+			+ "if ( this.links > 0 && this.distributionSourceIsVocabulary == true )"
+			+ "emit(this.distributionTarget, {'distribution': this.distributionTarget, "
+			+ "'totalDistributionsIndegree': 1," + "'links': this.links});" + "};";
 
-	public String reduceOutDegree = "function(key, values) {" + "var linksSum = 0;" + "var distributionSum = 0;"
+	public String mapIndegreeNoVocabs = "function() { "
+			+ "if ( this.links > 0 && this.distributionSourceIsVocabulary == false )"
+			+ "emit(this.distributionTarget, {'distribution': this.distributionTarget, "
+			+ "'totalDistributionsIndegree': 1," + "'links': this.links});" + "};";
+
+	public String reduceInDegree = "function(key, values) {" + "var linksSum = 0;" + "var distributionSum = 0;"
 			+ "values.forEach(function(linkset) {" + "linksSum += linkset.links;" + "distributionSum += 1;" + "});"
-			+ "return {'distribution': key, 'totalDistributionsOutdegree':distributionSum,'links':linksSum};" + "};";
-	
-	
-	
+			+ "return {'distribution': key, 'totalDistributionsIndegree':distributionSum,'links':linksSum};" + "};";
 
-	public void mapReduceOutDegree(int n) {
-
-		
+	public void mapReduceInDegree(int n) {
 		/**
-		 * MapReduce to find outdegree with vocabularies
+		 * MapReduce to find indegree with vocabularies
 		 */
-		
+
 		MapReduceCommand cmd = new MapReduceCommand(DBSuperClass2.getCollection(LinksetDB.COLLECTION_NAME),
-				mapOutdegreeWithVocabs, reduceOutDegree,	TmpMapReduce.COLLECTION_NAME, MapReduceCommand.OutputType.REPLACE, null);
+				mapIndegreeWithVocabs, reduceInDegree, TmpMapReduce.COLLECTION_NAME,
+				MapReduceCommand.OutputType.REPLACE, null);
 
 		DBSuperClass2.getCollection(LinksetDB.COLLECTION_NAME).mapReduce(cmd);
 
 		DBCollection collection = DBSuperClass2.getDBInstance().getCollection(TmpMapReduce.COLLECTION_NAME);
-
-		DBCursor instances;
-
-		instances = collection.find().sort(new BasicDBObject("value.links", -1)).limit(n);
-		
+		DBCursor instances = collection.find().sort(new BasicDBObject("value.links", -1)).limit(n);
 		result.append("\n\n\n\n===============================================================\n");
 		result.append("Comparing with vocabularies\n");
 		result.append("===============================================================\n\n");
-
+		
+		
 		result.append("=====================================================\n");
-		result.append("Top " + n + " by number of outdegree links \n");
+		result.append("Top " + n + " by number of indegree links\n");
 		result.append("=====================================================\n\n");
 
-		printTableOutdegree(instances);
+		printTableIndegree(instances);
 
 		instances = collection.find().sort(new BasicDBObject("value.totalDistributionsOutdegree", -1)).limit(n);
 
 		result.append("=====================================================\n");
-		result.append("Top " + n + " by number of outdegree distributions\n");
+		result.append("Top " + n + " by number of indegree distributions/datasets\n");
 		result.append("=====================================================\n\n");
 
-		printTableOutdegree(instances);
-		
-		
+		printTableIndegree(instances);
+
 		/**
-		 * MapReduce to find outdegree with distributions (not vocabularies)
+		 * MapReduce to find indegree with distributions (not vocabularies)
 		 */
-		
-		cmd = new MapReduceCommand(DBSuperClass2.getCollection(LinksetDB.COLLECTION_NAME),
-				mapOutdegreeNoVocabs, reduceOutDegree,	TmpMapReduce.COLLECTION_NAME, MapReduceCommand.OutputType.REPLACE, null);
+
+		cmd = new MapReduceCommand(DBSuperClass2.getCollection(LinksetDB.COLLECTION_NAME), mapIndegreeNoVocabs,
+				reduceInDegree, TmpMapReduce.COLLECTION_NAME, MapReduceCommand.OutputType.REPLACE, null);
 
 		DBSuperClass2.getCollection(LinksetDB.COLLECTION_NAME).mapReduce(cmd);
 
 		collection = DBSuperClass2.getDBInstance().getCollection(TmpMapReduce.COLLECTION_NAME);
-
 		instances = collection.find().sort(new BasicDBObject("value.links", -1)).limit(n);
-
-		result.append("\n\n\n\n===============================================================\n");
-		result.append("Comparing with distributions/datasets\n");
-		result.append("===============================================================\n\n");
 		
+		result.append("\n\n\n\n===============================================================\n");
+		result.append("Comparing with datasets/distributions\n");
+		result.append("===============================================================\n\n");
+
 		result.append("=====================================================\n");
-		result.append("Top " + n + " by number of outdegree links  \n");
+		result.append("Top " + n + " by number of indegree links \n");
 		result.append("=====================================================\n\n");
 
-		printTableOutdegree(instances);
+		printTableIndegree(instances);
 
 		instances = collection.find().sort(new BasicDBObject("value.totalDistributionsOutdegree", -1)).limit(n);
 
 		result.append("=====================================================\n");
-		result.append("Top " + n + " by number of outdegree distributions\n");
+		result.append("Top " + n + " by number of indegree distributions\n");
 		result.append("=====================================================\n\n");
 
-		printTableOutdegree(instances);
-		
-		
+		printTableIndegree(instances);
 
-
-		
-//		System.out.println(result.toString());
 	}
 
-	private void printTableOutdegree(DBCursor instances) {
-		result.append("Name\t Outdegree \t Links \n");
+	private void printTableIndegree(DBCursor instances) {
+		result.append("Name\t Indegree \t Links\n");
 
 		BasicDBObject values = null;
 		DistributionDB tmpDistribution;
@@ -121,7 +109,7 @@ public class OutdegreeModel {
 			values = new BasicDBObject((BasicDBObject) instance.get("value"));
 
 			result.append(tmpDistribution.getTitle());
-			result.append("\t" + values.get("totalDistributionsOutdegree"));
+			result.append("\t" + values.get("totalDistributionsIndegree"));
 			result.append("\t" + values.getString("links"));
 
 			result.append("\n");
@@ -129,5 +117,5 @@ public class OutdegreeModel {
 
 		result.append("\n\n\n");
 	}
-	
+
 }
