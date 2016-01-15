@@ -2,10 +2,13 @@ package lodVader.mongodb;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
+import com.mongodb.BulkWriteOperation;
+import com.mongodb.BulkWriteResult;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
@@ -22,7 +25,7 @@ import lodVader.exceptions.mongodb.LODVaderObjectAlreadyExistsException;
 public class DBSuperClass2 {
 
 	// defining mongodb connection
-	private static MongoClient mongo = null;
+	protected static MongoClient mongo = null;
 
 	// defining mongodb database
 	private static DB db;
@@ -43,7 +46,7 @@ public class DBSuperClass2 {
 	protected DBCollection collection;
 
 	// mongodb object the will persist with this class
-	protected DBObject mongoDBObject = new BasicDBObject();
+	public DBObject mongoDBObject = new BasicDBObject();
 
 	// list of mandatory fields to check before store the object
 	protected ArrayList<String> mandatoryFields = new ArrayList<String>();
@@ -85,10 +88,10 @@ public class DBSuperClass2 {
 
 	// get a value given a key
 	protected Object getField(String key) {
-//		if (mongoDBObject.get(key) != null)
-			return mongoDBObject.get(key);
-//		else
-//			return new Object();
+		// if (mongoDBObject.get(key) != null)
+		return mongoDBObject.get(key);
+		// else
+		// return new Object();
 	}
 
 	// get a value given a key
@@ -186,7 +189,7 @@ public class DBSuperClass2 {
 		} else
 			return false;
 	}
-	
+
 	/**
 	 * Query a object based on the a key
 	 * 
@@ -205,6 +208,35 @@ public class DBSuperClass2 {
 			return true;
 		} else
 			return false;
+	}
+
+	/**
+	 * Update a object based on the a key
+	 * 
+	 * @param create
+	 *            create object case not found.
+	 * @return true case the object is found.
+	 */
+	public void update(Boolean create, String key, Object value) {
+
+		try {
+			checkMandatoryFields();
+			DBCursor cursor = getCollection().find(new BasicDBObject(key, value));
+
+			if (cursor.size() > 0) {
+//				mongoDBObject = cursor.next();
+				getCollection().update(new BasicDBObject(key, value), mongoDBObject);
+			} else {
+				if (create) {
+					getCollection().insert(mongoDBObject);
+				}
+			}
+
+		} catch (LODVaderMissingPropertiesException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 
 	/**
@@ -292,6 +324,21 @@ public class DBSuperClass2 {
 			return true;
 		}
 		return false;
+	}
+	
+	/**
+	 * MongoDB bulk save 
+	 * @return
+	 */
+	
+	protected boolean bulkSave2(List<DBObject> objects){
+        BulkWriteOperation builder = getCollection().initializeUnorderedBulkOperation();
+        for(DBObject doc :objects)
+        {
+            builder.insert(doc);
+        }
+        BulkWriteResult result = builder.execute();
+        return result.isAcknowledged();
 	}
 
 	@JsonIgnore

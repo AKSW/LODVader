@@ -22,6 +22,10 @@ public class LinksetDB extends DBSuperClass2 {
 
 	public static final String DISTRIBUTION_SOURCE = "distributionSource";
 
+	public static final String DISTRIBUTION_TARGET_IS_VOCABULARY = "distributionTargetIsVocabulary";
+
+	public static final String DISTRIBUTION_SOURCE_IS_VOCABULARY = "distributionSourceIsVocabulary";
+
 	public static final String DATASET_TARGET = "datasetTarget";
 
 	public static final String DATASET_SOURCE = "datasetSource";
@@ -124,6 +128,22 @@ public class LinksetDB extends DBSuperClass2 {
 
 	public void setLinks(int links) {
 		addField(LINK_NUMBER_LINKS, links);
+	}
+	
+	public void setDistributionTargetIsVocabulary(Boolean isVocabulary) {
+		addField(DISTRIBUTION_TARGET_IS_VOCABULARY, isVocabulary);
+	}
+	
+	public void setDistributionSourceIsVocabulary(Boolean isVocabulary) {
+		addField(DISTRIBUTION_SOURCE_IS_VOCABULARY, isVocabulary);
+	}
+	
+	public Boolean getDistributionTargetIsVocabulary() {
+		return (Boolean) getField(DISTRIBUTION_TARGET_IS_VOCABULARY);
+	}
+	
+	public Boolean getDistributionSourceIsVocabulary() {
+		return (Boolean) getField(DISTRIBUTION_SOURCE_IS_VOCABULARY);
 	}
 
 	public int getInvalidLinks() {

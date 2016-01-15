@@ -42,7 +42,7 @@ public class NSUtils {
 	
 	@Test
 	public void oi(){
-		System.out.println(getNSFromString("http://www.ciro.com/1/2/3/4/5", 2));
+		System.out.println(getNSFromString("http://www.ciro.com////", 1));
 	}
 	
 	public String getNSFromString(String url, int nsLevel) {

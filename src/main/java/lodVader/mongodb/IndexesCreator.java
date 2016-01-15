@@ -31,6 +31,7 @@ public class IndexesCreator {
 		// indexes for datasets
 		addIndex(DatasetDB.COLLECTION_NAME, DatasetDB.PARENT_DATASETS, 1);
 		addIndex(DatasetDB.COLLECTION_NAME, DatasetDB.TITLE, 1);
+		addIndex(DatasetDB.COLLECTION_NAME, DatasetDB.URI, 1);
 		addIndex(DatasetDB.COLLECTION_NAME, DatasetDB.LOD_VADER_ID, 1);
 		addIndex(DatasetDB.COLLECTION_NAME, DatasetDB.SUBSET_IDS, 1);
 		addIndex(DatasetDB.COLLECTION_NAME, DatasetDB.PARENT_DATASETS, 1);
@@ -39,6 +40,8 @@ public class IndexesCreator {
 		addIndex(DistributionDB.COLLECTION_NAME, DistributionDB.DEFAULT_DATASETS, 1);
 		addIndex(DistributionDB.COLLECTION_NAME, DistributionDB.DOWNLOAD_URL, 1);
 		addIndex(DistributionDB.COLLECTION_NAME, DistributionDB.IS_VOCABULARY, 1);
+		addIndex(DistributionDB.COLLECTION_NAME, DistributionDB.STATUS, 1);
+		addIndex(DistributionDB.COLLECTION_NAME, DistributionDB.URI, 1);
 		addIndex(DistributionDB.COLLECTION_NAME, DistributionDB.LOD_VADER_ID, 1);
 		addIndex(DistributionDB.COLLECTION_NAME, DistributionDB.DEFAULT_DATASETS, 1);
 		

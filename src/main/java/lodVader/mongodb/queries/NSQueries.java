@@ -53,7 +53,7 @@ public class NSQueries {
 				result.add(new DistributionSubjectNSDB(cursor.next()));
 			}
 
-		} catch (Exception e) {
+		} catch (Exception e) { 
 			e.printStackTrace();
 		}
 		return result;

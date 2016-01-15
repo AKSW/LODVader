@@ -14,30 +14,29 @@ import lodVader.parsers.descriptionfileparser.CLODFileParser;
 import lodVader.parsers.descriptionfileparser.DataIDVoIDFileParser;
 import lodVader.spring.REST.models.RESTMsg;
 
-public class AddDatasetModel extends RESTMsg implements Runnable {
+public class AddDatasetCLODModel extends RESTMsg implements Runnable {
 
-	private String datasetURI;
-
-	private String format;
+//	private String datasetURI = "http://localhost/dbpedia/urls";
+	private String datasetURI = "http://cirola2000.cloudapp.net/files/urls";
+	private String format = "nt";
 
 	private String apiCall;
 
 	private Boolean error = false;
 
-	public AddDatasetModel(String datasetURI, String format) {
-		this.datasetURI = datasetURI;
-		this.format = format;
+	
+	public AddDatasetCLODModel() {
+		// TODO Auto-generated constructor stub
 	}
+	
+	public void addDatasetsCLOD() {
 
-	public void addDatasets() {
-
-		DataIDVoIDFileParser inputRDFParser = new DataIDVoIDFileParser();
+		CLODFileParser inputRDFParser = new CLODFileParser();
 		try {
 			setCoreMsgSuccess();
 
 			// read and parse description file
 			inputRDFParser.readModel(datasetURI, format);
-			inputRDFParser.parseDistributions();
 
 			if (inputRDFParser.distributionsLinks.size() > 0) {
 				setParserMsg(
@@ -58,16 +57,7 @@ public class AddDatasetModel extends RESTMsg implements Runnable {
 			setParserMsg("Bad file format.");
 			error = true;
 			e.printStackTrace();
-		} catch (LODVaderFormatNotAcceptedException e) {
-			setParserMsg(e.getMessage());
-			error = true;
-			e.printStackTrace();
-		} catch (LODVaderLODGeneralException e) {
-			setParserMsg(e.getMessage());
-			error = true;
-			e.printStackTrace();
-
-		} catch (FileNotFoundException e) {
+		}  catch (FileNotFoundException e) {
 			setParserMsg("Impossible to reach the file: " + e.getMessage());
 			error = true;
 			e.printStackTrace();
@@ -83,9 +73,9 @@ public class AddDatasetModel extends RESTMsg implements Runnable {
 		}
 
 	}
-	
+
 	public void run() {
-		addDatasets();
+		addDatasetsCLOD();
 	}
 
 	public String getDatasetURI() {

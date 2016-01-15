@@ -36,15 +36,15 @@ public class NSStatisticModel {
 			ArrayList<DistributionSubjectNSDB> nsList = new NSQueries()
 					.getSubjectNSByDistribution(distribution.getLODVaderID());
 
-			HashMap<String, Double> tmp = new HashMap<String, Double>();
 
 			double total = 0.0;
 			NSUtils nsUtils = new NSUtils();
 
+			HashMap<String, Double> tmp = new HashMap<String, Double>();
 			// if nsLevel is set
 			if (nsLevel != null) {
 				for (DistributionSubjectNSDB ns : nsList) {
-					Double amount = tmp.get(nsUtils.getNSFromString(ns.getNS(), nsLevel));
+					Double amount = tmp.get(nsUtils.getNSFromString(ns.getNS(), nsLevel)); 
 					if (amount == null) {
 						tmp.put(nsUtils.getNSFromString(ns.getNS(), nsLevel), (double) ns.getNumberOfResources());
 					} else {
@@ -64,7 +64,7 @@ public class NSStatisticModel {
 				}
 			}
 
-			str.append("\nTotal number os NS: " + formatter2.format(total));
+			str.append("\nTotal number of NS: " + formatter2.format(total));
 			str.append("\n ================================================ ");
 
 			for (String s : tmp.keySet()) {

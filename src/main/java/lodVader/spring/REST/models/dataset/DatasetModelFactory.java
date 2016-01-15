@@ -8,7 +8,7 @@ public class DatasetModelFactory {
 	final static Logger logger = LoggerFactory.getLogger(DatasetModelFactory.class);
 
 	public static AddDatasetModel createDataset(String datasetURI, String format) {
-				
+		
 		if (!DatasetThreadTasks.tasks.containsKey(datasetURI)) {
 			AddDatasetModel instace = new AddDatasetModel(datasetURI, format);
 			Thread thread = new Thread(instace);
@@ -19,5 +19,13 @@ public class DatasetModelFactory {
 			 
 		} else
 			return (AddDatasetModel) DatasetThreadTasks.tasks.get(datasetURI);
+	}
+	
+	public static void createDatasetCLOD() {
+		
+			AddDatasetCLODModel instace = new AddDatasetCLODModel();
+			Thread thread = new Thread(instace);
+			instace.setCoreMsg("API successfully initialized.");
+			thread.start();				
 	}
 }

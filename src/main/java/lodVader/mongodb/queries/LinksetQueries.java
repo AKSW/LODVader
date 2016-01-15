@@ -100,13 +100,13 @@ public class LinksetQueries {
 		return null;
 	}
 
-	public ArrayList<LinksetDB> getLinksetsInDegreeByDistribution(int id, String linkType, double min, double max) {
+	public ArrayList<LinksetDB> getLinksetsInDegreeByDistribution(int distributionID, String linkType, double min, double max) {
 
 		ArrayList<LinksetDB> list = new ArrayList<LinksetDB>();
 		try {
 			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(LinksetDB.COLLECTION_NAME);
 
-			DBObject clause1 = new BasicDBObject(LinksetDB.DISTRIBUTION_TARGET, id);
+			DBObject clause1 = new BasicDBObject(LinksetDB.DISTRIBUTION_TARGET, distributionID);
 			BasicDBList and = new BasicDBList();
 			and.add(clause1);
 			DBObject clause2;
@@ -188,13 +188,13 @@ public class LinksetQueries {
 		}
 	}
 
-	public ArrayList<LinksetDB> getLinksetsOutDegreeByDistribution(int id, String linkType, double min, double max) {
+	public ArrayList<LinksetDB> getLinksetsOutDegreeByDistribution(int distributionID, String linkType, double min, double max) {
 		ArrayList<LinksetDB> list = new ArrayList<LinksetDB>();
 		try {
 
 			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(LinksetDB.COLLECTION_NAME);
 
-			DBObject clause1 = new BasicDBObject(LinksetDB.DISTRIBUTION_SOURCE, id);
+			DBObject clause1 = new BasicDBObject(LinksetDB.DISTRIBUTION_SOURCE, distributionID);
 
 			BasicDBList and = new BasicDBList();
 			and.add(clause1);

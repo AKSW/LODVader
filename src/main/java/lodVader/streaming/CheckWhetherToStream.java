@@ -28,6 +28,7 @@ public class CheckWhetherToStream {
 
 		logger.debug("Loading connection to: " + url.toString());
 		HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
+		httpConn.setConnectTimeout(5000);
 		int responseCode = httpConn.getResponseCode();
 
 		int httpContentLength = httpConn.getContentLength();

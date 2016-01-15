@@ -41,9 +41,9 @@ import lodVader.utils.Formats;
  * @author ciro
  * parser for DataID, VoID and DCAT files
  */
-public class DescriptionFileParser {
+public class DataIDVoIDFileParser implements FileParserInterface {
 
-	final static Logger logger = LoggerFactory.getLogger(DescriptionFileParser.class);
+	final static Logger logger = LoggerFactory.getLogger(DataIDVoIDFileParser.class);
 
 	private Model inModel = ModelFactory.createDefaultModel();
 	public List<DistributionDB> distributionsLinks = new ArrayList<DistributionDB>();

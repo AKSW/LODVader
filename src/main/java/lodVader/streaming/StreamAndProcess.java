@@ -285,43 +285,29 @@ public class StreamAndProcess extends SuperStream {
 
 		// create BFs
 		logger.info("Creating subjects BF");
-		logger.debug("Reading resources from file system...");
-//		SubjectsBucket subjectBucket = new SubjectsBucket(
-//				getUniqueItemsFromFile(LODVaderProperties.SUBJECT_FILE_DISTRIBUTION_PATH + hashFileName),
-//				distribution.getLODVaderID());
+		logger.info("Reading resources from file system...");
 
 		SubjectsBucket subjectBucket = new SubjectsBucket(
 				new File(LODVaderProperties.SUBJECT_FILE_DISTRIBUTION_PATH + hashFileName),
 				distribution.getLODVaderID());
 		
-		logger.debug("Creating bucket.");
-		subjectBucket.makeBucket();
+		logger.info("Creating subjects bucket.");
+		subjectBucket.start();
 
-		logger.debug("Creating objects BF");
-		logger.debug("Reading resources from file system...");
+		logger.info("Creating objects BF");
+		logger.info("Reading resources from file system...");
 		ObjectsBucket objectBucket = new ObjectsBucket(
 				new File(LODVaderProperties.OBJECT_FILE_DISTRIBUTION_PATH + hashFileName),
 				distribution.getLODVaderID());
-		logger.debug("Creating bucket.");
-		objectBucket.makeBucket();
+		logger.info("Creating objects bucket.");
+		objectBucket.start();
+		
+		subjectBucket.join();		
+		objectBucket.join();
+		
+		logger.info("Done creating buckets.");
+
+		
 
 	}
-
-//	public TreeSet<String> getUniqueItemsFromFile1(String fileName) {
-//		BufferedReader br;
-//		String sCurrentLine;
-//		TreeSet<String> items = new TreeSet<String>();
-//		try {
-//			br = new BufferedReader(new FileReader(fileName));
-//
-//			while ((sCurrentLine = br.readLine()) != null) {
-//				items.add(sCurrentLine);
-//			}
-//		} catch (Exception e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		return items;
-//	}
-
 }

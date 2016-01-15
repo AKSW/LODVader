@@ -245,14 +245,17 @@ public class LOV extends SuperStream {
 		Timer t = new Timer();
 		t.startTimer();
 		SubjectsBucket s = new SubjectsBucket(new TreeSet<String>(subjects), distribution.getLODVaderID());
-		s.makeBucket();
+		s.start();
 		String timer1 = t.stopTimer();
 
 		Timer t2 = new Timer();
 		t.startTimer();
 		ObjectsBucket o = new ObjectsBucket(new TreeSet<String>(objects), distribution.getLODVaderID());
-		o.makeBucket();
+		o.start();
 		String timer2 = t2.stopTimer();
+		
+		s.join();
+		o.join();
 
 		ArrayList<Integer> parentDataset = new ArrayList<Integer>();
 		parentDataset.add(parentDynID);
