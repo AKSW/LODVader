@@ -51,6 +51,22 @@ public class LinksetQueries {
 		return numberOfTriples;
 	}
 
+	public ArrayList<LinksetDB> getLinksets(BasicDBObject query) {
+
+		ArrayList<LinksetDB> list = new ArrayList<LinksetDB>();
+
+		DBCollection collection = DBSuperClass2.getDBInstance().getCollection(LinksetDB.COLLECTION_NAME);
+
+		DBCursor d = collection.find(query);
+
+		while (d.hasNext()) {
+			list.add(new LinksetDB(d.next()));
+		}
+
+		return list;
+
+	}
+
 	public ArrayList<LinksetDB> getLinksets(int distribution, int topValue, String type) {
 
 		DistributionDB distributionDB = new DistributionDB(distribution);
@@ -100,7 +116,8 @@ public class LinksetQueries {
 		return null;
 	}
 
-	public ArrayList<LinksetDB> getLinksetsInDegreeByDistribution(int distributionID, String linkType, double min, double max) {
+	public ArrayList<LinksetDB> getLinksetsInDegreeByDistribution(int distributionID, String linkType, double min,
+			double max) {
 
 		ArrayList<LinksetDB> list = new ArrayList<LinksetDB>();
 		try {
@@ -188,7 +205,8 @@ public class LinksetQueries {
 		}
 	}
 
-	public ArrayList<LinksetDB> getLinksetsOutDegreeByDistribution(int distributionID, String linkType, double min, double max) {
+	public ArrayList<LinksetDB> getLinksetsOutDegreeByDistribution(int distributionID, String linkType, double min,
+			double max) {
 		ArrayList<LinksetDB> list = new ArrayList<LinksetDB>();
 		try {
 
