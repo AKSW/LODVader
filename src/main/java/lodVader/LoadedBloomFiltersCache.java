@@ -16,11 +16,11 @@ public class LoadedBloomFiltersCache extends Thread{
 	
 	public boolean found;
 	
-	// get all namespaces described in LODVader
+	
 	public static GoogleBloomFilter describedSubjectsNS = null;
 	public static GoogleBloomFilter describedObjectsNS = null;
 	
-	// size of the bloom filters
+	
 	public static int describedSubjectsNSCurrentSize = 0;
 	public static int describedObjectsNSCurrentSize = 0;
 	
