@@ -12,7 +12,7 @@ public class NSController {
 	
 	@RequestMapping(value = "/ns/statistics", method = RequestMethod.GET, produces="text/plain")
 	public String statistics(
-			@RequestParam(value = "datasetID", required = true) int datasetID,
+			@RequestParam(value = "datasetID", required = false, defaultValue="0") Integer datasetID,
 			@RequestParam(value = "nsLevel", required = false) Integer nsLevel
 			) {
 		

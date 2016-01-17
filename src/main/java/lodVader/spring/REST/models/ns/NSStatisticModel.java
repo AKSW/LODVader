@@ -19,7 +19,7 @@ public class NSStatisticModel {
 
 		ArrayList<DistributionDB> distributions;
 
-		if (datasetID != null) {
+		if (datasetID != 0) {
 			distributions = new DistributionQueries().getDistributions(null, null, datasetID);
 		} else {
 			distributions = new DistributionQueries().getDistributions(null, null, null);
