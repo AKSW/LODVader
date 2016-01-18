@@ -8,6 +8,7 @@ import java.util.HashSet;
 
 import org.junit.Test;
 
+import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
@@ -71,10 +72,19 @@ public class IndegreeDatasetModel {
 
 		DBCursor instances;
 
-		if(!isDeadLinks)
-			instances = collection.find(new BasicDBObject(LinksetDB.LINK_NUMBER_LINKS, new BasicDBObject("$gt", 0)));
-		else
-			instances = collection.find(new BasicDBObject(LinksetDB.INVALID_LINKS, new BasicDBObject("$gt", 0)));
+		if(!isDeadLinks){
+			BasicDBList and = new BasicDBList();
+			and.add(new BasicDBObject(LinksetDB.LINK_NUMBER_LINKS, new BasicDBObject("$gt", 0)));
+			and.add(new BasicDBObject(LinksetDB.DATASET_SOURCE, new BasicDBObject("$ne", LinksetDB.DATASET_TARGET)));
+			
+			instances = collection.find( new BasicDBObject("$and", and));
+		}
+		else{
+			BasicDBList and = new BasicDBList();
+			and.add(new BasicDBObject(LinksetDB.INVALID_LINKS, new BasicDBObject("$gt", 0)));
+			and.add(new BasicDBObject(LinksetDB.DATASET_SOURCE, new BasicDBObject("$ne", LinksetDB.DATASET_TARGET)));
+			instances = collection.find( new BasicDBObject("$and", and));
+		}
 
 		for (DBObject object : instances) {
 
