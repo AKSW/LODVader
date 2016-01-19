@@ -45,24 +45,22 @@ public class DegreeController {
 	public String outdegree(@RequestParam(value = "n", required = false, defaultValue = "0") int n) {
 		OutdegreeModel model = new OutdegreeModel();
 
-		model.isDataset = true;
-
 		model.mapOutdegreeWithVocabs = "function() { "
 				+ "if ( this.links > 0 && this.distributionTargetIsVocabulary == true )"
-				+ "emit(this.datasetSource, {'distribution': this.datasetSource, " + "'totalOutdegree': 1,"
+				+ "emit(this.distributionSource, {'distribution': this.distributionSource, " + "'totalOutdegree': 1,"
 				+ "'links': this.links});" + "};";
 
 		model.mapOutdegreeNoVocabs = "function() { "
 				+ "if ( this.links > 0 && this.distributionTargetIsVocabulary == false )"
-				+ "emit(this.datasetSource, {'distribution': this.datasetSource, " + "'totalOutdegree': 1,"
+				+ "emit(this.distributionSource, {'distribution': this.distributionSource, " + "'totalOutdegree': 1,"
 				+ "'links': this.links});" + "};";
 
-		model.reduceOutDegree = "function(key, values) {" + "var linksSum = 0;" + "var datasetSum = 0;"
-				+ "values.forEach(function(linkset) {" + "linksSum += linkset.links;" + "datasetSum += 1;" + "});"
-				+ "return {'distribution': key, 'totalOutdegree':datasetSum,'links':linksSum};" + "};";
+		model.reduceOutDegree = "function(key, values) {" + "var linksSum = 0;" + "var distributionSum = 0;"
+				+ "values.forEach(function(linkset) {" + "linksSum += linkset.links;" + "distributionSum += 1;" + "});"
+				+ "return {'distribution': key, 'totalOutdegree':distributionSum,'links':linksSum};" + "};";
 
 		model.mapReduceOutDegree(n);
-		
+
 		return model.result.toString();
 
 	}
