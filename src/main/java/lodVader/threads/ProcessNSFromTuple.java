@@ -272,7 +272,7 @@ public abstract class ProcessNSFromTuple extends Thread {
 				// check if the link is invalid comparing with the whole
 				// dataset, and not only with distributions
 				InvalidLinksFilters invalidLinksFilter = new InvalidLinksFilters();
-				invalidLinksFilter.loadDatasetSubjectFilter(linkset.getDatasetTarget());
+				invalidLinksFilter.loadDatasetObjectFilter(linkset.getDatasetTarget());
 
 				for (String link : invalidLinksMap.keySet()) {
 					if (!datasetResourceData.get(dataThread.targetDatasetID).querySubject(link)) {
