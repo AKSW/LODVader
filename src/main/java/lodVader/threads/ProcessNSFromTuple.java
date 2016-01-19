@@ -13,9 +13,13 @@ import lodVader.LODVaderProperties;
 import lodVader.LoadedBloomFiltersCache;
 import lodVader.TuplePart;
 import lodVader.bloomfilters.GoogleBloomFilter;
+import lodVader.exceptions.LODVaderMissingPropertiesException;
+import lodVader.exceptions.mongodb.LODVaderNoPKFoundException;
+import lodVader.exceptions.mongodb.LODVaderObjectAlreadyExistsException;
 import lodVader.invalidLinks.InvalidLinksFilters;
 import lodVader.linksets.DatasetResourcesData;
 import lodVader.linksets.DistributionResourcesData;
+import lodVader.mongodb.collections.DatasetLinksetDB;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.LinksetDB;
 import lodVader.mongodb.collections.namespaces.DistributionObjectNS0DB;
@@ -38,9 +42,12 @@ public abstract class ProcessNSFromTuple extends Thread {
 	public ConcurrentHashMap<Integer, DistributionResourcesData> distributionsResourceData = new ConcurrentHashMap<Integer, DistributionResourcesData>();
 
 	// map of dataset with all resources (subject or object)
+	// this is used in order to count each resource only once
 	public ConcurrentHashMap<Integer, DatasetResourcesData> datasetResourceData = new ConcurrentHashMap<Integer, DatasetResourcesData>();
 
 	protected int threadNumber = 0;
+	
+	public double unknownLinks = 0;
 
 	// map of threads used to compare the source distribution with target
 	// distributions
@@ -189,6 +196,9 @@ public abstract class ProcessNSFromTuple extends Thread {
 						}
 					}
 				}
+				else{
+					unknownLinks++;
+				}
 			}
 		}
 	}
@@ -199,6 +209,8 @@ public abstract class ProcessNSFromTuple extends Thread {
 		for (LinksetDataThread dataThread : mapOfWorkerThreads.values()) {
 			logger.debug("Saving links for " + dataThread.targetDistributionTitle);
 			LinksetDB linkset;
+			
+			DatasetLinksetDB datasetLinkset;
 
 			Timer t = new Timer();
 			t.startTimer();
@@ -230,22 +242,36 @@ public abstract class ProcessNSFromTuple extends Thread {
 
 				// check if the link is invalid comparing with the whole
 				// dataset, and not only with distributions
-				InvalidLinksFilters invalidLinksFilter = new InvalidLinksFilters();
-				invalidLinksFilter.loadDatasetObjectFilter(linkset.getDatasetTarget());
+//				InvalidLinksFilters invalidLinksFilter = new InvalidLinksFilters();
+//				invalidLinksFilter.loadDatasetObjectFilter(linkset.getDatasetTarget());
 
 				for (String link : invalidLinksMap.keySet()) {
 					if (!datasetResourceData.get(dataThread.targetDatasetID).queryObject(link))
-						if (!invalidLinksFilter.queryDatasetObject(link))
 							invalidLinksMapFinal.put(link, invalidLinksMap.get(link));
 				}
 
-				invalidLinksFilter = null;
+//				invalidLinksFilter = null;
 				invalidLinks.saveAll(invalidLinksMapFinal, dataThread.targetDistributionID,
 						dataThread.sourceDistributionID);
 				linkset.setInvalidLinks(invalidLinksMapFinal.size());
 				dataThread.setInvalidLinks(null);
 
 			} else {
+				// only calculate links from distribution to dataset if we are analysing objects -> subjects
+				String datasetLinksetID =  dataThread.sourceDistributionID + "-" + dataThread.targetDatasetID;
+				
+				datasetLinkset = new DatasetLinksetDB(datasetLinksetID);
+				datasetLinkset.setDistributionSource(dataThread.sourceDistributionID);
+				datasetLinkset.setDistributionTarget(dataThread.targetDistributionID);
+				datasetLinkset.setDatasetSource(dataThread.sourceDatasetID);
+				datasetLinkset.setDatasetTarget(dataThread.targetDatasetID);
+				datasetLinkset.setDistributionSourceIsVocabulary(new DistributionDB(dataThread.sourceDistributionID).getIsVocabulary());
+				datasetLinkset.setDistributionTargetIsVocabulary(new DistributionDB(dataThread.targetDistributionID).getIsVocabulary());
+
+				int linksBetweenDistAndDataset = 0;
+				int deadLinksBetweenDistAndDataset = 0;
+				
+				// calculate linksets
 				linksetID = dataThread.sourceDistributionID + "-" + dataThread.targetDistributionID;
 				linkset = new LinksetDB(linksetID);
 
@@ -256,6 +282,23 @@ public abstract class ProcessNSFromTuple extends Thread {
 				linkset.setDistributionSourceIsVocabulary(new DistributionDB(dataThread.sourceDistributionID).getIsVocabulary());
 				linkset.setDistributionTargetIsVocabulary(new DistributionDB(dataThread.targetDistributionID).getIsVocabulary());
 
+				
+				
+				// save unknown links
+				distribution.setUndefinedLinks(unknownLinks);
+				try {
+					distribution.update(false);
+				} catch (LODVaderMissingPropertiesException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (LODVaderObjectAlreadyExistsException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (LODVaderNoPKFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
 
 				// save top N valid and invalid links
 				TopValidLinks validLinks = new TopValidLinks();
@@ -265,25 +308,34 @@ public abstract class ProcessNSFromTuple extends Thread {
 				dataThread.setValidLinks(null);
 
 				TopInvalidLinks invalidLinks = new TopInvalidLinks();
-				// check wheter links are described in the target dataset
+				// check whether links are described in the target dataset
 				HashMap<String, Integer> invalidLinksMap = dataThread.getAllInvalidLinks();
 				HashMap<String, Integer> invalidLinksMapFinal = new HashMap<String, Integer>();
 
 				// check if the link is invalid comparing with the whole
 				// dataset, and not only with distributions
 				InvalidLinksFilters invalidLinksFilter = new InvalidLinksFilters();
-				invalidLinksFilter.loadDatasetObjectFilter(linkset.getDatasetTarget());
+				invalidLinksFilter.loadDatasetSubjectFilter(linkset.getDatasetTarget());
 
 				for (String link : invalidLinksMap.keySet()) {
 					if (!datasetResourceData.get(dataThread.targetDatasetID).querySubject(link)) {
-						if (!invalidLinksFilter.queryDatasetObject(link))
+						if (!invalidLinksFilter.queryDatasetSubject(link)){
 							invalidLinksMapFinal.put(link, invalidLinksMap.get(link));
-						// System.out.println(link);
+							deadLinksBetweenDistAndDataset ++;
+						}
+						else
+							linksBetweenDistAndDataset ++;
 					}
 				}
+				
+				invalidLinksFilter = null;
 
-				// System.out.println(dataThread.);
-				// System.out.println();
+				datasetLinkset.setLinks(linksBetweenDistAndDataset);
+				datasetLinkset.setDeadLinks(deadLinksBetweenDistAndDataset);
+				
+				datasetLinkset.update(true, DatasetLinksetDB.LINKSET_ID, datasetLinksetID);
+				
+				// save links
 				invalidLinks.saveAll(invalidLinksMapFinal, dataThread.sourceDistributionID,
 						dataThread.targetDistributionID);
 				linkset.setInvalidLinks(invalidLinksMapFinal.size());

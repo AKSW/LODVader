@@ -109,6 +109,8 @@ public class DistributionDB extends ResourceDB {
 
 	public static final String LAST_TIME_STREAMED = "lastTimeStreamed";
 
+	public static final String UNDEFINED_LINKS = "undefinedLinks";
+
 	public String getDownloadUrl() {
 		return getField(DOWNLOAD_URL).toString();
 	}
@@ -199,9 +201,17 @@ public class DistributionDB extends ResourceDB {
 	public String getFormat() {
 		return getField(FORMAT).toString();
 	}
+	
+	public String getUndefinedLinks() {
+		return getField(UNDEFINED_LINKS).toString();
+	}
 
 	public void setFormat(String format) {
 		addField(FORMAT, format);
+	}
+	
+	public void setUndefinedLinks(Double undefinedLinks) {
+		addField(UNDEFINED_LINKS, undefinedLinks);
 	}
 
 	public boolean getSuccessfullyDownloaded() {
