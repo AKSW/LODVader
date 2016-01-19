@@ -4,6 +4,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
 import lodVader.mongodb.collections.DatasetDB;
+import lodVader.mongodb.collections.DatasetLinksetDB;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.LinksetDB;
 import lodVader.mongodb.collections.RDFResources.allPredicates.AllPredicatesDB;
@@ -45,6 +46,14 @@ public class IndexesCreator {
 		addIndex(DistributionDB.COLLECTION_NAME, DistributionDB.LOD_VADER_ID, 1);
 		addIndex(DistributionDB.COLLECTION_NAME, DistributionDB.DEFAULT_DATASETS, 1);
 		
+		// indexes for datasetsLinksets
+		addIndex(DatasetLinksetDB.COLLECTION_NAME, DatasetLinksetDB.LINKSET_ID, 1);
+		addIndex(DatasetLinksetDB.COLLECTION_NAME, DatasetLinksetDB.DATASET_SOURCE, 1);
+		addIndex(DatasetLinksetDB.COLLECTION_NAME, DatasetLinksetDB.DATASET_TARGET, 1);
+		addIndex(DatasetLinksetDB.COLLECTION_NAME, DatasetLinksetDB.DISTRIBUTION_SOURCE, 1);
+		addIndex(DatasetLinksetDB.COLLECTION_NAME, DatasetLinksetDB.DISTRIBUTION_TARGET, 1);
+		addIndex(DatasetLinksetDB.COLLECTION_NAME, DatasetLinksetDB.LINKS, 1);
+		addIndex(DatasetLinksetDB.COLLECTION_NAME, DatasetLinksetDB.DEAD_LINKS, 1);
 		
 		// indexes for linksets
 		addIndex(LinksetDB.COLLECTION_NAME, LinksetDB.LINKSET_ID, 1);
