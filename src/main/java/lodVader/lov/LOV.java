@@ -38,7 +38,6 @@ import lodVader.exceptions.LODVaderLODGeneralException;
 import lodVader.links.similarity.JaccardSimilarity;
 import lodVader.links.similarity.LinkSimilarity;
 import lodVader.links.strength.LinkStrength;
-import lodVader.linksets.MakeLinksetsMasterThread;
 import lodVader.mongodb.collections.DatasetDB;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.RDFResources.allPredicates.AllPredicatesDB;
@@ -52,6 +51,7 @@ import lodVader.mongodb.collections.RDFResources.rdfType.RDFTypeObjectRelationDB
 import lodVader.mongodb.collections.gridFS.ObjectsBucket;
 import lodVader.mongodb.collections.gridFS.SubjectsBucket;
 import lodVader.streaming.SuperStream;
+import lodVader.threads.MakeLinksetsMasterThread;
 import lodVader.utils.FileUtils;
 import lodVader.utils.Timer;
 

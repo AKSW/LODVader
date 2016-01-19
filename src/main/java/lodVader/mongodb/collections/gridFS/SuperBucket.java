@@ -27,6 +27,8 @@ import lodVader.LODVaderProperties;
 import lodVader.bloomfilters.GoogleBloomFilter;
 import lodVader.exceptions.LODVaderLODGeneralException;
 import lodVader.mongodb.DBSuperClass2;
+import lodVader.mongodb.collections.DatasetDB;
+import lodVader.mongodb.queries.DatasetQueries;
 
 public class SuperBucket extends Thread {
 
@@ -244,6 +246,38 @@ public class SuperBucket extends Thread {
 			}
 
 		return filter;
+	}
+	
+	public ArrayList<SuperBucket> getFiltersFromDataset(int datasetID){
+		
+		// get all distributions within the dataset
+		ArrayList<Integer> distributionsIDs = new DatasetQueries().getDistributionsIDs(datasetID);
+		
+		ArrayList<SuperBucket> result = new ArrayList<SuperBucket>();
+
+		// get collection
+		GridFS gfs = new GridFS(DBSuperClass2.getDBInstance(), COLLECTION_NAME);
+
+		// create query
+		BasicDBObject in = new BasicDBObject("$in", distributionsIDs);
+		
+		BasicDBObject distributions = new BasicDBObject(DISTRIBUTION_ID, in);
+
+		// make query
+		List<GridFSDBFile> buckets = gfs.find(distributions);
+
+		for (GridFSDBFile f : buckets) {
+			GoogleBloomFilter filter = new GoogleBloomFilter();
+			try {
+				filter.filter = BloomFilter.readFrom(f.getInputStream(), filter.funnel);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			result.add(new SuperBucket(filter, f.get(FIRST_RESOURCE).toString(), f.get(LAST_RESOURCE).toString()));
+		}
+
+		return result;
 	}
 
 }

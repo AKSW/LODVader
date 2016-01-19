@@ -13,6 +13,8 @@ import com.mongodb.gridfs.GridFSDBFile;
 
 import lodVader.bloomfilters.GoogleBloomFilter;
 import lodVader.mongodb.DBSuperClass2;
+import lodVader.mongodb.collections.DatasetDB;
+import lodVader.mongodb.queries.DatasetQueries;
 
 public class SubjectsBucket extends SuperBucket {
 
@@ -73,5 +75,6 @@ public class SubjectsBucket extends SuperBucket {
 
 		return result;
 	}
+	
 
 }

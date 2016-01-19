@@ -19,7 +19,7 @@ import lodVader.linksets.DistributionResourcesData;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.gridFS.SuperBucket;
 
-public class DistributionDataSlaveThread extends Thread {
+public class LinksetDataThread extends Thread {
 
 	// true if the source distribution is the subject column
 	//
@@ -49,7 +49,7 @@ public class DistributionDataSlaveThread extends Thread {
 	public String targetDistributionTitle;
 
 
-	public int dourceDistributionID = 0;
+	public int sourceDistributionID = 0;
 	public int sourceDatasetID = 0;
 
 	public int targetDistributionID = 0;
@@ -77,21 +77,21 @@ public class DistributionDataSlaveThread extends Thread {
 	// flat to execute or not this model in a thread
 	public boolean active = false;
 
-	public DistributionDataSlaveThread(DistributionDB sourceDistribution, DistributionDB targetDistribution,
+	public LinksetDataThread(DistributionDB sourceDistribution, DistributionDB targetDistribution,
 			DistributionResourcesData distributionFilter, String tuplePart) {
 
 		this.tuplePart = tuplePart;
 		this.sourceDatasetID = sourceDistribution.getTopDatasetID();
-		this.dourceDistributionID = sourceDistribution.getLODVaderID();
+		this.sourceDistributionID = sourceDistribution.getLODVaderID();
 		this.targetDistributionID = targetDistribution.getLODVaderID();
 		this.targetDatasetID = targetDistribution.getTopDatasetID();
 		this.targetDistributionTitle = targetDistribution.getTitle();
 
 		try {
 			validLinksWriter = new BufferedWriter(new FileWriter(LODVaderProperties.TMP_FOLDER + "valid_"
-					+ this.dourceDistributionID + "_" + this.targetDistributionID));
+					+ this.sourceDistributionID + "_" + this.targetDistributionID));
 			invalidLinksWriter = new BufferedWriter(new FileWriter(LODVaderProperties.TMP_FOLDER + "invalid_"
-					+ this.dourceDistributionID + "_" + this.targetDistributionID));
+					+ this.sourceDistributionID + "_" + this.targetDistributionID));
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -139,7 +139,7 @@ public class DistributionDataSlaveThread extends Thread {
 			e.printStackTrace();
 		}
 		if (validLinks == null)
-			validLinks = getLinks(LODVaderProperties.TMP_FOLDER + "valid_" + this.dourceDistributionID + "_"
+			validLinks = getLinks(LODVaderProperties.TMP_FOLDER + "valid_" + this.sourceDistributionID + "_"
 					+ this.targetDistributionID);
 
 		return validLinks;
@@ -153,7 +153,7 @@ public class DistributionDataSlaveThread extends Thread {
 			e.printStackTrace();
 		}
 		if (invalidLinks == null)
-			invalidLinks = getLinks(LODVaderProperties.TMP_FOLDER + "invalid_" + this.dourceDistributionID + "_"
+			invalidLinks = getLinks(LODVaderProperties.TMP_FOLDER + "invalid_" + this.sourceDistributionID + "_"
 					+ this.targetDistributionID);
 
 		return invalidLinks;

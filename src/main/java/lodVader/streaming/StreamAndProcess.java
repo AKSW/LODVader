@@ -29,7 +29,6 @@ import lodVader.LODVaderProperties;
 import lodVader.TuplePart;
 import lodVader.exceptions.LODVaderFormatNotAcceptedException;
 import lodVader.exceptions.LODVaderLODGeneralException;
-import lodVader.linksets.MakeLinksetsMasterThread;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.RDFResources.allPredicates.AllPredicatesDB;
 import lodVader.mongodb.collections.RDFResources.allPredicates.AllPredicatesRelationDB;
@@ -42,6 +41,7 @@ import lodVader.mongodb.collections.RDFResources.rdfType.RDFTypeObjectRelationDB
 import lodVader.mongodb.collections.gridFS.ObjectsBucket;
 import lodVader.mongodb.collections.gridFS.SubjectsBucket;
 import lodVader.parsers.tripleParsers.NTriplesLODVaderParser;
+import lodVader.threads.MakeLinksetsMasterThread;
 import lodVader.tupleManager.SplitAndProcess;
 import lodVader.tupleManager.SuperTupleManager;
 import lodVader.utils.FileUtils;

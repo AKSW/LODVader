@@ -9,15 +9,15 @@ import lodVader.linksets.DatasetResourcesData;
 import lodVader.mongodb.collections.gridFS.SuperBucket;
 import lodVader.utils.NSUtils;
 
-public class JobThread implements Runnable {
+public class LinksetExtractorThread implements Runnable {
 	HashMap<String, String> listOfResources;
-	DistributionDataSlaveThread dataThread = null;
+	LinksetDataThread dataThread = null;
 
 	NSUtils nsUtils = new NSUtils();
 	Integer n;
 	 ConcurrentHashMap<Integer, DatasetResourcesData> datasetResourceData;
 
-	public JobThread(DistributionDataSlaveThread dataThread, HashMap<String, String> resources,  ConcurrentHashMap<Integer, DatasetResourcesData> datasetResourceData ) {
+	public LinksetExtractorThread(LinksetDataThread dataThread, HashMap<String, String> resources,  ConcurrentHashMap<Integer, DatasetResourcesData> datasetResourceData ) {
 		this.listOfResources = resources;
 		this.dataThread = dataThread;
 		this.datasetResourceData = datasetResourceData;

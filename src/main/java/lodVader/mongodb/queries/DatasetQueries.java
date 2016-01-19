@@ -228,5 +228,26 @@ public class DatasetQueries {
 		}
 		return list;
 	}
+	
+	public ArrayList<Integer> getDistributionsIDs(int datasetID) {
+
+		ArrayList<Integer> list = new ArrayList<Integer>();
+		try {
+			DBCollection collection = DBSuperClass2.getCollection(
+					DistributionDB.COLLECTION_NAME);
+			BasicDBObject query = new BasicDBObject(
+					DistributionDB.TOP_DATASET, datasetID);
+			DBCursor instances = collection.find(query);
+
+			for (DBObject instance : instances) {
+				list.add(new DistributionDB(instance).getLODVaderID());
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return list;
+	}
+	
 
 }

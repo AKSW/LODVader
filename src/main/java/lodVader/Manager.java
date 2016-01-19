@@ -7,18 +7,16 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import lodVader.links.similarity.JaccardSimilarity;
-import lodVader.links.similarity.LinkSimilarity;
 import lodVader.lov.LOV;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.SystemPropertiesDB;
-import lodVader.mongodb.collections.RDFResources.allPredicates.AllPredicatesRelationDB;
-import lodVader.mongodb.collections.RDFResources.owlClass.OwlClassRelationDB;
-import lodVader.mongodb.collections.RDFResources.rdfSubClassOf.RDFSubClassOfRelationDB;
-import lodVader.mongodb.collections.RDFResources.rdfType.RDFTypeObjectRelationDB;
 import lodVader.streaming.CheckWhetherToStream;
 import lodVader.streaming.StreamAndProcess;
 import lodVader.streaming.StreamAndSaveDump;
@@ -35,7 +33,7 @@ public class Manager {
 	public static void streamAndCreateFilters() throws Exception {
 
 		consumingQueue = true;
-
+		
 		while (distributionsLinks.size() > 0) {
 			logger.info("We still have " + distributionsLinks.size() + " distributions in the queue...");
 

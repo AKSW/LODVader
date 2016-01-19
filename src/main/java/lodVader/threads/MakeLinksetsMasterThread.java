@@ -1,4 +1,4 @@
-package lodVader.linksets;
+package lodVader.threads;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -10,11 +10,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import lodVader.TuplePart;
+import lodVader.linksets.DatasetResourcesData;
+import lodVader.linksets.DistributionResourcesData;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.queries.DistributionQueries;
-import lodVader.threads.DistributionDataSlaveThread;
-import lodVader.threads.JobThread;
-import lodVader.threads.ProcessNSFromTuple;
 import lodVader.utils.NSUtils;
 import lodVader.utils.Timer;
 
@@ -92,7 +91,7 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 								// check if distributions had already been
 								// compared
 								if (!(distributionToCompare.getLODVaderID() == distribution.getLODVaderID())) {
-									DistributionDataSlaveThread workerThread = new DistributionDataSlaveThread(distribution,
+									LinksetDataThread workerThread = new LinksetDataThread(distribution,
 											distributionToCompare,
 											distributionsResourceData.get(distributionToCompare.getLODVaderID()), tuplePart);
 									if (workerThread.sourceDatasetID != 0) {
@@ -172,11 +171,11 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 //						System.out.println(numberOfOpenThreads);
 						
 						// for (Integer in : listOfWorkerThreads.keySet())
-						for (DistributionDataSlaveThread dataThread : mapOfWorkerThreads.values()) {
+						for (LinksetDataThread dataThread : mapOfWorkerThreads.values()) {
 							if (dataThread.targetDistributionID != distribution.getLODVaderID())
 								if (dataThread.active) {
 									if (threads[threadIndex] == null) { 
-										threads[threadIndex] = new Thread(new JobThread(dataThread,
+										threads[threadIndex] = new Thread(new LinksetExtractorThread(dataThread,
 												(HashMap<String,String>) resourcesToBeProcessedQueueCopy.clone(), 
 												datasetResourceData) 
 												);
@@ -203,7 +202,7 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 					}
 
 					// save linksets into mongodb
-					for (DistributionDataSlaveThread dataThread : mapOfWorkerThreads.values()) {
+					for (LinksetDataThread dataThread : mapOfWorkerThreads.values()) {
 						dataThread.active = false;
 					}				
 				}				
