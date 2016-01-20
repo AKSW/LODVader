@@ -285,20 +285,20 @@ public abstract class ProcessNSFromTuple extends Thread {
 				
 				
 				// save unknown links
-				distribution.setUndefinedLinks(unknownLinks);
-				try {
-					distribution.update(false);
-				} catch (LODVaderMissingPropertiesException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (LODVaderObjectAlreadyExistsException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (LODVaderNoPKFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
+//				distribution.setUndefinedLinks(unknownLinks);
+//				try {
+//					distribution.update(false);
+//				} catch (LODVaderMissingPropertiesException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				} catch (LODVaderObjectAlreadyExistsException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				} catch (LODVaderNoPKFoundException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+//				
 
 				// save top N valid and invalid links
 				TopValidLinks validLinks = new TopValidLinks();
@@ -319,7 +319,7 @@ public abstract class ProcessNSFromTuple extends Thread {
 
 				for (String link : invalidLinksMap.keySet()) {
 					if (!datasetResourceData.get(dataThread.targetDatasetID).querySubject(link)) {
-						if (!invalidLinksFilter.queryDatasetSubject(link)){
+						if (!invalidLinksFilter.queryDatasetSubject(link, linkset.getDatasetTarget())){
 							invalidLinksMapFinal.put(link, invalidLinksMap.get(link));
 							deadLinksBetweenDistAndDataset ++;
 						}
