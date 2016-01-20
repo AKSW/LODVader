@@ -16,9 +16,9 @@ public class InvalidLinksFilters {
 
 	final static Logger logger = LoggerFactory.getLogger(InvalidLinksFilters.class);
 
-	HashMap<Integer, ArrayList<SuperBucket>> datasetSubjectFilters = new HashMap<Integer, ArrayList<SuperBucket>>();
+	static HashMap<Integer, ArrayList<SuperBucket>> datasetSubjectFilters = new HashMap<Integer, ArrayList<SuperBucket>>();
 
-	HashMap<Integer, ArrayList<SuperBucket>> datasetObjectFilters = new HashMap<Integer, ArrayList<SuperBucket>>();
+	static HashMap<Integer, ArrayList<SuperBucket>> datasetObjectFilters = new HashMap<Integer, ArrayList<SuperBucket>>();
 
 	public void loadDatasetObjectFilter(int datasetID) {
 		if(!datasetObjectFilters.containsKey(datasetID)){
