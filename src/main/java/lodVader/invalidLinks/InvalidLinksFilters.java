@@ -3,11 +3,18 @@ package lodVader.invalidLinks;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import lodVader.mongodb.collections.DatasetDB;
 import lodVader.mongodb.collections.gridFS.ObjectsBucket;
 import lodVader.mongodb.collections.gridFS.SubjectsBucket;
 import lodVader.mongodb.collections.gridFS.SuperBucket;
+import lodVader.threads.ProcessNSFromTuple;
 
 public class InvalidLinksFilters {
+
+	final static Logger logger = LoggerFactory.getLogger(InvalidLinksFilters.class);
 
 	HashMap<Integer, ArrayList<SuperBucket>> datasetSubjectFilters = new HashMap<Integer, ArrayList<SuperBucket>>();
 
@@ -20,6 +27,7 @@ public class InvalidLinksFilters {
 	}
 	public void loadDatasetSubjectFilter(int datasetID) {
 		if(!datasetSubjectFilters.containsKey(datasetID)){
+			logger.info("Loading dataset"+new DatasetDB(datasetID).getTitle()+" to filter...");
 			datasetSubjectFilters.put(datasetID, new SubjectsBucket().getFiltersFromDataset(datasetID));
 		}
 	}
