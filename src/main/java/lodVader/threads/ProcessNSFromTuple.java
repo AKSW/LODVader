@@ -19,6 +19,7 @@ import lodVader.exceptions.mongodb.LODVaderObjectAlreadyExistsException;
 import lodVader.invalidLinks.InvalidLinksFilters;
 import lodVader.linksets.DatasetResourcesData;
 import lodVader.linksets.DistributionResourcesData;
+import lodVader.mongodb.collections.DatasetDB;
 import lodVader.mongodb.collections.DatasetLinksetDB;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.LinksetDB;
@@ -317,6 +318,7 @@ public abstract class ProcessNSFromTuple extends Thread {
 				InvalidLinksFilters invalidLinksFilter = new InvalidLinksFilters();
 				invalidLinksFilter.loadDatasetSubjectFilter(linkset.getDatasetTarget());
 
+				logger.info("Comparing links with dataset: "+ new DatasetDB(linkset.getDatasetTarget()).getTitle());
 				for (String link : invalidLinksMap.keySet()) {
 					if (!datasetResourceData.get(dataThread.targetDatasetID).querySubject(link)) {
 						if (!invalidLinksFilter.queryDatasetSubject(link, linkset.getDatasetTarget())){

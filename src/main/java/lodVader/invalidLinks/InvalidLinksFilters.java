@@ -20,7 +20,7 @@ public class InvalidLinksFilters {
 	}
 	public void loadDatasetSubjectFilter(int datasetID) {
 		if(!datasetSubjectFilters.containsKey(datasetID)){
-		datasetSubjectFilters.put(datasetID, new SubjectsBucket().getFiltersFromDataset(datasetID));
+			datasetSubjectFilters.put(datasetID, new SubjectsBucket().getFiltersFromDataset(datasetID));
 		}
 	}
 
