@@ -134,6 +134,7 @@ public class IndegreeDatasetModel {
 
 			DatasetLinksetDB linkset = new DatasetLinksetDB(object);
 
+			System.out.println(linkset.getDistributionTargetIsVocabulary() );
 			if (linkset.getDistributionTargetIsVocabulary() == isVocabulary) {
 
 				Result result = tmpResults.get(linkset.getDatasetTarget());
@@ -172,7 +173,7 @@ public class IndegreeDatasetModel {
 		
 		for(Result r: finalList){
 			tmpDataset = new DatasetDB(r.targetDataset);
-			System.out.println(r.targetDataset+ " - ");
+			System.out.println(r.targetDataset+ " - "+tmpDataset.getTitle() );
 			result.append(tmpDataset.getTitle());
 			result.append("\t" + r.sourceDatasetList.size());
 			result.append("\t" + r.links);
