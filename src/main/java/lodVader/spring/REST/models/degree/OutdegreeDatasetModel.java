@@ -26,7 +26,7 @@ public class OutdegreeDatasetModel {
 
 	public boolean isVocabulary = true;
 
-	public boolean isDeadLinks= false;
+	public boolean isDeadLinks = false;
 
 	/**
 	 * MapReduce functions for outdegree linksets
@@ -38,24 +38,24 @@ public class OutdegreeDatasetModel {
 
 	public String reduceOutDegree;
 
-	class Result implements Comparator<Result>, Comparable<Result>{
+	class Result implements Comparator<Result>, Comparable<Result> {
 		int sourceDataset;
 		int links = 0;
 		HashSet<Integer> targetDataset = new HashSet<>();
-		
+
 		@Override
 		public int compare(Result o1, Result o2) {
-			return o1.links-o2.links;
+			return o1.links - o2.links;
 		}
 
 		@Override
 		public int compareTo(Result o) {
 			return this.targetDataset.size() - o.targetDataset.size();
-		}		
+		}
 	}
 
 	HashMap<Integer, Result> tmpResults = new HashMap<Integer, Result>();
-	
+
 	ArrayList<Result> finalList = new ArrayList<Result>();
 
 	@Test
@@ -73,8 +73,8 @@ public class OutdegreeDatasetModel {
 
 		DBCursor instances;
 
-			instances = collection.find();
-		
+		instances = collection.find();
+
 		for (DBObject object : instances) {
 
 			DatasetLinksetDB linkset = new DatasetLinksetDB(object);
@@ -87,11 +87,11 @@ public class OutdegreeDatasetModel {
 					result = new Result();
 				}
 
-				if(isDeadLinks)
-				result.links = result.links + linkset.getDeadLinks();
+				if (isDeadLinks)
+					result.links = result.links + linkset.getDeadLinks();
 				else
 					result.links = result.links + linkset.getLinks();
-					
+
 				result.targetDataset.add(linkset.getDatasetTarget());
 				result.sourceDataset = linkset.getDatasetSource();
 
@@ -105,20 +105,18 @@ public class OutdegreeDatasetModel {
 		result.append("\n===== Sorted by links=======");
 		Collections.sort(finalList, new Result());
 		printTableOutdegree();
-		
+
 		result.append("\n===== Sorted by number of datasets=======");
 		Collections.sort(finalList);
 		printTableOutdegree();
 
-
-		
 		result.append("\n\n\n\n===============================================================\n");
 		result.append("Comparing without vocabularies\n");
 		result.append("===============================================================\n\n");
 
-		 tmpResults = new HashMap<Integer, Result>();
-		 
-		 finalList = new ArrayList<Result>();
+		tmpResults = new HashMap<Integer, Result>();
+
+		finalList = new ArrayList<Result>();
 
 		isVocabulary = false;
 
@@ -138,8 +136,9 @@ public class OutdegreeDatasetModel {
 					result.links = result.links + linkset.getDeadLinks();
 				else
 					result.links = result.links + linkset.getLinks();
-				
+
 				result.targetDataset.add(linkset.getDatasetTarget());
+				result.sourceDataset = linkset.getDatasetTarget(); 
 
 				tmpResults.put(linkset.getDatasetSource(), result);
 			}
@@ -151,7 +150,7 @@ public class OutdegreeDatasetModel {
 		result.append("\n===== Sorted by links=======");
 		Collections.sort(finalList, new Result());
 		printTableOutdegree();
-		
+
 		result.append("\n===== Sorted by number of datasets=======");
 		Collections.sort(finalList);
 		printTableOutdegree();
@@ -163,18 +162,16 @@ public class OutdegreeDatasetModel {
 		result.append("\n\nName\t Outdegree \t Links \n");
 
 		DatasetDB tmpDataset;
-		
-		for(Result r: finalList){
+
+		for (Result r : finalList) {
 			tmpDataset = new DatasetDB(r.sourceDataset);
 			result.append(tmpDataset.getTitle());
 			result.append("\t" + r.targetDataset.size());
 			result.append("\t" + r.links);
 			result.append("\n");
 		}
-		
-		
 
 		result.append("\n\n\n");
 	}
-	
+
 }
