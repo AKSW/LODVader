@@ -16,9 +16,9 @@ import com.mongodb.DBObject;
 
 import lodVader.mongodb.DBSuperClass2;
 import lodVader.mongodb.collections.DatasetDB;
+import lodVader.mongodb.collections.DatasetLinksetDB;
 import lodVader.mongodb.collections.LinksetDB;
 import lodVader.mongodb.collections.ResourceDB;
-import lodVader.spring.REST.models.degree.IndegreeDatasetModel.Result;
 
 public class OutdegreeDatasetModel {
 
@@ -69,27 +69,27 @@ public class OutdegreeDatasetModel {
 		result.append("Comparing with vocabularies\n");
 		result.append("===============================================================\n\n");
 
-		DBCollection collection = DBSuperClass2.getDBInstance().getCollection(LinksetDB.COLLECTION_NAME);
+		DBCollection collection = DBSuperClass2.getDBInstance().getCollection(DatasetLinksetDB.COLLECTION_NAME);
 
 		DBCursor instances;
 
 		if(!isDeadLinks){
 			BasicDBList and = new BasicDBList();
-			and.add(new BasicDBObject(LinksetDB.LINK_NUMBER_LINKS, new BasicDBObject("$gt", 0)));
-			and.add(new BasicDBObject(LinksetDB.DATASET_SOURCE, new BasicDBObject("$ne", LinksetDB.DATASET_TARGET)));
+			and.add(new BasicDBObject(DatasetLinksetDB.DEAD_LINKS, new BasicDBObject("$gt", 0)));
+			and.add(new BasicDBObject(DatasetLinksetDB.DATASET_SOURCE, new BasicDBObject("$ne", DatasetLinksetDB.DATASET_TARGET)));
 			
 			instances = collection.find( new BasicDBObject("$and", and));
 		}
 		else{
 			BasicDBList and = new BasicDBList();
-			and.add(new BasicDBObject(LinksetDB.INVALID_LINKS, new BasicDBObject("$gt", 0)));
-			and.add(new BasicDBObject(LinksetDB.DATASET_SOURCE, new BasicDBObject("$ne", LinksetDB.DATASET_TARGET)));
+			and.add(new BasicDBObject(DatasetLinksetDB.DEAD_LINKS, new BasicDBObject("$gt", 0)));
+			and.add(new BasicDBObject(DatasetLinksetDB.DATASET_SOURCE, new BasicDBObject("$ne", DatasetLinksetDB.DATASET_TARGET)));
 			instances = collection.find( new BasicDBObject("$and", and));
 		}
 		
 		for (DBObject object : instances) {
 
-			LinksetDB linkset = new LinksetDB(object);
+			DatasetLinksetDB linkset = new DatasetLinksetDB(object);
 
 			if (linkset.getDistributionTargetIsVocabulary() == isVocabulary) {
 

@@ -30,7 +30,7 @@ public class IndegreeModel {
 	public String reduceInDegree ;
 
 	public void mapReduceInDegree(int n) {
-		/**
+		/** 
 		 * MapReduce to find indegree with vocabularies
 		 */
 
