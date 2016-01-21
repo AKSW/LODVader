@@ -132,7 +132,7 @@ public class OutdegreeDatasetModel {
 
 		for (DBObject object : instances) {
 
-			LinksetDB linkset = new LinksetDB(object);
+			DatasetLinksetDB linkset = new DatasetLinksetDB(object);
 
 			if (linkset.getDistributionTargetIsVocabulary() == isVocabulary) {
 
