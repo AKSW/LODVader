@@ -153,7 +153,7 @@ public class OutdegreeDatasetModel {
 					result.links = result.links + linkset.getLinks();
 
 				result.targetDataset.add(linkset.getDatasetTarget());
-				result.sourceDataset = linkset.getDatasetTarget(); 
+				result.sourceDataset = linkset.getDatasetSource(); 
 
 				tmpResults.put(linkset.getDatasetSource(), result);
 			}

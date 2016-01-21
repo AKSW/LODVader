@@ -151,7 +151,7 @@ public class IndegreeDatasetModel {
 					result.links = result.links + linkset.getLinks();
 
 				result.sourceDatasetList.add(linkset.getDatasetSource());
-				result.targetDataset = linkset.getDatasetTarget();
+				result.targetDataset = linkset.getDatasetSource();
 
 				tmpResults.put(linkset.getDatasetTarget(), result);
 			}
