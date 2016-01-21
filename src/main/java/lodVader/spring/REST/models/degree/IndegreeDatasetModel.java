@@ -26,7 +26,6 @@ public class IndegreeDatasetModel {
 
 	public boolean isVocabulary = true;
 	public boolean isDeadLinks = false;
-	
 
 	/**
 	 * MapReduce functions for indegree linksets
@@ -38,24 +37,24 @@ public class IndegreeDatasetModel {
 
 	public String reduceinDegree;
 
-	class Result implements Comparator<Result>, Comparable<Result>{
+	class Result implements Comparator<Result>, Comparable<Result> {
 		int targetDataset;
 		int links = 0;
 		HashSet<Integer> sourceDatasetList = new HashSet<>();
-		
+
 		@Override
 		public int compare(Result o1, Result o2) {
-			return o1.links-o2.links;
+			return o1.links - o2.links;
 		}
 
 		@Override
 		public int compareTo(Result o) {
 			return this.sourceDatasetList.size() - o.sourceDatasetList.size();
-		}		
+		}
 	}
 
 	HashMap<Integer, Result> tmpResults = new HashMap<Integer, Result>();
-	
+
 	ArrayList<Result> finalList = new ArrayList<Result>();
 
 	@Test
@@ -73,18 +72,20 @@ public class IndegreeDatasetModel {
 
 		DBCursor instances;
 
+
 		if(!isDeadLinks){
 			BasicDBList and = new BasicDBList();
-//			and.add(new BasicDBObject(DatasetLinksetDB.LINKS, new BasicDBObject("$gt", 0)));
+			and.add(new BasicDBObject(DatasetLinksetDB.LINKS, new BasicDBObject("$gt", 0)));
 //			and.add(new BasicDBObject(DatasetLinksetDB.DATASET_SOURCE, new BasicDBObject("$ne", DatasetLinksetDB.DATASET_TARGET)));
 			
-			instances = collection.find( );
+			instances = collection.find( and);
 		}
 		else{
 			BasicDBList and = new BasicDBList();
-//			and.add(new BasicDBObject(DatasetLinksetDB.DEAD_LINKS, new BasicDBObject("$gt", 0)));
+			and.add(new BasicDBObject(DatasetLinksetDB.DEAD_LINKS, new BasicDBObject("$gt", 0)));
 //			and.add(new BasicDBObject(DatasetLinksetDB.DATASET_SOURCE, new BasicDBObject("$ne", DatasetLinksetDB.DATASET_TARGET)));
-			instances = collection.find( );
+//			instances = collection.find( new BasicDBObject("$and", and));
+			instances = collection.find(and);
 		}
 
 		for (DBObject object : instances) {
@@ -99,8 +100,8 @@ public class IndegreeDatasetModel {
 					result = new Result();
 				}
 
-				if(isDeadLinks)
-				result.links = result.links + linkset.getDeadLinks();
+				if (isDeadLinks)
+					result.links = result.links + linkset.getDeadLinks();
 				else
 					result.links = result.links + linkset.getLinks();
 
@@ -117,28 +118,25 @@ public class IndegreeDatasetModel {
 		result.append("\n===== Sorted by links=======");
 		Collections.sort(finalList, new Result());
 		printTableindegree();
-		
+
 		result.append("\n===== Sorted by number of datasets=======");
 		Collections.sort(finalList);
 		printTableindegree();
 
-
-		
 		result.append("\n\n\n\n===============================================================\n");
 		result.append("Comparing without vocabularies\n");
 		result.append("===============================================================\n\n");
 
-		 tmpResults = new HashMap<Integer, Result>();
+		tmpResults = new HashMap<Integer, Result>();
 
-		 finalList = new ArrayList<Result>();
-		 
+		finalList = new ArrayList<Result>();
+
 		isVocabulary = false;
 
 		for (DBObject object : instances) {
 
 			DatasetLinksetDB linkset = new DatasetLinksetDB(object);
 
-			System.out.println(linkset.getDistributionTargetIsVocabulary() );
 			if (linkset.getDistributionTargetIsVocabulary() == isVocabulary) {
 
 				Result result = tmpResults.get(linkset.getDatasetTarget());
@@ -147,14 +145,13 @@ public class IndegreeDatasetModel {
 					result = new Result();
 				}
 
-				if(isDeadLinks)
-				result.links = result.links + linkset.getDeadLinks();
+				if (isDeadLinks)
+					result.links = result.links + linkset.getDeadLinks();
 				else
 					result.links = result.links + linkset.getLinks();
 
 				result.sourceDatasetList.add(linkset.getDatasetSource());
 				result.targetDataset = linkset.getDatasetTarget();
-
 
 				tmpResults.put(linkset.getDatasetTarget(), result);
 			}
@@ -166,7 +163,7 @@ public class IndegreeDatasetModel {
 		result.append("\n===== Sorted by links=======");
 		Collections.sort(finalList, new Result());
 		printTableindegree();
-		
+
 		result.append("\n===== Sorted by number of datasets=======");
 		Collections.sort(finalList);
 		printTableindegree();
@@ -178,18 +175,16 @@ public class IndegreeDatasetModel {
 		result.append("\n\nName\t indegree \t Links \n");
 
 		DatasetDB tmpDataset;
-		
-		for(Result r: finalList){
+
+		for (Result r : finalList) {
 			tmpDataset = new DatasetDB(r.targetDataset);
 			result.append(tmpDataset.getTitle());
 			result.append("\t" + r.sourceDatasetList.size());
 			result.append("\t" + r.links);
 			result.append("\n");
 		}
-		
-		
 
 		result.append("\n\n\n");
 	}
-	
+
 }
