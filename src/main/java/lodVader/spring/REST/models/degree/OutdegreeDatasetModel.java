@@ -73,20 +73,7 @@ public class OutdegreeDatasetModel {
 
 		DBCursor instances;
 
-		if(!isDeadLinks){
-			BasicDBList and = new BasicDBList();
-//			and.add(new BasicDBObject(DatasetLinksetDB.DEAD_LINKS, new BasicDBObject("$gt", 0)));
-//			and.add(new BasicDBObject(DatasetLinksetDB.DATASET_SOURCE, new BasicDBObject("$ne", DatasetLinksetDB.DATASET_TARGET)));
-			
 			instances = collection.find();
-		}
-		else{
-			BasicDBList and = new BasicDBList();
-//			and.add(new BasicDBObject(DatasetLinksetDB.DEAD_LINKS, new BasicDBObject("$gt", 0)));
-//			and.add(new BasicDBObject(DatasetLinksetDB.DATASET_SOURCE, new BasicDBObject("$ne", DatasetLinksetDB.DATASET_TARGET)));
-//			instances = collection.find( new BasicDBObject("$and", and));
-			instances = collection.find();
-		}
 		
 		for (DBObject object : instances) {
 
@@ -100,7 +87,11 @@ public class OutdegreeDatasetModel {
 					result = new Result();
 				}
 
-				result.links = result.links + linkset.getLinks();
+				if(isDeadLinks)
+				result.links = result.links + linkset.getDeadLinks();
+				else
+					result.links = result.links + linkset.getLinks();
+					
 				result.targetDataset.add(linkset.getDatasetTarget());
 				result.sourceDataset = linkset.getDatasetSource();
 
@@ -143,7 +134,11 @@ public class OutdegreeDatasetModel {
 					result = new Result();
 				}
 
-				result.links = result.links + linkset.getLinks();
+				if(isDeadLinks)
+				result.links = result.links + linkset.getDeadLinks();
+				else
+					result.links = result.links + linkset.getLinks();
+				
 				result.targetDataset.add(linkset.getDatasetTarget());
 
 				tmpResults.put(linkset.getDatasetSource(), result);
