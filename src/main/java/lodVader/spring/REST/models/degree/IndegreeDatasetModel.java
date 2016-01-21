@@ -168,10 +168,11 @@ public class IndegreeDatasetModel {
 
 		result.append("\n\nName\t indegree \t Links \n");
 
-		ResourceDB tmpDataset;
+		DatasetDB tmpDataset;
 		
 		for(Result r: finalList){
 			tmpDataset = new DatasetDB(r.targetDataset);
+			System.out.println(r.targetDataset+ " - ");
 			result.append(tmpDataset.getTitle());
 			result.append("\t" + r.sourceDatasetList.size());
 			result.append("\t" + r.links);
