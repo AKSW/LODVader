@@ -99,7 +99,11 @@ public class IndegreeDatasetModel {
 					result = new Result();
 				}
 
-				result.links = result.links + linkset.getLinks();
+				if(isDeadLinks)
+				result.links = result.links + linkset.getDeadLinks();
+				else
+					result.links = result.links + linkset.getLinks();
+
 				result.sourceDatasetList.add(linkset.getDatasetSource());
 				result.targetDataset = linkset.getDatasetTarget();
 
@@ -143,7 +147,11 @@ public class IndegreeDatasetModel {
 					result = new Result();
 				}
 
-				result.links = result.links + linkset.getLinks();
+				if(isDeadLinks)
+				result.links = result.links + linkset.getDeadLinks();
+				else
+					result.links = result.links + linkset.getLinks();
+
 				result.sourceDatasetList.add(linkset.getDatasetSource());
 				result.targetDataset = linkset.getDatasetTarget();
 

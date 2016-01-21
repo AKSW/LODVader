@@ -134,8 +134,8 @@ public class OutdegreeDatasetModel {
 					result = new Result();
 				}
 
-				if(isDeadLinks)
-				result.links = result.links + linkset.getDeadLinks();
+				if (isDeadLinks)
+					result.links = result.links + linkset.getDeadLinks();
 				else
 					result.links = result.links + linkset.getLinks();
 				
@@ -162,7 +162,7 @@ public class OutdegreeDatasetModel {
 
 		result.append("\n\nName\t Outdegree \t Links \n");
 
-		ResourceDB tmpDataset;
+		DatasetDB tmpDataset;
 		
 		for(Result r: finalList){
 			tmpDataset = new DatasetDB(r.sourceDataset);
