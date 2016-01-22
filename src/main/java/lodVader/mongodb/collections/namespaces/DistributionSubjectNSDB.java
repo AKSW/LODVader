@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
-import lodVader.LoadedBloomFiltersCache;
+import lodVader.bloomfilters.models.LoadedBloomFiltersCache;
 import lodVader.exceptions.LODVaderMissingPropertiesException;
 import lodVader.exceptions.mongodb.LODVaderNoPKFoundException;
 import lodVader.exceptions.mongodb.LODVaderObjectAlreadyExistsException;

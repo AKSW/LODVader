@@ -13,11 +13,13 @@ import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import lodVader.LODVaderProperties;
-import lodVader.TuplePart;
 import lodVader.bloomfilters.GoogleBloomFilter;
+import lodVader.bloomfilters.models.DatasetBF;
+import lodVader.enumerators.TuplePart;
 import lodVader.linksets.DistributionResourcesData;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.gridFS.SuperBucket;
+import lodVader.streaming.StreamAndProcess;
 
 public class LinksetDataThread extends Thread {
 
@@ -72,13 +74,13 @@ public class LinksetDataThread extends Thread {
 //	public HashSet<String> targetNSSet = new HashSet<String>(); 
 	public GoogleBloomFilter targetNSSet;
 
-	public String tuplePart;
+	public TuplePart tuplePart;
 
 	// flat to execute or not this model in a thread
 	public boolean active = false;
 
 	public LinksetDataThread(DistributionDB sourceDistribution, DistributionDB targetDistribution,
-			DistributionResourcesData distributionFilter, String tuplePart) {
+			DistributionResourcesData distributionFilter, TuplePart tuplePart) {
 
 		this.tuplePart = tuplePart;
 		this.sourceDatasetID = sourceDistribution.getTopDatasetID();
@@ -92,6 +94,9 @@ public class LinksetDataThread extends Thread {
 					+ this.sourceDistributionID + "_" + this.targetDistributionID));
 			invalidLinksWriter = new BufferedWriter(new FileWriter(LODVaderProperties.TMP_FOLDER + "invalid_"
 					+ this.sourceDistributionID + "_" + this.targetDistributionID));
+			
+			// start bloom filter to count links between distribution and dataset 
+			DatasetBF.loadDataset(this.targetDatasetID);
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -109,8 +114,14 @@ public class LinksetDataThread extends Thread {
 	}
 
 	public void addValidLink(String resource) {
+		System.out.println("add "+ resource);
+		if(!DatasetBF.queryDataset(resource, this.targetDatasetID)){
+			DatasetBF.incrementDatasetCounter(this.targetDatasetID);
+			DatasetBF.addResource(resource, this.targetDatasetID);
+		}
 		try {
 			validLinksWriter.write(resource + "\n");
+				
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

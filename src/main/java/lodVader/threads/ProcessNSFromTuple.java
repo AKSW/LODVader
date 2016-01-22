@@ -9,10 +9,12 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.hash.BloomFilter;
+
 import lodVader.LODVaderProperties;
-import lodVader.LoadedBloomFiltersCache;
-import lodVader.TuplePart;
 import lodVader.bloomfilters.GoogleBloomFilter;
+import lodVader.bloomfilters.models.LoadedBloomFiltersCache;
+import lodVader.enumerators.TuplePart;
 import lodVader.exceptions.LODVaderMissingPropertiesException;
 import lodVader.exceptions.mongodb.LODVaderNoPKFoundException;
 import lodVader.exceptions.mongodb.LODVaderObjectAlreadyExistsException;
@@ -37,7 +39,7 @@ public abstract class ProcessNSFromTuple extends Thread {
 	final static Logger logger = LoggerFactory.getLogger(ProcessNSFromTuple.class);
 
 	// tuple part identifies whether we are working with subject or object
-	public String tuplePart;
+	public TuplePart tuplePart;
 
 	// map of distributions with all NS and resources (subject or object)
 	public ConcurrentHashMap<Integer, DistributionResourcesData> distributionsResourceData = new ConcurrentHashMap<Integer, DistributionResourcesData>();
@@ -332,8 +334,7 @@ public abstract class ProcessNSFromTuple extends Thread {
 							if (!invalidLinksFilter.queryDatasetSubject(link, linkset.getDatasetTarget())) {
 								invalidLinksMapFinal.put(link, invalidLinksMap.get(link));
 								deadLinksBetweenDistAndDataset++;
-							} else
-								linksBetweenDistAndDataset++;
+							} 
 						}
 					}
 				}

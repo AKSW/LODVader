@@ -13,7 +13,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
-import org.junit.Test;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
 import org.slf4j.Logger;
@@ -32,7 +31,8 @@ import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.sparql.core.DatasetGraph;
 
 import lodVader.LODVaderProperties;
-import lodVader.TuplePart;
+import lodVader.enumerators.DistributionStatus;
+import lodVader.enumerators.TuplePart;
 import lodVader.exceptions.LODVaderFormatNotAcceptedException;
 import lodVader.exceptions.LODVaderLODGeneralException;
 import lodVader.links.similarity.JaccardSimilarity;
@@ -52,7 +52,6 @@ import lodVader.mongodb.collections.gridFS.ObjectsBucket;
 import lodVader.mongodb.collections.gridFS.SubjectsBucket;
 import lodVader.streaming.SuperStream;
 import lodVader.threads.MakeLinksetsMasterThread;
-import lodVader.utils.FileUtils;
 import lodVader.utils.Timer;
 
 public class LOV extends SuperStream {
@@ -212,24 +211,24 @@ public class LOV extends SuperStream {
 				else if (dataset.getLabel() != null)
 					distribution.setTitle(dataset.getLabel());
 				
-				distribution.setStatus(DistributionDB.STATUS_WAITING_TO_STREAM);
+				distribution.setStatus(DistributionStatus.WAITING_TO_STREAM);
 				distribution.update(true);
 
-				MakeLinksetsMasterThread makeLinksets = new MakeLinksetsMasterThread(subjectsQueue,
+				MakeLinksetsMasterThread makeLinksetsSubjects = new MakeLinksetsMasterThread(subjectsQueue,
 						node.getNameSpace());
-				MakeLinksetsMasterThread makeLinksets2 = new MakeLinksetsMasterThread(objectsQueue,
+				MakeLinksetsMasterThread makeLinksetsObjects = new MakeLinksetsMasterThread(objectsQueue,
 						node.getNameSpace());
-				makeLinksets2.tuplePart = TuplePart.OBJECT;
-				makeLinksets.tuplePart = TuplePart.SUBJECT;
-				makeLinksets.start();
-				makeLinksets2.start();
+				makeLinksetsObjects.tuplePart = TuplePart.OBJECT;
+				makeLinksetsSubjects.tuplePart = TuplePart.SUBJECT;
+				makeLinksetsSubjects.start();
+				makeLinksetsObjects.start();
 
 				Thread.sleep(50);
 
-				makeLinksets.setDoneSplittingString(true);
-				makeLinksets2.setDoneSplittingString(true);
-				makeLinksets.join();
-				makeLinksets2.join();
+				makeLinksetsSubjects.setDoneSplittingString(true);
+				makeLinksetsObjects.setDoneSplittingString(true);
+				makeLinksetsSubjects.join();
+				makeLinksetsObjects.join();
 
 				// distribution.update(true);
 
@@ -272,7 +271,7 @@ public class LOV extends SuperStream {
 		distribution.setNumberOfSubjectTriples(subjects.size());
 		distribution.setSuccessfullyDownloaded(true);
 		// distribution.setStatus(DistributionMongoDBObject.STATUS_WAITING_TO_CREATE_LINKSETS);
-		distribution.setStatus(DistributionDB.STATUS_DONE);
+		distribution.setStatus(DistributionStatus.DONE);
 
 		DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss dd/MM/yyyy");
 		// get current date time with Date()

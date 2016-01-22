@@ -24,6 +24,7 @@ import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 
 import lodVader.LODVaderProperties;
+import lodVader.enumerators.DistributionStatus;
 import lodVader.exceptions.LODVaderFormatNotAcceptedException;
 import lodVader.exceptions.LODVaderLODGeneralException;
 import lodVader.exceptions.LODVaderMissingPropertiesException;
@@ -46,7 +47,7 @@ public class DataIDVoIDFileParser implements FileParserInterface {
 	final static Logger logger = LoggerFactory.getLogger(DataIDVoIDFileParser.class);
 
 	private Model inModel = ModelFactory.createDefaultModel();
-	public List<DistributionDB> distributionsLinks = new ArrayList<DistributionDB>();
+	public List<DistributionDB> distributionsLinks = new ArrayList<DistributionDB>(); 
 	int numberOfDistributions = 0;
 	public boolean someDownloadURLFound = false;
 	private String fileURLHash;
@@ -439,8 +440,8 @@ public class DataIDVoIDFileParser implements FileParserInterface {
 		}
 
 		if (distributionMongoDBObj.getStatus() == null) {
-			distributionMongoDBObj
-					.setStatus(DistributionDB.STATUS_WAITING_TO_STREAM);
+			distributionMongoDBObj 
+					.setStatus(DistributionStatus.WAITING_TO_STREAM);
 		}
 		try {
 			distributionMongoDBObj.update(true);

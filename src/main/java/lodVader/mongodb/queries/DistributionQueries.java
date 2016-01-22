@@ -20,8 +20,8 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
 import lodVader.LODVaderProperties;
-import lodVader.LoadedBloomFiltersCache;
 import lodVader.bloomfilters.GoogleBloomFilter;
+import lodVader.bloomfilters.models.LoadedBloomFiltersCache;
 import lodVader.linksets.DistributionResourcesData;
 import lodVader.mongodb.DBSuperClass2;
 import lodVader.mongodb.collections.DatasetDB;

@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -26,9 +27,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import lodVader.LODVaderProperties;
-import lodVader.TuplePart;
+import lodVader.bloomfilters.GoogleBloomFilter;
+import lodVader.bloomfilters.models.DatasetBF;
+import lodVader.enumerators.TuplePart;
 import lodVader.exceptions.LODVaderFormatNotAcceptedException;
 import lodVader.exceptions.LODVaderLODGeneralException;
+import lodVader.mongodb.collections.DatasetLinksetDB;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.RDFResources.allPredicates.AllPredicatesDB;
 import lodVader.mongodb.collections.RDFResources.allPredicates.AllPredicatesRelationDB;
@@ -56,7 +60,7 @@ public class StreamAndProcess extends SuperStream {
 	ConcurrentLinkedQueue<String> bufferQueue = new ConcurrentLinkedQueue<String>();
 	ConcurrentLinkedQueue<String> objectQueue = new ConcurrentLinkedQueue<String>();
 	ConcurrentLinkedQueue<String> subjectQueue = new ConcurrentLinkedQueue<String>();
-
+	
 	boolean doneReadingFile = false;
 	boolean doneSplittingString = false;
 
@@ -259,6 +263,19 @@ public class StreamAndProcess extends SuperStream {
 		makeLinksetFromSubjectsThread.setDoneSplittingString(true);
 		makeLinksetFromSubjectsThread.join();
 
+		// save links between distribution and datasets
+		logger.info("Saving links between distribution and datasets");
+
+		for(int datasetID:DatasetBF.datasetLinksCounter.keySet()){
+			String linksetID = distribution.getLODVaderID()+"-"+datasetID;
+			DatasetLinksetDB linkset = new DatasetLinksetDB(linksetID);
+			linkset.setLinks(DatasetBF.datasetLinksCounter.get(datasetID));
+			linkset.update(true, DatasetLinksetDB.LINKSET_ID, linksetID);
+		}
+		
+		// done creating links between distributions and datasets. Reset the datasetLinks
+		DatasetBF.emptyDatasetResources();
+		
 		splitThread.closeFiles();
 
 		logger.info("Saving predicates...");

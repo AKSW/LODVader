@@ -1,6 +1,7 @@
 package lodVader;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.servlet.http.HttpServlet;
 
@@ -9,7 +10,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.LoggerFactory;
 
+import lodVader.bloomfilters.models.LoadedBloomFiltersCache;
+import lodVader.enumerators.DistributionStatus;
 import lodVader.mongodb.IndexesCreator;
+import lodVader.mongodb.collections.DatasetDB;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.LODVaderCounterDB;
 import lodVader.mongodb.queries.DistributionQueries;
@@ -21,7 +25,7 @@ import lodVader.utils.FileUtils;
  * keep streaming files (means that app was killed before finish their work),
  * and whether have to create MongoDB indexes
  * 
- * @author ciro
+ * @author Ciro Baron Neto
  *
  */
 public class StartLODVader {
@@ -67,34 +71,32 @@ public class StartLODVader {
 
 			new IndexesCreator().createIndexes();
 
-			ArrayList<DistributionDB> distributions = new ArrayList<DistributionDB>();
+			HashMap<Integer, DatasetDB> datasets = new HashMap<Integer, DatasetDB>();
 
 			logger.info("Resuming Downloads...");
+			
 			if (LODVaderProperties.RESUME) {
 
 				// re-download distributions with "Downloading" status
 				ArrayList<String> q = new GeneralQueries().getMongoDBObject(DistributionDB.COLLECTION_NAME,
-						DistributionDB.STATUS, DistributionDB.STATUS_STREAMING);
-				logger.debug("re-download distributions with \"" + DistributionDB.STATUS_STREAMING + "\" status");
+						DistributionDB.STATUS, DistributionStatus.STREAMING.toString());
+				logger.debug("re-download distributions with \"" + DistributionStatus.STREAMING + "\" status");
 
 				for (String s : q) {
 					DistributionDB dist = new DistributionDB(s);
-					dist.setStatus(DistributionDB.STATUS_WAITING_TO_STREAM);
+					dist.setStatus(DistributionStatus.WAITING_TO_STREAM);
 					dist.update(true);
-					// distributions.add(dist);
 				}
 
-				// download distributions with
-				// "STATUS_WAITING_TO_STREAM"
-				// status
+				// download distributions with "STATUS_WAITING_TO_STREAM" status
 				q = new GeneralQueries().getMongoDBObject(DistributionDB.COLLECTION_NAME, DistributionDB.STATUS,
-						DistributionDB.STATUS_WAITING_TO_STREAM);
-				logger.debug("download distributions with \"" + DistributionDB.STATUS_WAITING_TO_STREAM + "\" status");
+						DistributionStatus.WAITING_TO_STREAM.toString());
+				logger.debug("download distributions with \"" + DistributionStatus.WAITING_TO_STREAM + "\" status");
 
 				for (String s : q) {
 					DistributionDB dist = new DistributionDB(s);
 					dist.update(true);
-					distributions.add(dist);
+					datasets.put(dist.getTopDatasetID(), new DatasetDB(dist.getTopDatasetID()));
 				}
 
 			}
@@ -103,14 +105,14 @@ public class StartLODVader {
 				// download distributions with "ERROR"
 				// status
 				ArrayList<String> q = new GeneralQueries().getMongoDBObject(DistributionDB.COLLECTION_NAME,
-						DistributionDB.STATUS, DistributionDB.STATUS_ERROR);
-				logger.debug("download distributions with \"" + DistributionDB.STATUS_WAITING_TO_STREAM + "\" status");
+						DistributionDB.STATUS, DistributionStatus.ERROR.toString());
+				logger.debug("download distributions with \"" + DistributionStatus.WAITING_TO_STREAM + "\" status");
 
 				for (String s : q) {
 					DistributionDB dist = new DistributionDB(s);
-					dist.setStatus(DistributionDB.STATUS_WAITING_TO_STREAM);
-					dist.update(true);
-					distributions.add(dist);
+					dist.setStatus(DistributionStatus.WAITING_TO_STREAM);
+					dist.update(true); 
+					datasets.put(dist.getTopDatasetID(),new DatasetDB(dist.getTopDatasetID()));
 				}
 			}
 
@@ -127,9 +129,9 @@ public class StartLODVader {
 				LoadedBloomFiltersCache.describedObjectsNS = new DistributionQueries()
 						.getDescribedNS(LODVaderProperties.TYPE_OBJECT);
 
-			logger.info("We will resume: " + distributions.size() + " downloads(s).");
+			logger.info("We will resume: " + datasets.size() + " dataset(s).");
 
-			new Manager(distributions);
+			new Manager(datasets.values());
 
 		} catch (Exception e) {
 			e.printStackTrace();

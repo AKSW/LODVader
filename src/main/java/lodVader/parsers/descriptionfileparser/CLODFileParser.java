@@ -20,7 +20,7 @@ import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 
-import arq.arq;
+import lodVader.enumerators.DistributionStatus;
 import lodVader.exceptions.LODVaderNoDatasetFoundException;
 import lodVader.mongodb.collections.DatasetDB;
 import lodVader.mongodb.collections.DistributionDB;
@@ -35,7 +35,7 @@ public class CLODFileParser implements FileParserInterface {
 	Property urlProp = ResourceFactory.createProperty("http://lodlaundromat.org/ontology/url");
 	Property formatProp = ResourceFactory.createProperty("http://lodlaundromat.org/ontology/fileExtension");
 
-	public List<DistributionDB> distributionsLinks = new ArrayList<DistributionDB>();
+	public List<DatasetDB> distributionsLinks = new ArrayList<DatasetDB>();
 
 	@Test
 	public void oi() {
@@ -85,7 +85,7 @@ public class CLODFileParser implements FileParserInterface {
 				defaultDatasets.add(dataset.getLODVaderID());
 				distribution.setDefaultDatasets(defaultDatasets);
 
-				distribution.setStatus(DistributionDB.STATUS_WAITING_TO_STREAM);
+				distribution.setStatus(DistributionStatus.WAITING_TO_STREAM);
 
 				StmtIterator otherIterator = inModel.listStatements(stmt.getSubject().asResource(), formatProp,
 						(RDFNode) null);
@@ -99,7 +99,7 @@ public class CLODFileParser implements FileParserInterface {
 				dataset.setDistributionsIds(defaultDatasets);
 				dataset.update(false, DatasetDB.URI, url);
 
-				distributionsLinks.add(distribution);
+				distributionsLinks.add(dataset);
 
 			} catch (Exception e) {
 				// TODO Auto-generated catch block

@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import lodVader.TuplePart;
+import lodVader.enumerators.TuplePart;
 import lodVader.linksets.DatasetResourcesData;
 import lodVader.linksets.DistributionResourcesData;
 import lodVader.mongodb.collections.DistributionDB;

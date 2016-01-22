@@ -3,6 +3,7 @@ package lodVader.spring.REST.models.dataset;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.HashMap;
 
 import org.apache.jena.riot.RiotException;
 
@@ -10,6 +11,8 @@ import lodVader.Manager;
 import lodVader.exceptions.LODVaderFormatNotAcceptedException;
 import lodVader.exceptions.LODVaderLODGeneralException;
 import lodVader.exceptions.LODVaderNoDatasetFoundException;
+import lodVader.mongodb.collections.DatasetDB;
+import lodVader.mongodb.collections.DistributionDB;
 import lodVader.parsers.descriptionfileparser.CLODFileParser;
 import lodVader.parsers.descriptionfileparser.DataIDVoIDFileParser;
 import lodVader.spring.REST.models.RESTMsg;
@@ -43,8 +46,13 @@ public class AddDatasetModel extends RESTMsg implements Runnable {
 				setParserMsg(
 						inputRDFParser.distributionsLinks.size() + " distributions found. We are processing them!");
 
+				// get datasets to instantiate a Manager
+				HashMap<Integer, DatasetDB> datasets = new HashMap<Integer, DatasetDB>();
+				for(DistributionDB dist: inputRDFParser.distributionsLinks)
+					datasets.put(dist.getTopDatasetID(), new DatasetDB(dist.getTopDatasetID()));
+				
 				// stream distributions
-				Manager m = new Manager(inputRDFParser.distributionsLinks);
+				Manager m = new Manager(datasets.values());
 			} else {
 				setParserMsg("No datasets found.");
 

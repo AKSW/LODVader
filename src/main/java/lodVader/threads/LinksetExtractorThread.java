@@ -3,8 +3,8 @@ package lodVader.threads;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
-import lodVader.TuplePart;
 import lodVader.bloomfilters.GoogleBloomFilter;
+import lodVader.enumerators.TuplePart;
 import lodVader.linksets.DatasetResourcesData;
 import lodVader.mongodb.collections.gridFS.SuperBucket;
 import lodVader.utils.NSUtils;

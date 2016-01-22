@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import com.mongodb.DBObject;
 
+import lodVader.enumerators.DistributionStatus;
 import lodVader.mongodb.queries.DatasetQueries;
 import lodVader.utils.URLUtils;
 
@@ -55,26 +56,26 @@ public class DistributionDB extends ResourceDB {
 		addMandatoryField(STATUS);
 	}
 
-	// Distributions possible status
-	public static final String STATUS_STREAMING = "STREAMING";
-
-	public static final String STATUS_STREAMED = "STREAMED";
-
-	public static final String STATUS_SEPARATING_SUBJECTS_AND_OBJECTS = "SEPARATING_SUBJECTS_AND_OBJECTS";
-
-	public static final String STATUS_WAITING_TO_STREAM = "WAITING_TO_STREAM";
-
-	public static final String STATUS_CREATING_BLOOM_FILTER = "CREATING_BLOOM_FILTER";
-
-	public static final String STATUS_CREATING_LINKSETS = "CREATING_LINKSETS";
-
-	public static final String STATUS_ERROR = "ERROR";
-
-	public static final String STATUS_DONE = "DONE";
-
-	public static final String STATUS_CREATING_JACCARD_SIMILARITY = "CREATING_JACCARD_SIMILARITY";
-
-	public static final String STATUS_UPDATING_LINK_STRENGTH = "UPDATING_LINK_STRENGTH";
+	// Distributions possible status 
+//	public static final String STATUS_STREAMING = "STREAMING";
+//
+//	public static final String STATUS_STREAMED = "STREAMED";
+//
+//	public static final String STATUS_SEPARATING_SUBJECTS_AND_OBJECTS = "SEPARATING_SUBJECTS_AND_OBJECTS";
+//
+//	public static final String STATUS_WAITING_TO_STREAM = "WAITING_TO_STREAM";
+//
+//	public static final String STATUS_CREATING_BLOOM_FILTER = "CREATING_BLOOM_FILTER";
+//
+//	public static final String STATUS_CREATING_LINKSETS = "CREATING_LINKSETS";
+//
+//	public static final String STATUS_ERROR = "ERROR";
+//
+//	public static final String STATUS_DONE = "DONE";
+//
+//	public static final String STATUS_CREATING_JACCARD_SIMILARITY = "CREATING_JACCARD_SIMILARITY";
+//
+//	public static final String STATUS_UPDATING_LINK_STRENGTH = "UPDATING_LINK_STRENGTH";
 
 	// collection properties
 	public static final String DOWNLOAD_URL = "downloadUrl";
@@ -233,17 +234,17 @@ public class DistributionDB extends ResourceDB {
 		addField(LAST_MSG, lastMsg);
 	}
 
-	public String getStatus() {
+	public DistributionStatus getStatus() {
 		try {
 			getField(STATUS).toString();
 		} catch (NullPointerException e) {
 			return null;
 		}
-		return getField(STATUS).toString();
+		return DistributionStatus.valueOf(getField(STATUS).toString());
 	}
 
-	public void setStatus(String status) {
-		addField(STATUS, status);
+	public void setStatus(DistributionStatus status) {
+		addField(STATUS, status.name());
 	}
 
 	public boolean getIsVocabulary() {

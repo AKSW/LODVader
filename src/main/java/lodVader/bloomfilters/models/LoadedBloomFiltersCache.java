@@ -1,5 +1,6 @@
-package lodVader;
+package lodVader.bloomfilters.models;
 
+import lodVader.LODVaderProperties;
 import lodVader.bloomfilters.GoogleBloomFilter;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.gridFS.ObjectsBucket;
