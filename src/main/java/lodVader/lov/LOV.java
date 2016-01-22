@@ -206,6 +206,7 @@ public class LOV extends SuperStream {
 				distribution = new DistributionDB(node.getNameSpace());
 				distribution.setTopDataset(dataset.getLODVaderID());
 				distribution.setUri(node.getNameSpace());
+				distribution.setIsVocabulary(true);
 				if (dataset.getTitle() != null)
 					distribution.setTitle(dataset.getTitle());
 				else if (dataset.getLabel() != null)

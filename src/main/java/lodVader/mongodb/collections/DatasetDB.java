@@ -102,7 +102,7 @@ public class DatasetDB extends ResourceDB {
 
 	@JsonIgnore
 	public ArrayList<DistributionDB> getDistributionsAsMongoDBObjects() {
-		return new DatasetQueries().getDistributionsAsMongoDBObject(this);
+		return new DatasetQueries().getDistributions(this);
 	}
 
 	public ArrayList<Integer> getSubsetsIDs() {

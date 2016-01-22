@@ -27,8 +27,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import lodVader.LODVaderProperties;
+import lodVader.Manager;
 import lodVader.bloomfilters.GoogleBloomFilter;
-import lodVader.bloomfilters.models.DatasetBF;
+import lodVader.bloomfilters.models.DatasetLinksContainer;
 import lodVader.enumerators.TuplePart;
 import lodVader.exceptions.LODVaderFormatNotAcceptedException;
 import lodVader.exceptions.LODVaderLODGeneralException;
@@ -60,7 +61,7 @@ public class StreamAndProcess extends SuperStream {
 	ConcurrentLinkedQueue<String> bufferQueue = new ConcurrentLinkedQueue<String>();
 	ConcurrentLinkedQueue<String> objectQueue = new ConcurrentLinkedQueue<String>();
 	ConcurrentLinkedQueue<String> subjectQueue = new ConcurrentLinkedQueue<String>();
-	
+
 	boolean doneReadingFile = false;
 	boolean doneSplittingString = false;
 
@@ -266,16 +267,16 @@ public class StreamAndProcess extends SuperStream {
 		// save links between distribution and datasets
 		logger.info("Saving links between distribution and datasets");
 
-		for(int datasetID:DatasetBF.datasetLinksCounter.keySet()){
-			String linksetID = distribution.getLODVaderID()+"-"+datasetID;
-			DatasetLinksetDB linkset = new DatasetLinksetDB(linksetID);
-			linkset.setLinks(DatasetBF.datasetLinksCounter.get(datasetID));
-			linkset.update(true, DatasetLinksetDB.LINKSET_ID, linksetID);
-		}
-		
-		// done creating links between distributions and datasets. Reset the datasetLinks
-		DatasetBF.emptyDatasetResources();
-		
+//		for (int datasetID : Manager.datasetLinkContainer.datasetLinksCounter.keySet()) {
+//			String linksetID = distribution.getLODVaderID() + "-" + datasetID;
+//			DatasetLinksetDB linkset = new DatasetLinksetDB(linksetID);
+//			linkset.setLinks(Manager.datasetLinkContainer.datasetLinksCounter.get(datasetID));
+//			linkset.update(true, DatasetLinksetDB.LINKSET_ID, linksetID);
+//		}
+
+		// done creating links between distributions and datasets. Reset the
+		// datasetLinks
+
 		splitThread.closeFiles();
 
 		logger.info("Saving predicates...");
@@ -307,10 +308,10 @@ public class StreamAndProcess extends SuperStream {
 		SubjectsBucket subjectBucket = new SubjectsBucket(
 				new File(LODVaderProperties.SUBJECT_FILE_DISTRIBUTION_PATH + hashFileName),
 				distribution.getLODVaderID());
-		
+
 		logger.info("Creating subjects bucket.");
 		subjectBucket.start();
-		subjectBucket.join();		
+		subjectBucket.join();
 
 		logger.info("Creating objects BF");
 		logger.info("Reading resources from file system...");
@@ -319,12 +320,10 @@ public class StreamAndProcess extends SuperStream {
 				distribution.getLODVaderID());
 		logger.info("Creating objects bucket.");
 		objectBucket.start();
-		
-		objectBucket.join();
-		
-		logger.info("Done creating buckets.");
 
-		
+		objectBucket.join();
+
+		logger.info("Done creating buckets.");
 
 	}
 }

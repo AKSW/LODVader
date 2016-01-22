@@ -9,15 +9,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.hash.BloomFilter;
-
 import lodVader.LODVaderProperties;
 import lodVader.bloomfilters.GoogleBloomFilter;
 import lodVader.bloomfilters.models.LoadedBloomFiltersCache;
 import lodVader.enumerators.TuplePart;
-import lodVader.exceptions.LODVaderMissingPropertiesException;
-import lodVader.exceptions.mongodb.LODVaderNoPKFoundException;
-import lodVader.exceptions.mongodb.LODVaderObjectAlreadyExistsException;
 import lodVader.invalidLinks.InvalidLinksFilters;
 import lodVader.linksets.DatasetResourcesData;
 import lodVader.linksets.DistributionResourcesData;
@@ -206,6 +201,7 @@ public abstract class ProcessNSFromTuple extends Thread {
 	}
 
 	private void saveLinks() {
+		
 		new LinksetDB().removeAllLinks(distribution.getLODVaderID());
 
 		for (LinksetDataThread dataThread : mapOfWorkerThreads.values()) {
@@ -260,6 +256,7 @@ public abstract class ProcessNSFromTuple extends Thread {
 						dataThread.sourceDistributionID);
 				linkset.setInvalidLinks(invalidLinksMapFinal.size());
 				dataThread.setInvalidLinks(null);
+							
 
 			} else {
 				// only calculate links from distribution to dataset if we are
@@ -352,6 +349,26 @@ public abstract class ProcessNSFromTuple extends Thread {
 				dataThread.setInvalidLinks(null);
 
 			}
+			
+
+			String linksetDatasetID = linkset.getDistributionSource() + "-" + linkset.getDatasetTarget();
+			DatasetLinksetDB linksetDataset = new DatasetLinksetDB(linksetDatasetID);
+			linksetDataset = new DatasetLinksetDB(linksetDatasetID);
+			linksetDataset.setDistributionSource(dataThread.sourceDistributionID);
+			linksetDataset.setDistributionTarget(dataThread.targetDistributionID);
+			linksetDataset.setDatasetSource(dataThread.sourceDatasetID);
+			linksetDataset.setDatasetTarget(dataThread.targetDatasetID);
+			linksetDataset.setDistributionSourceIsVocabulary(
+					new DistributionDB(linkset.getDistributionSource()).getIsVocabulary());
+			linksetDataset.setDistributionTargetIsVocabulary(
+					new DistributionDB(linkset.getDistributionTarget()).getIsVocabulary());
+			
+//			// saving links between distribution and dataset
+				linksetDataset.setLinks(dataThread.datasetLinkContainer.datasetLinksCounter);
+				linksetDataset.update(true, DatasetLinksetDB.LINKSET_ID, linksetDatasetID);
+			
+			
+			
 
 			if (linkset.getLinks() > 0 || linkset.getInvalidLinks() > 0)
 				linkset.update(true, LinksetDB.LINKSET_ID, linksetID);

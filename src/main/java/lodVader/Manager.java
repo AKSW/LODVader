@@ -2,19 +2,18 @@ package lodVader;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import lodVader.bloomfilters.models.DatasetLinksContainer;
 import lodVader.enumerators.DistributionStatus;
 import lodVader.lov.LOV;
 import lodVader.mongodb.collections.DatasetDB;
@@ -29,7 +28,10 @@ public class Manager {
 	final static Logger logger = LoggerFactory.getLogger(Manager.class);
 
 	// list of subset and their distributions
-	private static Queue<DatasetDB> datasetLinks = new LinkedBlockingQueue<DatasetDB>();
+	private static Queue<DatasetDB> datasets = new LinkedBlockingQueue<DatasetDB>();
+
+	// tmp links between distribution -> dataset
+	public static ArrayList<DatasetLinksContainer> datasetLinkContainer = new ArrayList<DatasetLinksContainer>(); 
 
 	// list of datasets in the queue to be streamed
 
@@ -40,11 +42,11 @@ public class Manager {
 		consumingQueue = true;
 
 		// while we still have datasets in the queue, keep reading
-		while (datasetLinks.size() > 0) {
+		while (datasets.size() > 0) {
 
-			logger.info("We still have " + datasetLinks.size() + " datasets in the queue...");
+			logger.info("We still have " + datasets.size() + " datasets in the queue...");
 
-			DatasetDB dataset = datasetLinks.remove();
+			DatasetDB dataset = datasets.remove();
 
 			// iterate on distributions of current dataset
 			for (DistributionDB distribution : dataset.getDistributionsAsMongoDBObjects()) {
@@ -153,7 +155,8 @@ public class Manager {
 						distribution.update(true);
 
 					}
-			}
+			}			
+			
 		}
 		consumingQueue = false;
 
@@ -172,7 +175,7 @@ public class Manager {
 		try {
 			for (DatasetDB dataset : collection) {
 
-				datasetLinks.add(dataset);
+				datasets.add(dataset);
 				logger.info("Adding new dataset to the queue: " + dataset.getUri());
 
 			}

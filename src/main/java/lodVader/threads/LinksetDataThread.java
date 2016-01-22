@@ -9,17 +9,18 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.hp.hpl.jena.sparql.function.library.date;
+
 import lodVader.LODVaderProperties;
+import lodVader.Manager;
 import lodVader.bloomfilters.GoogleBloomFilter;
-import lodVader.bloomfilters.models.DatasetBF;
+import lodVader.bloomfilters.models.DatasetLinksContainer;
 import lodVader.enumerators.TuplePart;
 import lodVader.linksets.DistributionResourcesData;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.gridFS.SuperBucket;
-import lodVader.streaming.StreamAndProcess;
 
 public class LinksetDataThread extends Thread {
 
@@ -78,6 +79,8 @@ public class LinksetDataThread extends Thread {
 
 	// flat to execute or not this model in a thread
 	public boolean active = false;
+	
+	DatasetLinksContainer datasetLinkContainer;
 
 	public LinksetDataThread(DistributionDB sourceDistribution, DistributionDB targetDistribution,
 			DistributionResourcesData distributionFilter, TuplePart tuplePart) {
@@ -88,15 +91,15 @@ public class LinksetDataThread extends Thread {
 		this.targetDistributionID = targetDistribution.getLODVaderID();
 		this.targetDatasetID = targetDistribution.getTopDatasetID();
 		this.targetDistributionTitle = targetDistribution.getTitle();
+		
+		this.datasetLinkContainer = new DatasetLinksContainer(this.sourceDistributionID, this.targetDatasetID);
+		
 
 		try {
 			validLinksWriter = new BufferedWriter(new FileWriter(LODVaderProperties.TMP_FOLDER + "valid_"
 					+ this.sourceDistributionID + "_" + this.targetDistributionID));
 			invalidLinksWriter = new BufferedWriter(new FileWriter(LODVaderProperties.TMP_FOLDER + "invalid_"
-					+ this.sourceDistributionID + "_" + this.targetDistributionID));
-			
-			// start bloom filter to count links between distribution and dataset 
-			DatasetBF.loadDataset(this.targetDatasetID);
+					+ this.sourceDistributionID + "_" + this.targetDistributionID));						
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -114,10 +117,9 @@ public class LinksetDataThread extends Thread {
 	}
 
 	public void addValidLink(String resource) {
-		System.out.println("add "+ resource);
-		if(!DatasetBF.queryDataset(resource, this.targetDatasetID)){
-			DatasetBF.incrementDatasetCounter(this.targetDatasetID);
-			DatasetBF.addResource(resource, this.targetDatasetID);
+		if(!datasetLinkContainer.queryDataset(resource)){
+			datasetLinkContainer.incrementDatasetCounter();
+			datasetLinkContainer.addResource(resource);
 		}
 		try {
 			validLinksWriter.write(resource + "\n");

@@ -209,14 +209,14 @@ public class DatasetQueries {
 		return list;
 	}
 	
-	public ArrayList<DistributionDB> getDistributionsAsMongoDBObject(DatasetDB dataset) {
+	public ArrayList<DistributionDB> getDistributions(DatasetDB dataset) {
 
 		ArrayList<DistributionDB> list = new ArrayList<DistributionDB>();
 		try {
 			DBCollection collection = DBSuperClass2.getCollection(
 					DistributionDB.COLLECTION_NAME);
 			BasicDBObject query = new BasicDBObject(
-					DistributionDB.LOD_VADER_ID, new BasicDBObject("$in", dataset.getDistributionsIDs()));
+					DistributionDB.TOP_DATASET, dataset.getLODVaderID());
 			DBCursor instances = collection.find(query);
 
 			for (DBObject instance : instances) {
