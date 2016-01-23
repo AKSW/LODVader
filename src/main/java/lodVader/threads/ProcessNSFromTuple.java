@@ -337,7 +337,7 @@ public abstract class ProcessNSFromTuple extends Thread {
 				}
 			
 
-				datasetLinkset.setLinks(linksBetweenDistAndDataset);
+				datasetLinkset.setLinks(linksBetweenDistAndDataset+datasetLinkset.getLinks());
 				datasetLinkset.setDeadLinks(deadLinksBetweenDistAndDataset);
 
 				datasetLinkset.update(true, DatasetLinksetDB.LINKSET_ID, datasetLinksetID);
@@ -364,7 +364,8 @@ public abstract class ProcessNSFromTuple extends Thread {
 					new DistributionDB(linkset.getDistributionTarget()).getIsVocabulary());
 			
 //			// saving links between distribution and dataset
-				linksetDataset.setLinks(dataThread.datasetLinkContainer.datasetLinksCounter);
+			
+				linksetDataset.setLinks(dataThread.datasetLinkContainer.datasetLinksCounter + linksetDataset.getLinks());
 				linksetDataset.update(true, DatasetLinksetDB.LINKSET_ID, linksetDatasetID);
 			
 			
