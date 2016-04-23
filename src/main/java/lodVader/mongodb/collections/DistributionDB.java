@@ -56,27 +56,6 @@ public class DistributionDB extends ResourceDB {
 		addMandatoryField(STATUS);
 	}
 
-	// Distributions possible status 
-//	public static final String STATUS_STREAMING = "STREAMING";
-//
-//	public static final String STATUS_STREAMED = "STREAMED";
-//
-//	public static final String STATUS_SEPARATING_SUBJECTS_AND_OBJECTS = "SEPARATING_SUBJECTS_AND_OBJECTS";
-//
-//	public static final String STATUS_WAITING_TO_STREAM = "WAITING_TO_STREAM";
-//
-//	public static final String STATUS_CREATING_BLOOM_FILTER = "CREATING_BLOOM_FILTER";
-//
-//	public static final String STATUS_CREATING_LINKSETS = "CREATING_LINKSETS";
-//
-//	public static final String STATUS_ERROR = "ERROR";
-//
-//	public static final String STATUS_DONE = "DONE";
-//
-//	public static final String STATUS_CREATING_JACCARD_SIMILARITY = "CREATING_JACCARD_SIMILARITY";
-//
-//	public static final String STATUS_UPDATING_LINK_STRENGTH = "UPDATING_LINK_STRENGTH";
-
 	// collection properties
 	public static final String DOWNLOAD_URL = "downloadUrl";
 
@@ -87,6 +66,8 @@ public class DistributionDB extends ResourceDB {
 	public static final String NUMBER_OF_SUBJECT_TRIPLES = "numberOfSubjectTriples";
 
 	public static final String NUMBER_OF_OBJECTS_TRIPLES = "numberOfObjectTriples";
+
+	public static final String OBJECTS_COHESION = "objectCohesion";
 
 	public static final String STATUS = "status";
 
@@ -132,6 +113,18 @@ public class DistributionDB extends ResourceDB {
 
 	public void setHttpByteSize(String httpByteSize) {
 		addField(HTTP_BYTE_SIZE, httpByteSize);
+	}
+
+	public void setObjectCohesion(int objectCohesion) {
+		addField(OBJECTS_COHESION, objectCohesion);
+	}
+
+	public int getObjectCohesion() {
+		try {
+			return ((Number) getField(OBJECTS_COHESION)).intValue();
+		} catch (NullPointerException e) {
+			return 0;
+		}
 	}
 
 	public int getTopDatasetID() {
@@ -202,7 +195,7 @@ public class DistributionDB extends ResourceDB {
 	public String getFormat() {
 		return getField(FORMAT).toString();
 	}
-	
+
 	public String getUndefinedLinks() {
 		return getField(UNDEFINED_LINKS).toString();
 	}
@@ -210,7 +203,7 @@ public class DistributionDB extends ResourceDB {
 	public void setFormat(String format) {
 		addField(FORMAT, format);
 	}
-	
+
 	public void setUndefinedLinks(Double undefinedLinks) {
 		addField(UNDEFINED_LINKS, undefinedLinks);
 	}

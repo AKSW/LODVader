@@ -32,6 +32,9 @@ public class NSStatisticModel {
 			str.append("\n ================================================ ");
 			str.append("\nDataset: " + distribution.getTopDatasetTitle());
 			str.append("\nDistribution: " + distribution.getDownloadUrl());
+			str.append("\nTriples " + distribution.getTriples());
+			str.append("\nSubjects " + distribution.getNumberOfSubjectTriples());
+			str.append("\nObjects " + distribution.getNumberOfObjectTriples());
 
 			ArrayList<DistributionSubjectNSDB> nsList = new NSQueries()
 					.getSubjectNSByDistribution(distribution.getLODVaderID());

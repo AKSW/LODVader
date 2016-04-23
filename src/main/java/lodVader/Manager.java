@@ -85,6 +85,7 @@ public class Manager {
 						streamFile.streamDistribution();
 
 						// uptate status of distribution
+						distribution.find(true);
 						distribution.setStatus(DistributionStatus.STREAMED);
 						distribution.update(true);
 

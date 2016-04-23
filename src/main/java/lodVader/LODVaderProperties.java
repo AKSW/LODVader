@@ -144,9 +144,9 @@ public class LODVaderProperties {
 	public static String LOV_URL;
 	public static String REMOVE_DATASET_PASS;
 	
-	public static String TYPE_SUBJECT = "subject";
-	public static String TYPE_PROPERTY = "property";
-	public static String TYPE_OBJECT = "object";
+//	public static String TYPE_SUBJECT = "subject";
+//	public static String TYPE_PROPERTY = "property";
+//	public static String TYPE_OBJECT = "object";
 	
 	public static int MAX_CHUNK_SIZE = 200000;
 	
@@ -160,7 +160,7 @@ public class LODVaderProperties {
 	
 	public static boolean CHECK_LOV = true;
 
-	public static boolean ONLY_STREAM_DATASETS_AND_SAVE_NT_FORMAT = false;
+	public static boolean ONLY_STREAM_DATASETS_AND_SAVE_NT_FORMAT = true;
 
 	public static String VERSION = "v1.0";
 

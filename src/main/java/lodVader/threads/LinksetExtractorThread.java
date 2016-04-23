@@ -15,9 +15,13 @@ public class LinksetExtractorThread implements Runnable {
 
 	NSUtils nsUtils = new NSUtils();
 	Integer n;
-	 ConcurrentHashMap<Integer, DatasetResourcesData> datasetResourceData;
+	ConcurrentHashMap<Integer, DatasetResourcesData> datasetResourceData;
+	
+	// monitor for wait/notify thread
+	Object monitor = new Object();
 
-	public LinksetExtractorThread(LinksetDataThread dataThread, HashMap<String, String> resources,  ConcurrentHashMap<Integer, DatasetResourcesData> datasetResourceData ) {
+	public LinksetExtractorThread(LinksetDataThread dataThread, HashMap<String, String> resources,
+			ConcurrentHashMap<Integer, DatasetResourcesData> datasetResourceData) {
 		this.listOfResources = resources;
 		this.dataThread = dataThread;
 		this.datasetResourceData = datasetResourceData;
@@ -25,11 +29,11 @@ public class LinksetExtractorThread implements Runnable {
 
 	public void saveValidLink(String resource) {
 		dataThread.addValidLink(resource);
-		if (dataThread.tuplePart.equals(TuplePart.SUBJECT)) 
+		if (dataThread.tuplePart.equals(TuplePart.SUBJECT))
 			datasetResourceData.get(dataThread.targetDatasetID).addObject(resource);
 		else
 			datasetResourceData.get(dataThread.targetDatasetID).addSubject(resource);
-			
+
 	}
 
 	public void saveInvalidLink(String resource) {
@@ -39,7 +43,7 @@ public class LinksetExtractorThread implements Runnable {
 	public void run() {
 		boolean found = false;
 		boolean sameDataset = false;
-		if(dataThread.sourceDatasetID == dataThread.targetDatasetID)
+		if (dataThread.sourceDatasetID == dataThread.targetDatasetID)
 			sameDataset = true;
 		try {
 			if (dataThread.distributionFilters.size() == 1) {
@@ -48,10 +52,10 @@ public class LinksetExtractorThread implements Runnable {
 					for (String resource : listOfResources.keySet()) {
 						if (filter.compare(resource)) {
 							saveValidLink(resource);
-						} else if(!sameDataset){
+						} else if (!sameDataset) {
 							String obj = nsUtils.getNSFromString(resource);
 							if (dataThread.targetNSSet.compare(obj)) {
-//								if (dataThread.dis) {
+								// if (dataThread.dis) {
 								saveInvalidLink(resource);
 							}
 						}
@@ -67,7 +71,7 @@ public class LinksetExtractorThread implements Runnable {
 
 			else if (dataThread.distributionFilters.size() > 1) {
 				if (!dataThread.tuplePart.equals(TuplePart.SUBJECT)) {
-					for (String resource : listOfResources.keySet()) { 
+					for (String resource : listOfResources.keySet()) {
 						if (dataThread.targetNSSet.compare(listOfResources.get(resource))) {
 							found = false;
 							for (SuperBucket s : dataThread.distributionFilters) {

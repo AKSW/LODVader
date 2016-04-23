@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import lodVader.bloomfilters.models.LoadedBloomFiltersCache;
 import lodVader.enumerators.DistributionStatus;
+import lodVader.enumerators.TuplePart;
 import lodVader.mongodb.IndexesCreator;
 import lodVader.mongodb.collections.DatasetDB;
 import lodVader.mongodb.collections.DistributionDB;
@@ -122,12 +123,12 @@ public class StartLODVader {
 			if (LoadedBloomFiltersCache.describedSubjectsNSCurrentSize > LODVaderProperties.BF_BUFFER_RANGE
 					|| LoadedBloomFiltersCache.describedSubjectsNS == null)
 				LoadedBloomFiltersCache.describedSubjectsNS = new DistributionQueries()
-						.getDescribedNS(LODVaderProperties.TYPE_SUBJECT);
+						.getDescribedNS(TuplePart.SUBJECT);
 
 			if (LoadedBloomFiltersCache.describedObjectsNSCurrentSize > LODVaderProperties.BF_BUFFER_RANGE
 					|| LoadedBloomFiltersCache.describedObjectsNS == null)
 				LoadedBloomFiltersCache.describedObjectsNS = new DistributionQueries()
-						.getDescribedNS(LODVaderProperties.TYPE_OBJECT);
+						.getDescribedNS(TuplePart.OBJECT);
 
 			logger.info("We will resume: " + datasets.size() + " dataset(s).");
 

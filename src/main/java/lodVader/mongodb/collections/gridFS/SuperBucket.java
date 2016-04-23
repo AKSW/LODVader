@@ -25,9 +25,13 @@ import com.mongodb.gridfs.GridFSInputFile;
 
 import lodVader.LODVaderProperties;
 import lodVader.bloomfilters.GoogleBloomFilter;
+import lodVader.bloomfilters.models.LoadedBloomFiltersCache;
+import lodVader.enumerators.TuplePart;
 import lodVader.exceptions.LODVaderLODGeneralException;
+import lodVader.linksets.DistributionResourcesData;
 import lodVader.mongodb.DBSuperClass2;
 import lodVader.mongodb.collections.DatasetDB;
+import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.queries.DatasetQueries;
 
 public class SuperBucket extends Thread {
@@ -114,15 +118,43 @@ public class SuperBucket extends Thread {
 
 				BufferedReader f = new BufferedReader(new FileReader(resourcesFileSorted));
 
-				while ((resource = f.readLine()) != null) {
-					chunk.add(resource);
-					if (chunk.size() == chunkSize) {
-						saveChunk((ArrayList<String>) chunk.clone());
-						chunk = new ArrayList<String>();
+				if (COLLECTION_NAME.equals(SubjectsBucket.SUBJECTS_BUCKET_COLLECTION_NAME)) {
+					while ((resource = f.readLine()) != null) {
+						chunk.add(resource);
+						if (chunk.size() == chunkSize) {
+							saveChunk((ArrayList<String>) chunk.clone());
+							chunk = new ArrayList<String>();
+						}
 					}
 				}
+
+				// if we are saving objects, count how many of them are being
+				// describes as subjects
+				else {
+					
+					DistributionResourcesData subjects = new DistributionResourcesData(this.distributionID);
+					int objectCohesion = 0;
+					
+					while ((resource = f.readLine()) != null) {
+						chunk.add(resource);
+						
+						if(subjects.querySubject(resource))
+							objectCohesion ++;
+						
+						if (chunk.size() == chunkSize) {
+							saveChunk((ArrayList<String>) chunk.clone());
+							chunk = new ArrayList<String>();
+						}
+					}
+					
+					DistributionDB distribution = new DistributionDB(this.distributionID);
+					distribution.setObjectCohesion(objectCohesion);
+					distribution.update(false);
+					
+				}
+				f.close();
 				resourcesFileSorted.delete();
-				
+
 			} else {
 				throw new LODVaderLODGeneralException("No items to load in BF!");
 			}
@@ -247,12 +279,12 @@ public class SuperBucket extends Thread {
 
 		return filter;
 	}
-	
-	public ArrayList<SuperBucket> getFiltersFromDataset(int datasetID){
-		
+
+	public ArrayList<SuperBucket> getFiltersFromDataset(int datasetID) {
+
 		// get all distributions within the dataset
 		ArrayList<Integer> distributionsIDs = new DatasetQueries().getDistributionsIDs(datasetID);
-		
+
 		ArrayList<SuperBucket> result = new ArrayList<SuperBucket>();
 
 		// get collection
@@ -260,7 +292,7 @@ public class SuperBucket extends Thread {
 
 		// create query
 		BasicDBObject in = new BasicDBObject("$in", distributionsIDs);
-		
+
 		BasicDBObject distributions = new BasicDBObject(DISTRIBUTION_ID, in);
 
 		// make query

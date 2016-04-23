@@ -22,6 +22,7 @@ import com.mongodb.DBObject;
 import lodVader.LODVaderProperties;
 import lodVader.bloomfilters.GoogleBloomFilter;
 import lodVader.bloomfilters.models.LoadedBloomFiltersCache;
+import lodVader.enumerators.TuplePart;
 import lodVader.linksets.DistributionResourcesData;
 import lodVader.mongodb.DBSuperClass2;
 import lodVader.mongodb.collections.DatasetDB;
@@ -74,7 +75,7 @@ public class DistributionQueries {
 
 	public GoogleBloomFilter getDescribedNS0(String resourceType) {
 		List<String> cursor;
-		if (resourceType.equals(LODVaderProperties.TYPE_SUBJECT)) {
+		if (resourceType.equals(TuplePart.SUBJECT)) {
 			DBCollection collection = DBSuperClass2.getDBInstance()
 					.getCollection(DistributionSubjectNS0DB.COLLECTION_NAME);
 			cursor = collection.distinct(DistributionSubjectNS0DB.NS);
@@ -94,12 +95,12 @@ public class DistributionQueries {
 		return g;
 	}
 
-	public GoogleBloomFilter getDescribedNS(String resourceType) {
+	public GoogleBloomFilter getDescribedNS(TuplePart resourceType) {
 		DBObject groupIdFields = null;
 
-		if (resourceType.equals(LODVaderProperties.TYPE_OBJECT))
+		if (resourceType.equals(TuplePart.OBJECT))
 			groupIdFields = new BasicDBObject("_id", "$" + DistributionObjectNSDB.NS);
-		else if (resourceType.equals(LODVaderProperties.TYPE_SUBJECT))
+		else if (resourceType.equals(TuplePart.SUBJECT))
 			groupIdFields = new BasicDBObject("_id", "$" + DistributionSubjectNSDB.NS);
 
 		// groupIdFields.put("count", new BasicDBObject("$sum", 1));
@@ -107,9 +108,9 @@ public class DistributionQueries {
 
 		DBObject projectFields = new BasicDBObject("_id", 0);
 
-		if (resourceType.equals(LODVaderProperties.TYPE_OBJECT))
+		if (resourceType.equals(TuplePart.OBJECT))
 			projectFields.put(DistributionObjectNSDB.NS, "$_id");
-		else if (resourceType.equals(LODVaderProperties.TYPE_SUBJECT))
+		else if (resourceType.equals(TuplePart.SUBJECT))
 			projectFields.put(DistributionSubjectNSDB.NS, "$_id");
 
 		// projectFields.put("count", new BasicDBObject("$sum", 1));
@@ -124,7 +125,7 @@ public class DistributionQueries {
 
 		GoogleBloomFilter g = null;
 
-		if (resourceType.equals(LODVaderProperties.TYPE_OBJECT)) {
+		if (resourceType.equals(TuplePart.OBJECT)) {
 
 			DBCollection collection = DBSuperClass2.getDBInstance()
 					.getCollection(DistributionObjectNSDB.COLLECTION_NAME);
@@ -141,7 +142,7 @@ public class DistributionQueries {
 
 			logger.info("Loaded " + size + " object namespaces.");
 
-		} else if (resourceType.equals(LODVaderProperties.TYPE_SUBJECT)) {
+		} else if (resourceType.equals(TuplePart.SUBJECT)) {
 
 			DBCollection collection = DBSuperClass2.getDBInstance()
 					.getCollection(DistributionSubjectNSDB.COLLECTION_NAME);
@@ -399,7 +400,7 @@ public class DistributionQueries {
 
 	// @Test
 	// public void queryDistribution(){
-	public HashSet<DistributionDB> queryDistribution(String resource, String type) {
+	public HashSet<DistributionDB> queryDistribution(String resource, TuplePart type) {
 		// String resource = "http://www.w3.org/2005/11/its/rdf#taSource";
 		// String type = LODVaderProperties.TYPE_SUBJECT;
 		HashSet<DistributionDB> setOfDistributionNS = new HashSet<DistributionDB>();
@@ -408,7 +409,7 @@ public class DistributionQueries {
 
 		String ns = nsUtils.getNSFromString(resource);
 
-		if (type.equals(LODVaderProperties.TYPE_SUBJECT)) {
+		if (type.equals(TuplePart.SUBJECT)) {
 			DBCollection collection = DBSuperClass2.getCollection(DistributionSubjectNSDB.COLLECTION_NAME);
 
 			DBObject query;
@@ -421,7 +422,7 @@ public class DistributionQueries {
 			for (DBObject instance : instances) {
 				DistributionDB d = new DistributionDB(
 						Integer.valueOf(instance.get(DistributionSubjectNSDB.DISTRIBUTION_ID).toString()));
-				LoadedBloomFiltersCache l = new LoadedBloomFiltersCache(d, resource, LODVaderProperties.TYPE_SUBJECT);
+				LoadedBloomFiltersCache l = new LoadedBloomFiltersCache(d, resource, TuplePart.SUBJECT);
 				l.start();
 				cache.add(l);
 			}
@@ -446,7 +447,7 @@ public class DistributionQueries {
 			}
 		}
 
-		else if (type.equals(LODVaderProperties.TYPE_OBJECT)) {
+		else if (type.equals(TuplePart.OBJECT)) {
 			DBCollection collection = DBSuperClass2.getDBInstance()
 					.getCollection(DistributionObjectNSDB.COLLECTION_NAME);
 
@@ -460,7 +461,7 @@ public class DistributionQueries {
 			for (DBObject instance : instances) {
 				DistributionDB d = new DistributionDB(
 						Integer.valueOf(instance.get(DistributionSubjectNSDB.DISTRIBUTION_ID).toString()));
-				LoadedBloomFiltersCache l = new LoadedBloomFiltersCache(d, resource, LODVaderProperties.TYPE_OBJECT);
+				LoadedBloomFiltersCache l = new LoadedBloomFiltersCache(d, resource, TuplePart.OBJECT);
 				l.start();
 				cache.add(l);
 			}
@@ -479,7 +480,7 @@ public class DistributionQueries {
 			}
 		}
 
-		else if (type.equals(LODVaderProperties.TYPE_PROPERTY)) {
+		else if (type.equals(TuplePart.PROPERTY)) {
 			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(AllPredicatesDB.COLLECTION_NAME);
 
 			DBObject query;

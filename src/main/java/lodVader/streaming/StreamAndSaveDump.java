@@ -229,7 +229,11 @@ public class StreamAndSaveDump extends SuperStream {
 		}
 
 		doneReadingFile = true;
-
+		
+		objectLines = splitThread.getObjectLines();
+		subjectLines = splitThread.getSubjectLines();
+		totalTriples = splitThread.getTotalTriples();
+		
 		splitThread.closeFiles();
 
 		logger.debug("Saving predicates NS ...");

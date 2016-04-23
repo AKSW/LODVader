@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import lodVader.LODVaderProperties;
+import lodVader.enumerators.TuplePart;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.queries.DistributionQueries;
 
@@ -46,7 +47,7 @@ public class StatusPageModel {
 		if (!searchSubject.equals("")) {
 			HashSet<Integer> i = new HashSet<Integer>();
 			for (DistributionDB n : new DistributionQueries().queryDistribution(searchSubject,
-					LODVaderProperties.TYPE_SUBJECT)) {
+					TuplePart.SUBJECT)) {
 				i.add(n.getLODVaderID());
 			}
 			setOfSetsOfDistributions.add(i);
@@ -58,7 +59,7 @@ public class StatusPageModel {
 		if (!searchObject.equals("")) {
 			HashSet<Integer> i = new HashSet<Integer>();
 			for (DistributionDB n : new DistributionQueries().queryDistribution(searchObject,
-					LODVaderProperties.TYPE_OBJECT)) {
+					TuplePart.OBJECT)) {
 				i.add(n.getLODVaderID());
 			}
 			setOfSetsOfDistributions.add(i);
@@ -70,7 +71,7 @@ public class StatusPageModel {
 		if (!searchProperty.equals("")) {
 			HashSet<Integer> i = new HashSet<Integer>();
 			for (DistributionDB n : new DistributionQueries().queryDistribution(searchProperty,
-					LODVaderProperties.TYPE_PROPERTY)) {
+					TuplePart.PROPERTY)) {
 				i.add(n.getLODVaderID());
 			}
 			setOfSetsOfDistributions.add(i);

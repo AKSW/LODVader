@@ -37,19 +37,20 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 	ArrayList<DistributionDB> distributionsToCompare;
 	HashMap<String,String> resourcesToBeProcessedQueueCopy;
 
-	public HashSet<String> localNS0Copy = new HashSet<String>(); 
-	public HashSet<String> localNSCopy = new HashSet<String>();  
+	public HashSet<String> localNS0Copy;
+	public HashSet<String> localNSCopy; 
 
 	@Override
 	public void makeLinks() {
 
-		localNSCopy = (HashSet<String>) chunkOfNS.clone();
-		localNS0Copy = (HashSet<String>) chunkOfNS0.clone();
-		resourcesToBeProcessedQueueCopy = (HashMap<String,String>) resourcesToBeProcessedQueue.clone();
+		localNSCopy = chunkOfNS;
+		localNS0Copy = chunkOfNS0;
+		resourcesToBeProcessedQueueCopy = resourcesToBeProcessed;
 //		localNS = new HashSet<String>();
+		
 		chunkOfNS0 = new HashSet<String>();
 		chunkOfNS = new HashSet<String>();
-		resourcesToBeProcessedQueue = new HashMap<String,String>();
+		resourcesToBeProcessed = new HashMap<String,String>();
 		
 		try {
 			Thread t = new Thread(new Runnable() {

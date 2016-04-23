@@ -14,7 +14,7 @@ import com.mongodb.gridfs.GridFSDBFile;
 import lodVader.bloomfilters.GoogleBloomFilter;
 import lodVader.mongodb.DBSuperClass2;
 
-public class ObjectsBucket  extends SuperBucket{
+public class ObjectsBucket extends SuperBucket{
 	
 	public static String OBJECTS_BUCKET_COLLECTION_NAME = "ObjectsBucket";
 	
