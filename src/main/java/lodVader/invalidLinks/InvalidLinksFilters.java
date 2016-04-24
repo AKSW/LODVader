@@ -1,5 +1,5 @@
 package lodVader.invalidLinks;
-
+ 
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -10,7 +10,6 @@ import lodVader.mongodb.collections.DatasetDB;
 import lodVader.mongodb.collections.gridFS.ObjectsBucket;
 import lodVader.mongodb.collections.gridFS.SubjectsBucket;
 import lodVader.mongodb.collections.gridFS.SuperBucket;
-import lodVader.threads.ProcessNSFromTuple;
 
 public class InvalidLinksFilters {
 

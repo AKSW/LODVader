@@ -160,7 +160,7 @@ public class LODVaderProperties {
 	
 	public static boolean CHECK_LOV = true;
 
-	public static boolean ONLY_STREAM_DATASETS_AND_SAVE_NT_FORMAT = true;
+	public static boolean ONLY_STREAM_DATASETS_AND_SAVE_NT_FORMAT = false;
 
 	public static String VERSION = "v1.0";
 

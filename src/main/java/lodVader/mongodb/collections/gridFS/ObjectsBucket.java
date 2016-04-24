@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import com.google.common.hash.BloomFilter;
@@ -47,9 +48,9 @@ public class ObjectsBucket extends SuperBucket{
 	}
 	
 
-	public ArrayList<ObjectsBucket> createAllBuckets(int distributionID) {
+	public TreeMap<String,ObjectsBucket> createAllBuckets(int distributionID) {
 		
-		ArrayList<ObjectsBucket> result = new ArrayList<ObjectsBucket>();
+		TreeMap<String,ObjectsBucket> result = new TreeMap<String,ObjectsBucket>();
 
 		// get collection
 		GridFS gfs = new GridFS(DBSuperClass2.getDBInstance(), OBJECTS_BUCKET_COLLECTION_NAME);
@@ -68,7 +69,7 @@ public class ObjectsBucket extends SuperBucket{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			result.add(new ObjectsBucket(filter, f.get(FIRST_RESOURCE).toString(), f.get(LAST_RESOURCE).toString()));
+			result.put(f.get(FIRST_RESOURCE).toString(), new ObjectsBucket(filter, f.get(FIRST_RESOURCE).toString(), f.get(LAST_RESOURCE).toString()));
 		}
 
 		return result;

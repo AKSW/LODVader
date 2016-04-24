@@ -197,7 +197,12 @@ public class DistributionDB extends ResourceDB {
 	}
 
 	public String getUndefinedLinks() {
+		try{
 		return getField(UNDEFINED_LINKS).toString();
+		}
+		catch(NullPointerException e){
+			return "0";
+		}
 	}
 
 	public void setFormat(String format) {

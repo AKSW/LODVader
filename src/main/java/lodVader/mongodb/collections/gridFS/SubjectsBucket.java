@@ -2,8 +2,8 @@ package lodVader.mongodb.collections.gridFS;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import com.google.common.hash.BloomFilter;
@@ -13,8 +13,6 @@ import com.mongodb.gridfs.GridFSDBFile;
 
 import lodVader.bloomfilters.GoogleBloomFilter;
 import lodVader.mongodb.DBSuperClass2;
-import lodVader.mongodb.collections.DatasetDB;
-import lodVader.mongodb.queries.DatasetQueries;
 
 public class SubjectsBucket extends SuperBucket {
 
@@ -29,29 +27,28 @@ public class SubjectsBucket extends SuperBucket {
 		this.resource = resource;
 		this.distributionID = distributionID;
 	}
-	
-	public SubjectsBucket(File resourcesFile, int distributionID) { 
+
+	public SubjectsBucket(File resourcesFile, int distributionID) {
 		this.COLLECTION_NAME = SUBJECTS_BUCKET_COLLECTION_NAME;
 		this.resourcesFile = resourcesFile;
 		this.distributionID = distributionID;
 	}
-	
-	public SubjectsBucket(TreeSet<String> resources, int distributionID) { 
+
+	public SubjectsBucket(TreeSet<String> resources, int distributionID) {
 		this.COLLECTION_NAME = SUBJECTS_BUCKET_COLLECTION_NAME;
 		this.resources = resources;
 		this.distributionID = distributionID;
 	}
-	
-	
-	public SubjectsBucket(GoogleBloomFilter filter, String firstResource, String lastResource){
+
+	public SubjectsBucket(GoogleBloomFilter filter, String firstResource, String lastResource) {
 		this.filter = filter;
 		this.firstResource = firstResource;
 		this.lastResource = lastResource;
 	}
 
-	public ArrayList<SubjectsBucket> createAllBuckets(int distributionID) {
+	public  TreeMap<String,SubjectsBucket> createAllBuckets(int distributionID) {
 		
-		ArrayList<SubjectsBucket> result = new ArrayList<SubjectsBucket>();
+		TreeMap<String,SubjectsBucket> result = new  TreeMap<String,SubjectsBucket>();
 
 		// get collection
 		GridFS gfs = new GridFS(DBSuperClass2.getDBInstance(), SUBJECTS_BUCKET_COLLECTION_NAME);
@@ -70,11 +67,10 @@ public class SubjectsBucket extends SuperBucket {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			result.add(new SubjectsBucket(filter, f.get(FIRST_RESOURCE).toString(), f.get(LAST_RESOURCE).toString()));
+			result.put(f.get(FIRST_RESOURCE).toString(),new SubjectsBucket(filter, f.get(FIRST_RESOURCE).toString(), f.get(LAST_RESOURCE).toString()));
 		}
 
 		return result;
 	}
-	
 
 }

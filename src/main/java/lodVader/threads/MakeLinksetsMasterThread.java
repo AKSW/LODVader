@@ -104,7 +104,6 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 							} catch (Exception e) {
 								e.printStackTrace();
 //								System.out.println(distributionToCompare);
-								e.printStackTrace();
 							}
 					}
 

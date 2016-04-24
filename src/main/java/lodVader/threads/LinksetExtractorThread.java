@@ -16,7 +16,7 @@ public class LinksetExtractorThread implements Runnable {
 	NSUtils nsUtils = new NSUtils();
 	Integer n;
 	ConcurrentHashMap<Integer, DatasetResourcesData> datasetResourceData;
-	
+
 	// monitor for wait/notify thread
 	Object monitor = new Object();
 
@@ -47,7 +47,7 @@ public class LinksetExtractorThread implements Runnable {
 			sameDataset = true;
 		try {
 			if (dataThread.distributionFilters.size() == 1) {
-				GoogleBloomFilter filter = dataThread.distributionFilters.iterator().next().filter;
+				GoogleBloomFilter filter = dataThread.distributionFilters.firstEntry().getValue().filter;
 				if (!dataThread.tuplePart.equals(TuplePart.SUBJECT)) {
 					for (String resource : listOfResources.keySet()) {
 						if (filter.compare(resource)) {
@@ -74,14 +74,27 @@ public class LinksetExtractorThread implements Runnable {
 					for (String resource : listOfResources.keySet()) {
 						if (dataThread.targetNSSet.compare(listOfResources.get(resource))) {
 							found = false;
-							for (SuperBucket s : dataThread.distributionFilters) {
-								if (resource.compareTo(s.firstResource) >= 0 && resource.compareTo(s.lastResource) <= 0)
-									if (s.filter.compare(resource)) {
-										found = true;
-										saveValidLink(resource);
-										break;
-									}
+
+							try {
+								if (dataThread.distributionFilters.floorEntry(resource).getValue().filter
+										.compare(resource)) {
+									found = true;
+									saveValidLink(resource);
+								}
+							} catch (NullPointerException e) {
+
 							}
+
+							// for (SuperBucket s :
+							// dataThread.distributionFilters) {
+							// if (resource.compareTo(s.firstResource) >= 0 &&
+							// resource.compareTo(s.lastResource) <= 0)
+							// if (s.filter.compare(resource)) {
+							// found = true;
+							// saveValidLink(resource);
+							// break;
+							// }
+							// }
 							if (!found && !sameDataset) {
 								String obj = nsUtils.getNSFromString(resource);
 								if (dataThread.targetNSSet.compare(obj)) {
@@ -92,15 +105,25 @@ public class LinksetExtractorThread implements Runnable {
 					}
 				} else {
 					for (String resource : listOfResources.keySet()) {
-						found = false;
-						if (dataThread.targetNSSet.compare(listOfResources.get(resource)))
-							for (SuperBucket s : dataThread.distributionFilters) {
-								if (resource.compareTo(s.firstResource) >= 0 && resource.compareTo(s.lastResource) <= 0)
-									if (s.filter.compare(resource)) {
-										saveValidLink(resource);
-										break;
-									}
+						if (dataThread.targetNSSet.compare(listOfResources.get(resource))) {
+							try {
+								if (dataThread.distributionFilters.floorEntry(resource).getValue().filter
+										.compare(resource)) {
+									saveValidLink(resource);
+								}
+							} catch (NullPointerException e) {
+
 							}
+						}
+						// for (SuperBucket s : dataThread.distributionFilters)
+						// {
+						// if (resource.compareTo(s.firstResource) >= 0 &&
+						// resource.compareTo(s.lastResource) <= 0)
+						// if (s.filter.compare(resource)) {
+						// saveValidLink(resource);
+						// break;
+						// }
+						// }
 					}
 				}
 			}

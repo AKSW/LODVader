@@ -9,6 +9,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.hp.hpl.jena.sparql.function.library.date;
@@ -70,7 +71,7 @@ public class LinksetDataThread extends Thread {
 	public AtomicInteger numberOfValidLinks = new AtomicInteger(0);
 	public AtomicInteger numberOfInvalidLinks = new AtomicInteger(0);
 	
-	public ArrayList<? extends SuperBucket> distributionFilters = null;
+	public TreeMap<String, ? extends SuperBucket> distributionFilters = null;
 
 //	public HashSet<String> targetNSSet = new HashSet<String>(); 
 	public GoogleBloomFilter targetNSSet;

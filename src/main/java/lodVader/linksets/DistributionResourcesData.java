@@ -1,6 +1,6 @@
 package lodVader.linksets;
 
-import java.util.ArrayList;
+import java.util.TreeMap;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
@@ -32,9 +32,9 @@ public class DistributionResourcesData {
 
 	protected GoogleBloomFilter singleObject = null;
 
-	public ArrayList<ObjectsBucket> objectBuckets = new ArrayList<ObjectsBucket>();
+	public TreeMap<String, ObjectsBucket> objectBuckets = new TreeMap<String, ObjectsBucket>();
 
-	public ArrayList<SubjectsBucket> subjectBuckets = new ArrayList<SubjectsBucket>();
+	public TreeMap<String, SubjectsBucket> subjectBuckets = new TreeMap<String, SubjectsBucket>();
 
 	public DistributionResourcesData(int distributionID) {
 		this.distributionMongoDBObject = new DistributionDB(distributionID);
@@ -64,13 +64,13 @@ public class DistributionResourcesData {
 	public void loadObjectBuckets() {
 		this.objectBuckets = new ObjectsBucket().createAllBuckets(distributionID);
 		if (this.objectBuckets.size() == 1)
-			singleObject = this.objectBuckets.iterator().next().filter;
+			singleObject = this.objectBuckets.firstEntry().getValue().filter;
 	}
 
 	public void loadSubjectBuckets() {
 		this.subjectBuckets = new SubjectsBucket().createAllBuckets(distributionID);
 		if (this.subjectBuckets.size() == 1)
-			singleSubject = this.subjectBuckets.iterator().next().filter;
+			singleSubject = this.subjectBuckets.firstEntry().getValue().filter;
 	}
 
 	public boolean queryObject(String resource) {
@@ -78,10 +78,15 @@ public class DistributionResourcesData {
 			if (singleObject != null)
 				return singleObject.compare(resource);
 
-			else
-				for (ObjectsBucket o : objectBuckets)
-					if (o.filter.compare(resource))
-						return true;
+			// else
+			// for (ObjectsBucket o : objectBuckets)
+			// if (o.filter.compare(resource))
+			// return true;
+
+			else if (objectBuckets.floorEntry(resource).getValue().filter.compare(resource))
+				return true;
+
+			// objectBuckets.floorKey(resource)
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -95,10 +100,13 @@ public class DistributionResourcesData {
 			if (singleSubject != null)
 				return singleSubject.compare(resource);
 
-			else
-				for (SubjectsBucket o : subjectBuckets)
-					if (o.filter.compare(resource))
-						return true;
+			// else
+			// for (SubjectsBucket o : subjectBuckets)
+			// if (o.filter.compare(resource))
+			// return true;
+
+			else if (subjectBuckets.floorEntry(resource).getValue().filter.compare(resource))
+				return true;
 
 		} catch (Exception e) {
 			e.printStackTrace();

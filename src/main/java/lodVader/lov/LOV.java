@@ -58,7 +58,7 @@ public class LOV extends SuperStream {
 	final static Logger logger = LoggerFactory.getLogger(LOV.class);
 
 	DistributionDB distribution = null;
-
+ 
 	int numberOfTriples = 0;
 
 	// saving all predicates

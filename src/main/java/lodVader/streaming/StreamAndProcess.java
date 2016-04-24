@@ -258,6 +258,7 @@ public class StreamAndProcess extends SuperStream {
 		objectLines = splitThread.getObjectLines();
 		subjectLines = splitThread.getSubjectLines();
 		totalTriples = splitThread.getTotalTriples();
+		
 		makeLinksetFromObjectsThread.setDoneSplittingString(true);
 		makeLinksetFromObjectsThread.join();
 
