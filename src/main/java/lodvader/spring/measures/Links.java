@@ -149,27 +149,26 @@ public class Links {
 
 										String object = matcher.group(3);
 
-										if (object != null) {
-											// check wheter is a literal
-											if (object.startsWith("\""))
-												numberLiterals++;
+										// check wheter is a literal
+										if (object.startsWith("\""))
+											numberLiterals++;
 
-											// if it's a link
-											else {
+										// if it's a link
+										else {
 
-												numberTotalLinks++;
+											numberTotalLinks++;
 
-												// check NS
-												ns = new NSUtils().getNSFromString(object);
-												if (sFilter.compare(ns)) {
+											// check NS
+											ns = new NSUtils().getNSFromString(object);
+											if (sFilter.compare(ns)) {
 
-													if (all.query(object)) {
-														numberCohesionLinks++;
-													}
+												if (all.query(object)) {
+													numberCohesionLinks++;
 												}
 											}
+
 										}
-									} catch (IllegalStateException e) {
+									} catch (Exception e) {
 										// e.printStackTrace();
 									}
 								}
