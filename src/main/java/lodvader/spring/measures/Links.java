@@ -117,7 +117,7 @@ public class Links {
 					int numberTotalLinks = 0;
 					int numberCohesionLinks = 0;
 
-					for (int j = 0; i < listOfWithinFiles.length; j++) {
+					for (int j = 0; j < listOfWithinFiles.length; j++) {
 
 						// check whether is a nt file
 						if (listOfWithinFiles[j].isFile()) {
