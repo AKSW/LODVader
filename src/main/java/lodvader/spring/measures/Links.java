@@ -145,11 +145,11 @@ public class Links {
 
 									Matcher matcher = pattern.matcher(line);
 
-									if (!matcher.matches()) {
-										throw new ArrayIndexOutOfBoundsException();
-									}
 
 									try {
+										if (!matcher.matches()) {
+											throw new ArrayIndexOutOfBoundsException();
+										}
 									
 										String object = matcher.group(3);
 
