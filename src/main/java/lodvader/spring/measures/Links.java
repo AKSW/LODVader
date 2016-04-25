@@ -87,7 +87,7 @@ public class Links {
 				if (!listOfFiles[i].isFile()) {
 
 					System.out.println(listOfFiles[i].getName().split("_")[0]);
-				
+
 					DatasetDB dataset = new DatasetDB(new GeneralQueries().getMongoDBObject(DatasetDB.COLLECTION_NAME,
 							DatasetDB.TITLE, listOfFiles[i].getName().split("_")[0]).get(0));
 
@@ -124,8 +124,7 @@ public class Links {
 							if (listOfWithinFiles[j].getName().contains("nt")) {
 
 								// read file
-								FileInputStream fis = new FileInputStream(new File(
-										listOfWithinFiles[j].getPath()));
+								FileInputStream fis = new FileInputStream(new File(listOfWithinFiles[j].getPath()));
 								BufferedReader br = new BufferedReader(new InputStreamReader(fis));
 
 								String line = null;
@@ -145,38 +144,42 @@ public class Links {
 
 									Matcher matcher = pattern.matcher(line);
 
-									String object = matcher.group(3);
+									try {
+										String object = matcher.group(3);
 
-									// check wheter is a literal
-									if (object.startsWith("\""))
-										numberLiterals++;
+										// check wheter is a literal
+										if (object.startsWith("\""))
+											numberLiterals++;
 
-									// if it's a link
-									else {
+										// if it's a link
+										else {
 
-										numberTotalLinks++;
+											numberTotalLinks++;
 
-										// check NS
-										ns = new NSUtils().getNSFromString(line);
-										if (sFilter.compare(ns)) {
+											// check NS
+											ns = new NSUtils().getNSFromString(object);
+											if (sFilter.compare(ns)) {
 
-											if (all.query(line)) {
-												numberCohesionLinks++;
+												if (all.query(object)) {
+													numberCohesionLinks++;
+												}
 											}
 										}
+									} catch (IllegalStateException e) {
+										e.printStackTrace();
 									}
 								}
 
 							}
 						}
-						
-						System.out.println("Dataset: "+ dataset.getTitle());
-						System.out.println("Total links: " + numberTotalLinks);
-						System.out.println("Total literals: " + numberLiterals);
-						System.out.println("Total cohesion: " + numberCohesionLinks);
-						
-						System.out.println();
+
 					}
+					System.out.println("Dataset: " + dataset.getTitle());
+					System.out.println("Total links: " + numberTotalLinks);
+					System.out.println("Total literals: " + numberLiterals);
+					System.out.println("Total cohesion: " + numberCohesionLinks);
+
+					System.out.println();
 
 				} else if (listOfFiles[i].isDirectory()) {
 					System.out.println("Directory " + listOfFiles[i].getName());
