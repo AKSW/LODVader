@@ -33,14 +33,6 @@ public class LoadedBloomFiltersCache extends Thread {
 		this.distribution = distribution;
 	}
 
-//	public LoadedBloomFiltersCache(DistributionDB distribution, TuplePart type) {
-//
-//		if (type.equals(TuplePart.SUBJECT))
-//			s = new SubjectsBucket();
-//		else
-//			s = new ObjectsBucket();
-//		this.distribution = distribution;
-//	}
 
 	@Override
 	public void run() {
@@ -49,11 +41,6 @@ public class LoadedBloomFiltersCache extends Thread {
 			found = true;
 	}
 
-//	public boolean runQuery(String query) {
-//		if (s.query(distribution.getLODVaderID()))
-//			return true;
-//		return false;
-//	}
 
 	public void setQuery(String query) {
 		this.query = query;

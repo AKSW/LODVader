@@ -435,13 +435,9 @@ public class DistributionQueries {
 				}
 			}
 
-			// System.out.println("asasa");
 			for (LoadedBloomFiltersCache l : cache) {
 
-				// System.out.println(l.s.resource);
 				if (l.found) {
-					// System.out.println("oie");
-
 					setOfDistributionNS.add(l.getDistribution());
 				}
 			}

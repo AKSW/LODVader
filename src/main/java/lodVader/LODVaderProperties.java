@@ -162,10 +162,15 @@ public class LODVaderProperties {
 
 	public static boolean ONLY_STREAM_DATASETS_AND_SAVE_NT_FORMAT = false;
 
-	public static String VERSION = "v1.0";
+	public static String VERSION = "v1.1";
 
 	public static int MONGODB_MINIMUM_MAJOR_VERSION = 2;
 	public static int MONGODB_MINIMUM_MINOR_VERSION = 6;
+	
+	public static boolean EVALUATE_LINKS = true;
+
+	public static String EVALUATE_LINKS_PATH = "/tmp/links";
+	public static String EVALUATE_COHESION_PATH = "/home/ciro/temp/cohesion/";
 
 
 }
