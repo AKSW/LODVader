@@ -16,7 +16,7 @@ public class Application {
 	public static void main(String[] args) {
 		if (LODVaderProperties.EVALUATE_LINKS) {
 			Links l = new Links();
-			l.checkCohesion();
+			l.checkCohesion(); 
 		} else {
 			SpringApplication.run(Application.class, args);
 			StartLODVader s = new StartLODVader();
