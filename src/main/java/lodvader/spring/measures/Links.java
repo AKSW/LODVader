@@ -116,6 +116,8 @@ public class Links {
 					int numberLiterals = 0;
 					int numberTotalLinks = 0;
 					int numberCohesionLinks = 0;
+					
+					System.out.println("Dataset: " + dataset.getTitle());
 
 					for (int j = 0; j < listOfWithinFiles.length; j++) {
 
@@ -185,6 +187,9 @@ public class Links {
 					System.out.println("Total literals: " + numberLiterals);
 					System.out.println("Total cohesion: " + numberCohesionLinks);
 
+					System.out.println();
+					System.out.println();
+					System.out.println();
 					System.out.println();
 
 				} else if (listOfFiles[i].isDirectory()) {
