@@ -86,7 +86,7 @@ public class Links {
 			for (int i = 0; i < listOfFiles.length; i++) {
 				if (!listOfFiles[i].isFile()) {
 
-					System.out.println(listOfFiles[i].getName().split("_")[0]);
+					// System.out.println(listOfFiles[i].getName().split("_")[0]);
 
 					DatasetDB dataset = new DatasetDB(new GeneralQueries().getMongoDBObject(DatasetDB.COLLECTION_NAME,
 							DatasetDB.TITLE, listOfFiles[i].getName().split("_")[0]).get(0));
@@ -138,41 +138,44 @@ public class Links {
 										System.out.println(count + " links");
 
 									count++;
-									
 
 									// get object
 									Pattern pattern = Pattern.compile("^<([^>]+)>\\s+<([^>]+)>\\s(.*)(\\s\\.)");
 
 									Matcher matcher = pattern.matcher(line);
 
-
 									try {
 										matcher.matches();
-									
+
 										String object = matcher.group(3);
 
-										// check wheter is a literal
-										if (object.startsWith("\""))
-											numberLiterals++;
+										if (object != null) {
+											// check wheter is a literal
+											if (object.startsWith("\""))
+												numberLiterals++;
 
-										// if it's a link
-										else {
+											// if it's a link
+											else {
 
-											numberTotalLinks++;
+												numberTotalLinks++;
 
-											// check NS
-											ns = new NSUtils().getNSFromString(object);
-											if (sFilter.compare(ns)) {
+												// check NS
+												ns = new NSUtils().getNSFromString(object);
+												if (sFilter.compare(ns)) {
 
-												if (all.query(object)) {
-													numberCohesionLinks++;
+													if (all.query(object)) {
+														numberCohesionLinks++;
+													}
 												}
 											}
 										}
 									} catch (IllegalStateException e) {
-//										e.printStackTrace();
+										// e.printStackTrace();
 									}
 								}
+
+								br.close();
+								fis.close();
 
 							}
 						}
@@ -186,7 +189,8 @@ public class Links {
 					System.out.println();
 
 				} else if (listOfFiles[i].isDirectory()) {
-					System.out.println("Directory " + listOfFiles[i].getName());
+					// System.out.println("Directory " +
+					// listOfFiles[i].getName());
 				}
 			}
 
