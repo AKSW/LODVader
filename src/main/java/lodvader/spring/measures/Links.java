@@ -147,9 +147,7 @@ public class Links {
 
 
 									try {
-										if (!matcher.matches()) {
-											throw new ArrayIndexOutOfBoundsException();
-										}
+										matcher.matches();
 									
 										String object = matcher.group(3);
 
