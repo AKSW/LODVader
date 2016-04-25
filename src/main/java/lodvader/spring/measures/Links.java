@@ -170,7 +170,7 @@ public class Links {
 											}
 										}
 									} catch (IllegalStateException e) {
-										e.printStackTrace();
+//										e.printStackTrace();
 									}
 								}
 
