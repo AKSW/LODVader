@@ -11,14 +11,14 @@ public class DistributionResource {
 	
 	HashMap<Integer, DistributionResourcesData> mapOfDistribution = new HashMap<Integer, DistributionResourcesData>();
 	
-	public static void main(String[] args) {
-		AllResources all = new AllResources();
-		all.loadNS();
-		
-		all.query("http://www.dbpedia.org/resources/Hawaii");
-		
-		
-	}
+//	public static void main(String[] args) {
+//		AllResources all = new AllResources();
+//		all.loadNS();
+//		
+//		all.query("http://www.dbpedia.org/resources/Hawaii");
+//		
+//		
+//	}
 	
 	
 }
