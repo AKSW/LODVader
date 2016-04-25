@@ -125,7 +125,7 @@ public class Links {
 
 								// read file
 								FileInputStream fis = new FileInputStream(new File(
-										listOfWithinFiles[j].getPath() + "/" + listOfWithinFiles[j].getName()));
+										listOfWithinFiles[j].getPath()));
 								BufferedReader br = new BufferedReader(new InputStreamReader(fis));
 
 								String line = null;
