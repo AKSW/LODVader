@@ -138,6 +138,8 @@ public class Links {
 										System.out.println(count + " links");
 
 									count++;
+									
+									System.out.println(line);
 
 									// get object
 									Pattern pattern = Pattern.compile("^<([^>]+)>\\s+<([^>]+)>\\s(.*)(\\s\\.)");
@@ -145,6 +147,9 @@ public class Links {
 									Matcher matcher = pattern.matcher(line);
 
 									try {
+										System.out.println(matcher.group(1));
+										System.out.println(matcher.group(2));
+										System.out.println(matcher.group(3));
 										String object = matcher.group(3);
 
 										// check wheter is a literal
