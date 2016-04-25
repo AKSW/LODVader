@@ -139,14 +139,15 @@ public class Links {
 
 									count++;
 									
-									if (!matcher.matches()) {
-										throw new ArrayIndexOutOfBoundsException();
-									}
 
 									// get object
 									Pattern pattern = Pattern.compile("^<([^>]+)>\\s+<([^>]+)>\\s(.*)(\\s\\.)");
 
 									Matcher matcher = pattern.matcher(line);
+
+									if (!matcher.matches()) {
+										throw new ArrayIndexOutOfBoundsException();
+									}
 
 									try {
 									
