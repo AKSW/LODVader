@@ -111,7 +111,7 @@ public class Links {
 					// iterate files within dataset
 					File withinFolder = new File(
 							LODVaderProperties.EVALUATE_COHESION_PATH + "/" + listOfFiles[i].getName());
-					File[] listOfWithinFiles = folder.listFiles();
+					File[] listOfWithinFiles = withinFolder.listFiles();
 
 					int numberLiterals = 0;
 					int numberTotalLinks = 0;
@@ -174,8 +174,8 @@ public class Links {
 						System.out.println("Total links: " + numberTotalLinks);
 						System.out.println("Total literals: " + numberLiterals);
 						System.out.println("Total cohesion: " + numberCohesionLinks);
-						System.out.println();
 						
+						System.out.println();
 					}
 
 				} else if (listOfFiles[i].isDirectory()) {
