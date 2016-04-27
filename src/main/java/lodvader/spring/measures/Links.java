@@ -14,6 +14,7 @@ import lodVader.LODVaderProperties;
 import lodVader.bloomfilters.GoogleBloomFilter;
 import lodVader.enumerators.DatasetStatus;
 import lodVader.enumerators.TuplePart;
+import lodVader.mongodb.collections.DatasetCoesionValues;
 import lodVader.mongodb.collections.DatasetDB;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.queries.DistributionQueries;
@@ -30,7 +31,7 @@ public class Links {
 		AllResources all = new AllResources();
 		all.loadNS();
 
-		try {
+		try { 
 
 			FileInputStream fis = new FileInputStream(new File(LODVaderProperties.EVALUATE_LINKS_PATH));
 			BufferedWriter fvalid = new BufferedWriter(
@@ -86,7 +87,7 @@ public class Links {
 			for (int i = 0; i < listOfFiles.length; i++) {
 				if (!listOfFiles[i].isFile()) {
 
-					// System.out.println(listOfFiles[i].getName().split("_")[0]);
+					System.out.println(listOfFiles[i].getName().split("_")[0]);
 
 					DatasetDB dataset = new DatasetDB(new GeneralQueries().getMongoDBObject(DatasetDB.COLLECTION_NAME,
 							DatasetDB.TITLE, listOfFiles[i].getName().split("_")[0]).get(0));
@@ -96,7 +97,7 @@ public class Links {
 							DatasetStatus.DONE.toString(), dataset.getLODVaderID());
 
 					// load all distributions BF from an specific dataset
-					all.loadNS(dataset.getLODVaderID());
+					// all.loadNS(dataset.getLODVaderID());
 
 					// get distribution ids
 					ArrayList<Integer> distributionIDs = new ArrayList<Integer>();
@@ -116,11 +117,31 @@ public class Links {
 					int numberLiterals = 0;
 					int numberTotalLinks = 0;
 					int numberCohesionLinks = 0;
-					
+					int numberTriples = 0;
+					int numberOfSubjects = 0;
+
 					System.out.println("Dataset: " + dataset.getTitle());
 
 					for (int j = 0; j < listOfWithinFiles.length; j++) {
+						boolean remove = false;
+						if (remove) {
+							if (listOfWithinFiles[j].getName().contains("_subject")) {
 
+								System.out.println(listOfWithinFiles[j].delete());
+								System.out.println(listOfWithinFiles[j].getPath());
+
+							}
+							if (listOfWithinFiles[j].getName().contains("_preperty")) {
+								System.out.println(listOfWithinFiles[j].getAbsolutePath());
+								listOfWithinFiles[j].delete();
+							}
+							if (listOfWithinFiles[j].getName().contains("_object"))
+								listOfWithinFiles[j].delete();
+							if (listOfWithinFiles[j].getName().contains("_property"))
+								listOfWithinFiles[j].delete();
+							if (listOfWithinFiles[j].getName().contains("filter"))
+								listOfWithinFiles[j].delete();
+						} else
 						// check whether is a nt file
 						if (listOfWithinFiles[j].isFile()) {
 							if (listOfWithinFiles[j].getName().contains("nt")) {
@@ -134,12 +155,22 @@ public class Links {
 
 								int count = 0;
 
+								// if (new File(listOfWithinFiles[j].getPath() +
+								// "_subject").exists())
+								// break;
+
+								BufferedWriter bf1 = new BufferedWriter(
+										new FileWriter(new File(listOfWithinFiles[j].getPath() + "_subject")));
+								BufferedWriter bf2 = new BufferedWriter(
+										new FileWriter(new File(listOfWithinFiles[j].getPath() + "_property")));
+								BufferedWriter bf3 = new BufferedWriter(
+										new FileWriter(new File(listOfWithinFiles[j].getPath() + "_object")));
+
 								while ((line = br.readLine()) != null) {
 
+									count++;
 									if (count % 1000000 == 0)
 										System.out.println(count + " links");
-
-									count++;
 
 									// get object
 									Pattern pattern = Pattern.compile("^<([^>]+)>\\s+<([^>]+)>\\s(.*)(\\s\\.)");
@@ -149,30 +180,78 @@ public class Links {
 									try {
 										matcher.matches();
 
+										String subject = matcher.group(1);
+										String property = matcher.group(2);
 										String object = matcher.group(3);
 
-										// check wheter is a literal
-										if (object.startsWith("\""))
-											numberLiterals++;
+										numberOfSubjects++;
+										numberTriples++;
 
-										// if it's a link
-										else {
+										bf1.write(subject + "\n");
+										bf2.write(property + "\n");
+										object = object.replace(">", "");
+										object = object.replace("<", "");
+										bf3.write(object + "\n");
 
-											numberTotalLinks++;
-
-											// check NS
-											ns = new NSUtils().getNSFromString(object);
-											if (sFilter.compare(ns)) {
-
-												if (all.query(object)) {
-													numberCohesionLinks++;
-												}
-											}
-
-										}
+										// // check wheter is a literal
+										// if (object.startsWith("\"")){
+										// numberLiterals++;
+										// }
+										//
+										// // if it's a link
+										// else {
+										//
+										// numberTotalLinks++;
+										//
+										// // check NS
+										// ns = new
+										// NSUtils().getNSFromString(object);
+										// if (sFilter.compare(ns)) {
+										//
+										// if (all.query(object)) {
+										// numberCohesionLinks++;
+										// }
+										// }
+										//
+										// }
 									} catch (Exception e) {
 										// e.printStackTrace();
 									}
+								}
+
+								bf1.close();
+								bf2.close();
+								bf3.close();
+
+								br.close();
+								fis.close();
+
+							}
+						}
+
+					}
+
+					// make filter
+
+					GoogleBloomFilter filter = new GoogleBloomFilter(numberOfSubjects, 0.000001);
+					listOfWithinFiles = withinFolder.listFiles();
+
+					System.out.println("Creating BF");
+
+					for (int j = 0; j < listOfWithinFiles.length; j++) {
+
+						// check whether is a nt file
+						if (listOfWithinFiles[j].isFile()) {
+							if (listOfWithinFiles[j].getName().contains("_subject")) {
+
+								// read file
+								FileInputStream fis = new FileInputStream(new File(listOfWithinFiles[j].getPath()));
+								BufferedReader br = new BufferedReader(new InputStreamReader(fis));
+
+								String line = null;
+
+								while ((line = br.readLine()) != null) {
+									filter.add(line);
 								}
 
 								br.close();
@@ -182,15 +261,61 @@ public class Links {
 						}
 
 					}
-					System.out.println("Dataset: " + dataset.getTitle());
+
+					// save BF
+					System.out.println("Saving bf");
+					filter.saveFilter(withinFolder.getPath() + "/filter");
+
+					System.out.println("Comparing with BF");
+
+					for (int j = 0; j < listOfWithinFiles.length; j++) {
+
+						// check whether is a nt file
+						if (listOfWithinFiles[j].isFile()) {
+							if (listOfWithinFiles[j].getName().contains("_object")) {
+
+								System.out.println("Reading " + listOfWithinFiles[j].getAbsolutePath());
+								// read file
+								FileInputStream fis = new FileInputStream(new File(listOfWithinFiles[j].getPath()));
+								BufferedReader br = new BufferedReader(new InputStreamReader(fis));
+
+								String line = null;
+
+								while ((line = br.readLine()) != null) {
+									if (line.startsWith("\""))
+										numberLiterals++;
+									else
+										numberTotalLinks++;
+
+									if (filter.compare(line))
+										numberCohesionLinks++;
+
+								}
+
+								br.close();
+								fis.close();
+
+							}
+						}
+
+					}
+
+					System.out.println("Total triples: " + numberTriples);
 					System.out.println("Total links: " + numberTotalLinks);
 					System.out.println("Total literals: " + numberLiterals);
 					System.out.println("Total cohesion: " + numberCohesionLinks);
 
 					System.out.println();
 					System.out.println();
-					System.out.println();
-					System.out.println();
+
+					DatasetCoesionValues cohesion = new DatasetCoesionValues();
+					cohesion.setDatasetID(dataset.getLODVaderID());
+					cohesion.setLinks(numberTotalLinks);
+					cohesion.setLiterals(numberLiterals);
+					cohesion.setTriples(numberTriples);
+					cohesion.setCohesion(numberCohesionLinks);
+
+					cohesion.update(true);
 
 				} else if (listOfFiles[i].isDirectory()) {
 					// System.out.println("Directory " +

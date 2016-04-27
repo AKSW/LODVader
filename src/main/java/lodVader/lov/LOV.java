@@ -75,8 +75,8 @@ public class LOV extends SuperStream {
 
 	public void loadLOVVocabularies() throws Exception {
 
-		logger.info("Loading LOV vocabulary.");
-
+		logger.info("Loading LOV vocabulary."); 
+ 
 		Model m = ModelFactory.createDefaultModel();
 		Model tmpModel = ModelFactory.createDefaultModel();
 

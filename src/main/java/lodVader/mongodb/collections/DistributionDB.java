@@ -148,7 +148,10 @@ public class DistributionDB extends ResourceDB {
 	}
 
 	public int getNumberOfObjectTriples() {
-		return ((Number) getField(NUMBER_OF_OBJECTS_TRIPLES)).intValue();
+		if (getField(NUMBER_OF_OBJECTS_TRIPLES) != null)
+			return ((Number) getField(NUMBER_OF_OBJECTS_TRIPLES)).intValue();
+		else
+			return 0;
 	}
 
 	public void setNumberOfObjectTriples(int numberOfObjectTriples) {
@@ -180,7 +183,10 @@ public class DistributionDB extends ResourceDB {
 	}
 
 	public Integer getTriples() {
-		return ((Number) getField(TRIPLES)).intValue();
+		if (getField(TRIPLES) != null)
+			return ((Number) getField(TRIPLES)).intValue();
+		else
+			return 0;
 	}
 
 	public String getTriplesStringFormat() {
@@ -197,10 +203,9 @@ public class DistributionDB extends ResourceDB {
 	}
 
 	public String getUndefinedLinks() {
-		try{
-		return getField(UNDEFINED_LINKS).toString();
-		}
-		catch(NullPointerException e){
+		try {
+			return getField(UNDEFINED_LINKS).toString();
+		} catch (NullPointerException e) {
 			return "0";
 		}
 	}

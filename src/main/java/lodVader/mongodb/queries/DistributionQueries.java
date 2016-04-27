@@ -375,6 +375,29 @@ public class DistributionQueries {
 		}
 		return distributionList;
 	}
+	
+	
+	// return all distributions
+	public ArrayList<DistributionDB> getDistributionsByCohesion() {
+
+		ArrayList<DistributionDB> distributionList = new ArrayList<DistributionDB>();
+
+		DBCollection collection;
+
+		try {
+			collection = DBSuperClass2.getDBInstance().getCollection(DistributionDB.COLLECTION_NAME);
+			DBCursor instances = collection
+					.find().sort(new BasicDBObject(DistributionDB.OBJECTS_COHESION, 1));
+
+			for (DBObject instance : instances) {
+				distributionList.add(new DistributionDB(instance));
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return distributionList;
+	}
 
 	// return all distributions
 	public ArrayList<DistributionDB> getSetOfDistributions(Set<Integer> set) {
