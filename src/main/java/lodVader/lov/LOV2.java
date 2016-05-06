@@ -200,7 +200,7 @@ public class LOV2 extends SuperStream {
 			
 			DatasetCoesionValues cohesion = new DatasetCoesionValues();
 			cohesion.setCohesion(numberCohesion);
-			cohesion.setDatasetID(dataset.getLODVaderID());
+			cohesion.setDatasetID(dataset.getLODVaderID().toString());
 			cohesion.setIsVocab(true);
 			cohesion.setLiterals(numberOfLiterals);
 			cohesion.setTriples(numberOfTriples);

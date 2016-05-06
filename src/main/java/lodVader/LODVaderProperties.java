@@ -167,10 +167,10 @@ public class LODVaderProperties {
 	public static int MONGODB_MINIMUM_MAJOR_VERSION = 2;
 	public static int MONGODB_MINIMUM_MINOR_VERSION = 6;
 	
-	public static boolean EVALUATE_LINKS = false;
+	public static boolean EVALUATE_LINKS = true;
 
 	public static String EVALUATE_LINKS_PATH = "";
-	public static String EVALUATE_COHESION_PATH = "/home/ciro/dataid/LODVaderISWCData/dump/";
+	public static String EVALUATE_COHESION_PATH = "/home/ciro/dataid/LODVader-Spring-CLOD-Data/";
 
 
 }

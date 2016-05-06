@@ -30,7 +30,7 @@ import lodVader.spring.REST.models.distribution.RetrieveRDF;
 public class DistributionController {
 
 	final static Logger logger = LoggerFactory.getLogger(DistributionController.class);
-	
+
 	public final String rdfPath = "/distribution/compare/rdf";
 
 	@RequestMapping(value = "/distribution/{id}", method = RequestMethod.GET)
@@ -53,7 +53,7 @@ public class DistributionController {
 		try {
 			if (source != null && target != null) {
 				apiRetrieve = new RetrieveRDF(source, target, request.getRequestURL().toString());
-			} else 
+			} else
 				apiRetrieve = new RetrieveRDF(source, request.getRequestURL().toString());
 			apiRetrieve.outModel.write(out, "TURTLE");
 
@@ -66,7 +66,7 @@ public class DistributionController {
 	}
 
 	@RequestMapping(value = "/distribution/size")
-	public String size(@RequestParam(value = "searchStatus", required = false, defaultValue="DONE") String status,
+	public String size(@RequestParam(value = "searchStatus", required = false, defaultValue = "DONE") String status,
 			@RequestParam(value = "searchVocabularies", required = false) Boolean vocabularies) {
 		DecimalFormat format = new DecimalFormat("###,###,###,###");
 		return format.format(new DistributionQueries().getDistributions(vocabularies, status, null).size());
@@ -80,8 +80,8 @@ public class DistributionController {
 		DetailModel detailModel = new DetailModel();
 		detailModel.details(distributionID, topN, type);
 
-		detailModel.setRdfURL(request.getRequestURL().toString().replace("/distribution/detail", "") +rdfPath+ "/?source="
-				+ detailModel.getDistribution().getDownloadUrl().replace("#", "%23"));
+		detailModel.setRdfURL(request.getRequestURL().toString().replace("/distribution/detail", "") + rdfPath
+				+ "/?source=" + detailModel.getDistribution().getDownloadUrl().replace("#", "%23"));
 
 		return detailModel;
 	}
@@ -122,13 +122,17 @@ public class DistributionController {
 	}
 
 	@RequestMapping(value = "/distribution/triples/size")
-	public String triplesSize() {
+	public String triplesSize(@RequestParam(value = "isVocab", required = false) Boolean isVocab) {
 		DecimalFormat format = new DecimalFormat("###,###,###,###");
-		return format.format(new DistributionQueries().getNumberOfTriples());
+		if (isVocab == null)
+			return format.format(new DistributionQueries().getNumberOfTriples());
+		else
+			return format.format(new DistributionQueries().getNumberOfTriples(isVocab));
 	}
 
 	@RequestMapping(value = "/distribution/search")
-	public StatusPageModel search(@RequestParam(value = "search[value]", required = false, defaultValue = "") String searchValue,
+	public StatusPageModel search(
+			@RequestParam(value = "search[value]", required = false, defaultValue = "") String searchValue,
 			@RequestParam(value = "searchVocabularies", required = false) Boolean searchVocabularies,
 			@RequestParam(value = "searchStatus", required = false, defaultValue = "DONE") String searchStatus,
 			@RequestParam(value = "start", required = false, defaultValue = "0") int start,

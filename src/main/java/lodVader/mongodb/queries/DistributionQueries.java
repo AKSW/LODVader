@@ -3,6 +3,7 @@ package lodVader.mongodb.queries;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -226,6 +227,42 @@ public class DistributionQueries {
 		}
 		return numberOfTriples;
 	}
+	
+	
+	
+	/**
+	 * 
+	 * @return number of total triples by vocab 
+	 */
+	public long getNumberOfTriples(Boolean isVocab) {
+		long totalTriples=  0;
+
+		try {
+			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(DistributionDB.COLLECTION_NAME);
+
+			BasicDBObject query;
+			
+			if(isVocab!=null)
+			query = new BasicDBObject(new BasicDBObject(DistributionDB.IS_VOCABULARY, isVocab));
+			else
+				query = new BasicDBObject();
+
+			DBCursor instances = collection.find(query);
+			
+			Iterator<DBObject> it = instances.iterator();
+			
+
+			while(it.hasNext()) {
+				totalTriples = totalTriples + Long.parseLong(it.next().get(DistributionDB.TRIPLES).toString());
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return totalTriples;
+	}
+	
+	
 
 	/**
 	 * Get all distributions

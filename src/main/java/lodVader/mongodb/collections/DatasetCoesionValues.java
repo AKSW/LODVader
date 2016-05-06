@@ -46,8 +46,8 @@ public class DatasetCoesionValues extends DBSuperClass2 {
 		return Integer.parseInt(getField(LITERALS).toString());
 	}
 
-	public int getDatasetID(){
-		return Integer.parseInt(getField(DATASET_ID).toString());
+	public String getDatasetID(){
+		return (getField(DATASET_ID).toString());
 	}
 	
 	public int getCohesion(){
@@ -74,7 +74,7 @@ public class DatasetCoesionValues extends DBSuperClass2 {
 		addField(COHESION, cohesion);
 	}
 
-	public void setDatasetID(int datasetId){
+	public void setDatasetID(String datasetId){
 		addField(DATASET_ID, datasetId);
 	}
 

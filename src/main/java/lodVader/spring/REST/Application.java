@@ -5,6 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import lodVader.LODVaderProperties;
 import lodVader.StartLODVader;
+import lodvader.spring.measures.LinksCLOD;
 import lodvader.spring.measures.TestLinks;
 
 @SpringBootApplication
@@ -12,7 +13,8 @@ public class Application {
 
 	public static void main(String[] args) {
 		if (LODVaderProperties.EVALUATE_LINKS) {
-//			Links l = new Links();
+			LinksCLOD l = new LinksCLOD();
+			l.checkCohesion();
 //			l.checkCohesion(); 
 //			LOV2 lov = new LOV2();
 //			try { 
