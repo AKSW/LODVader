@@ -16,7 +16,7 @@ For more details and a working demo, check our webpage: http://lodvader.aksw.org
 
 3.2 - change the "BASE_PATH" for the directory that LODVader will store data. 
 
-4. LODVader uses GridFS to store Bloom Filters. This means that your database might grow a lot! Ensure the variable "dbpath" in the /etc/mongodb.conf file is setted to the right place.
+4 - LODVader uses GridFS to store Bloom Filters. This means that your database might grow a lot! Ensure the variable "dbpath" in the /etc/mongodb.conf file is setted to the right place.
 
 ## Hardware Requirements
 The minimum hardware requirement to have an acceptable performance is:
