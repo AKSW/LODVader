@@ -7,10 +7,15 @@ For more details and a working demo, check our webpage: http://lodvader.aksw.org
 
 ## Software Requirements
 1. This project uses MongoDB to save relevant metadata for creation of linksets. The MongoDB default installation is sufficient: `sudo apt-get install mongodb-server`.  
+
 2. To compile and run the project, you need maven. To install, please use apt-get: `sudo apt-get install maven` (version > 3.x).
+
 3. After cloning the project `git clone https://github.com/AKSW/LODVader.git`, please access the folder ./resources/config.properties and:
+
 3.1. edit the MongoDB authentication.
+
 3.2. change the "BASE_PATH" for the directory that LODVader will store data. 
+
 4. LODVader uses GridFS to store Bloom Filters. This means that your database might grow a lot! Ensure the variable "dbpath" in the /etc/mongodb.conf file is setted to the right place.
 
 ## Hardware Requirements
