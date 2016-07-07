@@ -1,9 +1,6 @@
 package lodVader.bloomfilters.models;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import lodVader.bloomfilters.GoogleBloomFilter;
+import lodVader.utils.bloomfilter.BloomFilterCache;
 
 /**
  * This class holds temporary data of resources (subject or object) described by
@@ -21,76 +18,28 @@ public class DatasetLinksContainer {
 	// default bloom filter fpp
 	static double bfFpp = 0.001;
 
-	private ArrayList<DatasetResources> datasetLinks = new ArrayList<DatasetResources>();
+	public BloomFilterCache datasetLinks = new BloomFilterCache(bfSize, bfFpp);
 
 	// counters for links between distribution and dataset
 	public int datasetLinksCounter = 0;
-	
-	int distributionID = 0;
-	
-	int datasetID = 0;
-	
-	public DatasetLinksContainer(int distributionID, int datasetID) {
-		this.datasetID = datasetID;
-		this.distributionID = distributionID;
-	}
-
-//	/**
-//	 * Create a list of bloom filters for a dataset
-//	 * @param datasetID
-//	 */
-//	public void loadDataset() {
-//
-//		if (datasetLinks == null)
-//			datasetLinks = new  ArrayList<DatasetResources>();
-//
-//		// start bloom filter to count links between distribution and dataset
-//		ArrayList<DatasetResources> list = datasetLinks.get(datasetID);
-//		if (list == null) {
-//			list = new ArrayList<DatasetResources>();
-//			list.add(new DatasetResources());
-//			datasetLinks.put(datasetID, list);
-//		}
-//	}
 
 	/**
 	 * Query a resource against a dataset
 	 * 
 	 * @param query
-	 * @param datasetID
 	 * @return tru case the query element was found
 	 */
 	public boolean queryDataset(String query) {
-		for (DatasetResources datasetResources : datasetLinks) {
-			if (datasetResources.bfFilter.compare(query)) {
-				return true;
-			}
-		}
-		return false;
+		return datasetLinks.contain(query);
 	}
 
 	/**
 	 * Add a new resource to a dataset
 	 * 
 	 * @param resource
-	 * @param datasetID
 	 */
 	public void addResource(String resource) {
-		// do not overload the BFs with a value higher than bfSize
-		for (DatasetResources datasetResources : datasetLinks) {
-			if (datasetResources.currentFilterSize < bfSize) {
-				datasetResources.bfFilter.add(resource);
-				datasetResources.currentFilterSize++;
-				return;
-			}
-		}
-
-		// case all datasetResources are full, create a new one and add the
-		// resource
-		DatasetResources datasetResources = new DatasetResources();
-		datasetResources.bfFilter.add(resource);
-		datasetResources.currentFilterSize++;
-		datasetLinks.add(new DatasetResources());
+		datasetLinks.add(resource);
 	}
 
 	/**
@@ -98,14 +47,14 @@ public class DatasetLinksContainer {
 	 * quite memory consuming, this method will empty all list of BFs
 	 */
 	public void emptyDatasetResources() {
-		datasetLinks = null;
+		datasetLinks.empty();
 	}
 
 	/**
-	 * Increment the number of discovered links of a dataset
-	 * @param datasetID
+	 * 
 	 */
 	public void incrementDatasetCounter() {
-		datasetLinksCounter++;
+		datasetLinksCounter ++;
 	}
+
 }

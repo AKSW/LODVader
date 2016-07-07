@@ -7,19 +7,15 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.hp.hpl.jena.sparql.function.library.date;
-
 import lodVader.LODVaderProperties;
-import lodVader.Manager;
-import lodVader.bloomfilters.GoogleBloomFilter;
+import lodVader.bloomfilters.BloomFilterI;
 import lodVader.bloomfilters.models.DatasetLinksContainer;
 import lodVader.enumerators.TuplePart;
-import lodVader.linksets.DistributionResourcesData;
+import lodVader.linksets.DistributionBloomFilterContainer;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.gridFS.SuperBucket;
 
@@ -74,17 +70,17 @@ public class LinksetDataThread extends Thread {
 	public TreeMap<String, ? extends SuperBucket> distributionFilters = null;
 
 //	public HashSet<String> targetNSSet = new HashSet<String>(); 
-	public GoogleBloomFilter targetNSSet;
+	public BloomFilterI targetNSSet;
 
 	public TuplePart tuplePart;
 
 	// flat to execute or not this model in a thread
 	public boolean active = false;
 	
-	DatasetLinksContainer datasetLinkContainer;
+	DatasetLinksContainer datasetLinkContainer; 
 
 	public LinksetDataThread(DistributionDB sourceDistribution, DistributionDB targetDistribution,
-			DistributionResourcesData distributionFilter, TuplePart tuplePart) {
+			DistributionBloomFilterContainer distributionFilter, TuplePart tuplePart) {
 
 		this.tuplePart = tuplePart;
 		this.sourceDatasetID = sourceDistribution.getTopDatasetID();
@@ -93,7 +89,7 @@ public class LinksetDataThread extends Thread {
 		this.targetDatasetID = targetDistribution.getTopDatasetID();
 		this.targetDistributionTitle = targetDistribution.getTitle();
 		
-		this.datasetLinkContainer = new DatasetLinksContainer(this.sourceDistributionID, this.targetDatasetID);
+		this.datasetLinkContainer = new DatasetLinksContainer();
 		
 
 		try {
@@ -107,13 +103,13 @@ public class LinksetDataThread extends Thread {
 		}
 
 		if (tuplePart.equals(TuplePart.SUBJECT)) {
-			this.distributionFilters = distributionFilter.objectBuckets;
+			this.distributionFilters = distributionFilter.getObjectBuckets();
 //			this.targetNSSet = distributionFilter.objectsNS;
-			this.targetNSSet = distributionFilter.filterObjectsNS;
+			this.targetNSSet = distributionFilter.getFilterObjectsNS();
 		} else if ((tuplePart.equals(TuplePart.OBJECT))) {
-			this.distributionFilters = distributionFilter.subjectBuckets;
+			this.distributionFilters = distributionFilter.getSubjectBuckets();
 //			this.targetNSSet = distributionFilter.subjectsNS;
-			this.targetNSSet = distributionFilter.filterSubjectsNS;
+			this.targetNSSet = distributionFilter.getFilterSubjectsNS();
 		}
 	}
 

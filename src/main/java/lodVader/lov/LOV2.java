@@ -2,10 +2,6 @@ package lodVader.lov;
 
 import java.io.IOException;
 import java.net.URL;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.TreeSet;
@@ -31,31 +27,13 @@ import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.sparql.core.DatasetGraph;
 
 import lodVader.LODVaderProperties;
-import lodVader.enumerators.DistributionStatus;
-import lodVader.enumerators.TuplePart;
 import lodVader.exceptions.LODVaderFormatNotAcceptedException;
 import lodVader.exceptions.LODVaderLODGeneralException;
-import lodVader.links.similarity.JaccardSimilarity;
-import lodVader.links.similarity.LinkSimilarity;
-import lodVader.links.strength.LinkStrength;
 import lodVader.mongodb.collections.DatasetCoesionValues;
 import lodVader.mongodb.collections.DatasetDB;
 import lodVader.mongodb.collections.DistributionDB;
-import lodVader.mongodb.collections.RDFResources.allPredicates.AllPredicatesDB;
-import lodVader.mongodb.collections.RDFResources.allPredicates.AllPredicatesRelationDB;
-import lodVader.mongodb.collections.RDFResources.owlClass.OwlClassDB;
-import lodVader.mongodb.collections.RDFResources.owlClass.OwlClassRelationDB;
-import lodVader.mongodb.collections.RDFResources.rdfSubClassOf.RDFSubClassOfDB;
-import lodVader.mongodb.collections.RDFResources.rdfSubClassOf.RDFSubClassOfRelationDB;
-import lodVader.mongodb.collections.RDFResources.rdfType.RDFTypeObjectDB;
-import lodVader.mongodb.collections.RDFResources.rdfType.RDFTypeObjectRelationDB;
-import lodVader.mongodb.collections.gridFS.ObjectsBucket;
-import lodVader.mongodb.collections.gridFS.SubjectsBucket;
 import lodVader.mongodb.queries.GeneralQueries;
-import lodVader.spring.REST.controllers.CouplingCohesionController;
 import lodVader.streaming.SuperStream;
-import lodVader.threads.MakeLinksetsMasterThread;
-import lodVader.utils.Timer;
 
 public class LOV2 extends SuperStream {
 	final static Logger logger = LoggerFactory.getLogger(LOV2.class);
@@ -77,7 +55,7 @@ public class LOV2 extends SuperStream {
 	public void loadLOVVocabularies() throws Exception {
 
 		logger.info("Loading LOV vocabulary.");
-
+ 
 		Model m = ModelFactory.createDefaultModel();
 		Model tmpModel = ModelFactory.createDefaultModel();
 

@@ -144,10 +144,6 @@ public class LODVaderProperties {
 	public static String LOV_URL;
 	public static String REMOVE_DATASET_PASS;
 	
-//	public static String TYPE_SUBJECT = "subject";
-//	public static String TYPE_PROPERTY = "property";
-//	public static String TYPE_OBJECT = "object";
-	
 	public static int MAX_CHUNK_SIZE = 200000;
 	
 	public static int TOP_N_LINKS = 200;
@@ -156,18 +152,18 @@ public class LODVaderProperties {
 
 	public static int LINKSET_TRESHOLD = 1;
 	
-	public static int CHECK_LINKS_EACH = 10000;
+	public static int CHECK_LINKS_EACH = 50000;
 	
 	public static boolean CHECK_LOV = true;
 
 	public static boolean ONLY_STREAM_DATASETS_AND_SAVE_NT_FORMAT = false;
 
-	public static String VERSION = "v1.1";
+	public static String VERSION = "v1.2";
 
 	public static int MONGODB_MINIMUM_MAJOR_VERSION = 2;
 	public static int MONGODB_MINIMUM_MINOR_VERSION = 6;
 	
-	public static boolean EVALUATE_LINKS = true;
+	public static boolean EVALUATE_LINKS = false;
 
 	public static String EVALUATE_LINKS_PATH = "";
 	public static String EVALUATE_COHESION_PATH = "/home/ciro/dataid/LODVader-Spring-CLOD-Data/";

@@ -21,10 +21,11 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
 import lodVader.LODVaderProperties;
-import lodVader.bloomfilters.GoogleBloomFilter;
+import lodVader.bloomfilters.BloomFilterI;
+import lodVader.bloomfilters.impl.BloomFilterFactory;
 import lodVader.bloomfilters.models.LoadedBloomFiltersCache;
 import lodVader.enumerators.TuplePart;
-import lodVader.linksets.DistributionResourcesData;
+import lodVader.linksets.DistributionBloomFilterContainer;
 import lodVader.mongodb.DBSuperClass2;
 import lodVader.mongodb.collections.DatasetDB;
 import lodVader.mongodb.collections.DistributionDB;
@@ -43,7 +44,7 @@ public class DistributionQueries {
 	private NSUtils nsUtils = new NSUtils();
 
 	public ArrayList<DistributionDB> getDistributionsByOutdegree(ArrayList<String> nsToSearch,
-			ConcurrentHashMap<Integer, DistributionResourcesData> distributionFilter) {
+			ConcurrentHashMap<Integer, DistributionBloomFilterContainer> distributionFilter) {
 		ArrayList<DistributionDB> list = new ArrayList<DistributionDB>();
 		try {
 
@@ -64,7 +65,7 @@ public class DistributionQueries {
 
 				if (!distributionFilter.containsKey(distribution.getLODVaderID())) {
 					distributionFilter.put(distribution.getLODVaderID(),
-							new DistributionResourcesData(distribution.getLODVaderID()));
+							new DistributionBloomFilterContainer(distribution.getLODVaderID()));
 				}
 			}
 
@@ -74,7 +75,7 @@ public class DistributionQueries {
 		return list;
 	}
 
-	public GoogleBloomFilter getDescribedNS0(String resourceType) {
+	public BloomFilterI getDescribedNS0(String resourceType) {
 		List<String> cursor;
 		if (resourceType.equals(TuplePart.SUBJECT)) {
 			DBCollection collection = DBSuperClass2.getDBInstance()
@@ -88,7 +89,9 @@ public class DistributionQueries {
 		int size = cursor.size();
 		if (size < 5000)
 			size = 5000;
-		GoogleBloomFilter g = new GoogleBloomFilter(cursor.size(), 0.00001);
+		BloomFilterI g = BloomFilterFactory.newBloomFilter();
+
+		g.create(cursor.size(), 0.00001);
 
 		for (String s : cursor) {
 			g.add(s);
@@ -96,7 +99,7 @@ public class DistributionQueries {
 		return g;
 	}
 
-	public GoogleBloomFilter getDescribedNS(TuplePart resourceType) {
+	public BloomFilterI getDescribedNS(TuplePart resourceType) {
 		DBObject groupIdFields = null;
 
 		if (resourceType.equals(TuplePart.OBJECT))
@@ -124,14 +127,15 @@ public class DistributionQueries {
 		AggregationOptions options = AggregationOptions.builder().outputMode(AggregationOptions.OutputMode.CURSOR)
 				.allowDiskUse(true).build();
 
-		GoogleBloomFilter g = null;
+		BloomFilterI g = null;
 
 		if (resourceType.equals(TuplePart.OBJECT)) {
 
 			DBCollection collection = DBSuperClass2.getDBInstance()
 					.getCollection(DistributionObjectNSDB.COLLECTION_NAME);
 
-			g = new GoogleBloomFilter(collection.find().size() + LODVaderProperties.BF_BUFFER_RANGE, 0.0001);
+			g = BloomFilterFactory.newBloomFilter();
+			g.create(collection.find().size() + LODVaderProperties.BF_BUFFER_RANGE, 0.0001);
 
 			int size = 0;
 			Cursor aggregate = collection.aggregate(ag, options);
@@ -143,12 +147,13 @@ public class DistributionQueries {
 
 			logger.info("Loaded " + size + " object namespaces.");
 
-		} else if (resourceType.equals(TuplePart.SUBJECT)) {
+		} else if (resourceType.equals(TuplePart.SUBJECT)) { 
 
 			DBCollection collection = DBSuperClass2.getDBInstance()
 					.getCollection(DistributionSubjectNSDB.COLLECTION_NAME);
 
-			g = new GoogleBloomFilter(collection.find().size() + LODVaderProperties.BF_BUFFER_RANGE, 0.0001);
+			g = BloomFilterFactory.newBloomFilter();
+			g.create(collection.find().size() + LODVaderProperties.BF_BUFFER_RANGE, 0.0001);
 
 			Cursor aggregate = collection.aggregate(ag, options);
 			int size = 0;
@@ -165,7 +170,7 @@ public class DistributionQueries {
 	}
 
 	public ArrayList<DistributionDB> getDistributionsByIndegree(ArrayList<String> fqdnToSearch,
-			ConcurrentHashMap<Integer, DistributionResourcesData> fqdnPerDistribution) {
+			ConcurrentHashMap<Integer, DistributionBloomFilterContainer> fqdnPerDistribution) {
 		ArrayList<DistributionDB> list = new ArrayList<DistributionDB>();
 		try {
 
@@ -185,7 +190,7 @@ public class DistributionQueries {
 
 				if (!fqdnPerDistribution.containsKey(distribution.getUri())) {
 					fqdnPerDistribution.put(distribution.getLODVaderID(),
-							new DistributionResourcesData(distribution.getLODVaderID()));
+							new DistributionBloomFilterContainer(distribution.getLODVaderID()));
 				}
 
 			}
@@ -227,32 +232,29 @@ public class DistributionQueries {
 		}
 		return numberOfTriples;
 	}
-	
-	
-	
+
 	/**
 	 * 
-	 * @return number of total triples by vocab 
+	 * @return number of total triples by vocab
 	 */
 	public long getNumberOfTriples(Boolean isVocab) {
-		long totalTriples=  0;
+		long totalTriples = 0;
 
 		try {
 			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(DistributionDB.COLLECTION_NAME);
 
 			BasicDBObject query;
-			
-			if(isVocab!=null)
-			query = new BasicDBObject(new BasicDBObject(DistributionDB.IS_VOCABULARY, isVocab));
+
+			if (isVocab != null)
+				query = new BasicDBObject(new BasicDBObject(DistributionDB.IS_VOCABULARY, isVocab));
 			else
 				query = new BasicDBObject();
 
 			DBCursor instances = collection.find(query);
-			
-			Iterator<DBObject> it = instances.iterator();
-			
 
-			while(it.hasNext()) {
+			Iterator<DBObject> it = instances.iterator();
+
+			while (it.hasNext()) {
 				totalTriples = totalTriples + Long.parseLong(it.next().get(DistributionDB.TRIPLES).toString());
 			}
 
@@ -261,8 +263,6 @@ public class DistributionQueries {
 		}
 		return totalTriples;
 	}
-	
-	
 
 	/**
 	 * Get all distributions
@@ -278,7 +278,7 @@ public class DistributionQueries {
 		ArrayList<DistributionDB> list = new ArrayList<DistributionDB>();
 
 		DBCursor instances;
-		
+
 		try {
 			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(DistributionDB.COLLECTION_NAME);
 
@@ -293,15 +293,15 @@ public class DistributionQueries {
 
 			if (status != null && status != "")
 				and.add(new BasicDBObject(DistributionDB.STATUS, status));
-			
+
 			if (datasetID != null)
 				and.add(new BasicDBObject(DistributionDB.TOP_DATASET, datasetID));
 
-			if(and.size()>0)
+			if (and.size() > 0)
 				instances = collection.find(new BasicDBObject("$and", and));
 			else
 				instances = collection.find();
-			
+
 			for (DBObject instance : instances) {
 				list.add(new DistributionDB(instance));
 			}
@@ -328,8 +328,8 @@ public class DistributionQueries {
 	 *            search status: DONE, ERROR, WAITING_TO_STREAM or STREAMING.
 	 * @return a ArrayList of DistributionMongoDBObject
 	 */
-	public ArrayList<DistributionDB> getDistributions(int skip, int limit, Boolean searchVocabularies, String searchNameOrURL,
-			List<Integer> in, String searchStatus) {
+	public ArrayList<DistributionDB> getDistributions(int skip, int limit, Boolean searchVocabularies,
+			String searchNameOrURL, List<Integer> in, String searchStatus) {
 
 		ArrayList<DistributionDB> list = new ArrayList<DistributionDB>();
 
@@ -341,7 +341,8 @@ public class DistributionQueries {
 			if (searchNameOrURL != "") {
 				DBObject query2;
 				DBObject query3;
-				query2 = new BasicDBObject(DistributionDB.DOWNLOAD_URL, java.util.regex.Pattern.compile(searchNameOrURL));
+				query2 = new BasicDBObject(DistributionDB.DOWNLOAD_URL,
+						java.util.regex.Pattern.compile(searchNameOrURL));
 				query3 = new BasicDBObject(DistributionDB.TITLE, java.util.regex.Pattern.compile(searchNameOrURL));
 
 				BasicDBList or = new BasicDBList();
@@ -373,11 +374,11 @@ public class DistributionQueries {
 				and.add(new BasicDBObject(DistributionDB.STATUS, searchStatus));
 				query = new BasicDBObject("$and", and);
 			}
-			
-			logger.debug("MongoDB query: "+query);
+
+			logger.debug("MongoDB query: " + query);
 			DBCursor instances = collection.find(query);
 			distributionQuerySize = instances.size();
-			
+
 			BasicDBObject sort = new BasicDBObject(DistributionDB.TRIPLES, -1);
 			instances = collection.find(query).skip(skip).limit(limit).sort(sort);
 
@@ -390,7 +391,7 @@ public class DistributionQueries {
 		}
 		return list;
 	}
-	
+
 	// return all distributions
 	public ArrayList<DistributionDB> getDistributionsByTopDatasetURL(DatasetDB topDataset) {
 
@@ -412,8 +413,7 @@ public class DistributionQueries {
 		}
 		return distributionList;
 	}
-	
-	
+
 	// return all distributions
 	public ArrayList<DistributionDB> getDistributionsByCohesion() {
 
@@ -423,8 +423,7 @@ public class DistributionQueries {
 
 		try {
 			collection = DBSuperClass2.getDBInstance().getCollection(DistributionDB.COLLECTION_NAME);
-			DBCursor instances = collection
-					.find().sort(new BasicDBObject(DistributionDB.OBJECTS_COHESION, 1));
+			DBCursor instances = collection.find().sort(new BasicDBObject(DistributionDB.OBJECTS_COHESION, 1));
 
 			for (DBObject instance : instances) {
 				distributionList.add(new DistributionDB(instance));

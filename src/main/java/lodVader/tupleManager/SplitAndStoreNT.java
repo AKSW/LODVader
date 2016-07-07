@@ -2,15 +2,13 @@ package lodVader.tupleManager;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
-import java.util.HashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import org.openrdf.model.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.openrdf.model.Statement;
-import org.openrdf.rio.helpers.RDFHandlerBase;
 
-import lodVader.LODVaderProperties;
+import lodVader.mongodb.collections.DistributionDB;
 import lodVader.utils.NSUtils;
 import lodVader.utils.Timer;
 
@@ -23,11 +21,11 @@ public class SplitAndStoreNT extends SuperTupleManager {
 	NSUtils nsUtils = new NSUtils();
 
 	public SplitAndStoreNT(ConcurrentLinkedQueue<String> subjectQueue, ConcurrentLinkedQueue<String> objectQueue,
-			String fileName, int distributionID) {
+			String fileName, DistributionDB distribution) {
 		this.objectQueue = objectQueue;
 		this.subjectQueue = subjectQueue;
 		this.fileName = fileName;
-		this.distributionID = distributionID;
+		this.distribution = distribution;
 
 		startFiles();
 	}

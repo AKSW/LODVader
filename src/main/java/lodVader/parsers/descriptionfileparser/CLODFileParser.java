@@ -37,12 +37,6 @@ public class CLODFileParser implements FileParserInterface {
 
 	public List<DatasetDB> distributionsLinks = new ArrayList<DatasetDB>();
 
-	@Test
-	public void oi() {
-		String url = "http://www.google.com/ciro";
-		url = url.split("#")[0];
-		System.out.println(url);
-	}
 
 	// read dataID file and return the dataset uri
 	public String readModel(String URL, String format)

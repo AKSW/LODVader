@@ -72,7 +72,7 @@ public class LOV extends SuperStream {
 	HashMap<String, Integer> rdfTypeObjects = new HashMap<String, Integer>();
 
 	HashMap<String, Integer> rdfSubClassOf = new HashMap<String, Integer>();
-
+ 
 	public void loadLOVVocabularies() throws Exception {
 
 		logger.info("Loading LOV vocabulary."); 

@@ -93,6 +93,10 @@ public class DistributionDB extends ResourceDB {
 
 	public static final String UNDEFINED_LINKS = "undefinedLinks";
 
+	public static final String OBJECT_FILE = "objectFile";
+
+	public static final String SUBJECT_FILE = "subjectFile";
+
 	public String getDownloadUrl() {
 		return getField(DOWNLOAD_URL).toString();
 	}
@@ -284,6 +288,28 @@ public class DistributionDB extends ResourceDB {
 
 	public void setDefaultDatasets(ArrayList<Integer> defaultDatasets) {
 		addField(DEFAULT_DATASETS, defaultDatasets);
+	}
+
+	public void setSubjectFile(String subjectFile) {
+		addField(SUBJECT_FILE, subjectFile);
+	}
+
+	public void setObjectFile(String objectFile) {
+		addField(OBJECT_FILE, objectFile);
+	}
+
+	public String getSubjectFile() {
+		if (getField(SUBJECT_FILE) != null)
+			return getField(SUBJECT_FILE).toString();
+		else
+			return "";
+	}
+
+	public String getObjectFile() {
+		if (getField(OBJECT_FILE) != null)
+			return getField(OBJECT_FILE).toString();
+		else
+			return "";
 	}
 
 	public void addDefaultDatasets(int datasetID) {

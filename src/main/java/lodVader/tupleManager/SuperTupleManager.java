@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.openrdf.rio.helpers.RDFHandlerBase;
 
+import lodVader.mongodb.collections.DistributionDB;
 import lodVader.utils.Timer;
 
 public abstract class SuperTupleManager extends RDFHandlerBase {
@@ -27,7 +28,7 @@ public abstract class SuperTupleManager extends RDFHandlerBase {
 
 	protected Timer t = new Timer();
 
-	int distributionID;
+	DistributionDB distribution ;
 	
 	// saving all predicates
 	public HashMap<String, Integer> allPredicates = new HashMap<String, Integer>();

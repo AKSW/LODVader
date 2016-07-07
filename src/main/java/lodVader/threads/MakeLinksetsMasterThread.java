@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import lodVader.enumerators.TuplePart;
 import lodVader.linksets.DatasetResourcesData;
-import lodVader.linksets.DistributionResourcesData;
+import lodVader.linksets.DistributionBloomFilterContainer;
 import lodVader.mongodb.collections.DatasetDB;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.queries.DistributionQueries;
@@ -37,7 +37,6 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 	final static Logger logger = LoggerFactory.getLogger(MakeLinksetsMasterThread.class);
 
 	ArrayList<DistributionDB> distributionsToCompare;
-	HashMap<String, String> resourcesToBeProcessedQueueCopy;
 
 	public HashSet<String> localNS0Copy;
 	public HashSet<String> localNSCopy;
@@ -47,7 +46,7 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 
 		localNSCopy = chunkOfNS;
 		localNS0Copy = chunkOfNS0;
-		resourcesToBeProcessedQueueCopy = resourcesToBeProcessed;
+		final HashMap<String, String>  resourcesToBeProcessedQueueCopy = resourcesToBeProcessed;
 		// localNS = new HashSet<String>();
 
 		chunkOfNS0 = new HashSet<String>();
@@ -123,7 +122,7 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 							}
 					}
 
-					for (DistributionResourcesData dNS : distributionsResourceData.values()) {
+					for (DistributionBloomFilterContainer dNS : distributionsResourceData.values()) {
 						// check whether NS is in the subject list
 						if (tuplePart.equals(TuplePart.SUBJECT)) {
 							for (String ns : localNSCopy) {
@@ -131,8 +130,8 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 									boolean keepTrying = true;
 									while (keepTrying) {
 										try {
-											if (!(dNS.distributionID == distribution.getLODVaderID())) {
-												mapOfWorkerThreads.get(dNS.distributionID).active = true;
+											if (!(dNS.getDistributionID() == distribution.getLODVaderID())) {
+												mapOfWorkerThreads.get(dNS.getDistributionID()).active = true;
 											}
 											keepTrying = false;
 										} catch (Exception e) {
@@ -154,8 +153,8 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 									boolean keepTrying = true;
 									while (keepTrying) {
 										try {
-											if (!(dNS.distributionID == distribution.getLODVaderID())) {
-												mapOfWorkerThreads.get(dNS.distributionID).active = true;
+											if (!(dNS.getDistributionID() == distribution.getLODVaderID())) {
+												mapOfWorkerThreads.get(dNS.getDistributionID()).active = true;
 											}
 
 											keepTrying = false;
@@ -192,7 +191,7 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 								if (dataThread.active) {
 									if (threads[threadIndex] == null) {
 										threads[threadIndex] = new Thread(new LinksetExtractorThread(dataThread,
-												(HashMap<String, String>) resourcesToBeProcessedQueueCopy.clone(),
+												resourcesToBeProcessedQueueCopy,
 												datasetResourceData));
 										threads[threadIndex].setName("MakeLinkSetWorker-" + threadIndex + "-"
 												+ dataThread.targetDistributionID);

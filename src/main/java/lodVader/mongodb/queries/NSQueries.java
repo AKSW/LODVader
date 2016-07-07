@@ -9,10 +9,10 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
-import lodVader.bloomfilters.GoogleBloomFilter;
+import lodVader.bloomfilters.BloomFilterI;
+import lodVader.bloomfilters.impl.BloomFilterFactory;
 import lodVader.enumerators.TuplePart;
 import lodVader.mongodb.DBSuperClass2;
-import lodVader.mongodb.collections.DatasetDB;
 import lodVader.mongodb.collections.namespaces.DistributionObjectNSDB;
 import lodVader.mongodb.collections.namespaces.DistributionSubjectNSDB;
 import lodVader.mongodb.collections.namespaces.SuperNS;
@@ -65,9 +65,9 @@ public class NSQueries {
 		return result;
 	}
 
-	public GoogleBloomFilter getNSBloomFilter(TuplePart part) {
+	public BloomFilterI getNSBloomFilter(TuplePart part) {
 
-		GoogleBloomFilter filter;
+		BloomFilterI filter;
 
 		try {
 
@@ -83,7 +83,8 @@ public class NSQueries {
 
 			DBCursor cursor = collection.find(query);
 
-			filter = new GoogleBloomFilter(cursor.size(), 0.000001);
+			filter = BloomFilterFactory.newBloomFilter(); 
+					filter.create(cursor.size(), 0.000001);
 
 			while (cursor.hasNext()) {
 				filter.add(cursor.next().get(SuperNS.NS).toString());
@@ -97,9 +98,9 @@ public class NSQueries {
 		return null;
 	}
 
-	public GoogleBloomFilter getNSBloomFilter(TuplePart part, ArrayList<Integer> DistributionIDs) {
+	public BloomFilterI getNSBloomFilter(TuplePart part, ArrayList<Integer> DistributionIDs) {
 
-		GoogleBloomFilter filter;
+		BloomFilterI filter;
 
 		try {
 
@@ -115,7 +116,8 @@ public class NSQueries {
 
 			DBCursor cursor = collection.find(query);
 
-			filter = new GoogleBloomFilter(cursor.size(), 0.000001);
+			filter = BloomFilterFactory.newBloomFilter(); 
+					filter.create(cursor.size(), 0.000001);
 
 			while (cursor.hasNext()) {
 				filter.add(cursor.next().get(SuperNS.NS).toString());
@@ -159,7 +161,7 @@ public class NSQueries {
 			HashSet<Integer> s = null;
 
 			while (cursor.hasNext()) {
-				object = cursor.next(); 
+				object = cursor.next();
 				set = result.get(object.get(SuperNS.NS));
 				if (set == null) {
 					s = new HashSet<Integer>();

@@ -10,12 +10,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import lodVader.LODVaderProperties;
-import lodVader.bloomfilters.GoogleBloomFilter;
+import lodVader.bloomfilters.BloomFilterI;
 import lodVader.bloomfilters.models.LoadedBloomFiltersCache;
 import lodVader.enumerators.TuplePart;
 import lodVader.invalidLinks.InvalidLinksFilters;
 import lodVader.linksets.DatasetResourcesData;
-import lodVader.linksets.DistributionResourcesData;
+import lodVader.linksets.DistributionBloomFilterContainer;
 import lodVader.mongodb.collections.DatasetDB;
 import lodVader.mongodb.collections.DatasetLinksetDB;
 import lodVader.mongodb.collections.DistributionDB;
@@ -37,7 +37,7 @@ public abstract class ProcessNSFromTuple extends Thread {
 	public TuplePart tuplePart;
 
 	// map of distributions with all NS and resources (subject or object)
-	public ConcurrentHashMap<Integer, DistributionResourcesData> distributionsResourceData = new ConcurrentHashMap<Integer, DistributionResourcesData>();
+	public ConcurrentHashMap<Integer, DistributionBloomFilterContainer> distributionsResourceData = new ConcurrentHashMap<Integer, DistributionBloomFilterContainer>();
 
 	// map of dataset with all resources (subject or object)
 	// this is used in order to count each resource only once
@@ -138,7 +138,7 @@ public abstract class ProcessNSFromTuple extends Thread {
 				t.join();
 			}
 
-		} catch (Exception e) {
+		} catch (Exception e) { 
 			e.printStackTrace();
 		}
 
@@ -158,7 +158,7 @@ public abstract class ProcessNSFromTuple extends Thread {
 		logger.debug("Ending GetDomainsFromTriplesThread class.");
 	}
 
-	private void processResource(GoogleBloomFilter describedNSFilter) {
+	private void processResource(BloomFilterI describedNSFilter) {
 
 		NSUtils nsUtils = new NSUtils();
 		String ns;

@@ -1,6 +1,6 @@
 package lodVader.bloomfilters.models;
 
-import lodVader.bloomfilters.GoogleBloomFilter;
+import lodVader.bloomfilters.BloomFilterI;
 import lodVader.enumerators.TuplePart;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.gridFS.ObjectsBucket;
@@ -17,8 +17,8 @@ public class LoadedBloomFiltersCache extends Thread {
 
 	public boolean found;
 
-	public static GoogleBloomFilter describedSubjectsNS = null;
-	public static GoogleBloomFilter describedObjectsNS = null;
+	public static BloomFilterI describedSubjectsNS = null;
+	public static BloomFilterI describedObjectsNS = null;
 
 	public static int describedSubjectsNSCurrentSize = 0;
 	public static int describedObjectsNSCurrentSize = 0;

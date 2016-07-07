@@ -124,9 +124,9 @@ public class Manager {
 						// linkSimilarity.updateLinks(distributionMongoDBObj,
 						// new OwlClassRelationDB());
 
-						logger.debug("Updating link strength among distributions...");
-						distribution.setStatus(DistributionStatus.UPDATING_LINK_STRENGTH);
-						distribution.update(true);
+//						logger.debug("Updating link strength among distributions...");
+//						distribution.setStatus(DistributionStatus.UPDATING_LINK_STRENGTH);
+//						distribution.update(true);
 						// Saving link similarities
 						// LinkStrength linkStrength = new LinkStrength();
 						// linkStrength.updateLinks(distributionMongoDBObj);

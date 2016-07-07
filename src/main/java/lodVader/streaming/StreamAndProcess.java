@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -27,13 +26,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import lodVader.LODVaderProperties;
-import lodVader.Manager;
-import lodVader.bloomfilters.GoogleBloomFilter;
-import lodVader.bloomfilters.models.DatasetLinksContainer;
 import lodVader.enumerators.TuplePart;
 import lodVader.exceptions.LODVaderFormatNotAcceptedException;
 import lodVader.exceptions.LODVaderLODGeneralException;
-import lodVader.mongodb.collections.DatasetLinksetDB;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.RDFResources.allPredicates.AllPredicatesDB;
 import lodVader.mongodb.collections.RDFResources.allPredicates.AllPredicatesRelationDB;
@@ -127,7 +122,7 @@ public class StreamAndProcess extends SuperStream {
 		SuperTupleManager splitThread;
 
 		splitThread = new SplitAndProcess(subjectQueue, objectQueue, FileUtils.stringToHash(downloadUrl.toString()),
-				distribution.getLODVaderID());
+				distribution);
 
 		makeLinksetFromObjectsThread = new MakeLinksetsMasterThread(objectQueue, uri);
 		makeLinksetFromSubjectsThread = new MakeLinksetsMasterThread(subjectQueue, uri);

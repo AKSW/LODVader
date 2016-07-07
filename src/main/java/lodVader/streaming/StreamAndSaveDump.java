@@ -116,7 +116,7 @@ public class StreamAndSaveDump extends SuperStream {
 
 		metaWriter.close();
 
-		splitThread = new SplitAndStoreNT(subjectQueue, objectQueue, filePath+ ".nt", distribution.getLODVaderID());
+		splitThread = new SplitAndStoreNT(subjectQueue, objectQueue, filePath+ ".nt", distribution);
 
 		try {
 

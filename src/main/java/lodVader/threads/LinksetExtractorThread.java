@@ -3,10 +3,9 @@ package lodVader.threads;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
-import lodVader.bloomfilters.GoogleBloomFilter;
+import lodVader.bloomfilters.BloomFilterI;
 import lodVader.enumerators.TuplePart;
 import lodVader.linksets.DatasetResourcesData;
-import lodVader.mongodb.collections.gridFS.SuperBucket;
 import lodVader.utils.NSUtils;
 
 public class LinksetExtractorThread implements Runnable {
@@ -47,7 +46,7 @@ public class LinksetExtractorThread implements Runnable {
 			sameDataset = true;
 		try {
 			if (dataThread.distributionFilters.size() == 1) {
-				GoogleBloomFilter filter = dataThread.distributionFilters.firstEntry().getValue().filter;
+				BloomFilterI filter = dataThread.distributionFilters.firstEntry().getValue().filter;
 				if (!dataThread.tuplePart.equals(TuplePart.SUBJECT)) {
 					for (String resource : listOfResources.keySet()) {
 						if (filter.compare(resource)) {

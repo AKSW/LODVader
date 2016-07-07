@@ -2,15 +2,14 @@ package lodVader.tupleManager;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
-import java.util.HashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import org.openrdf.model.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.openrdf.model.Statement;
-import org.openrdf.rio.helpers.RDFHandlerBase;
 
 import lodVader.LODVaderProperties;
+import lodVader.mongodb.collections.DistributionDB;
 import lodVader.utils.Timer;
 
 public class SplitAndProcess extends SuperTupleManager {
@@ -19,15 +18,15 @@ public class SplitAndProcess extends SuperTupleManager {
 
 	BufferedWriter subjectFile = null;
 	BufferedWriter objectFile = null;
-	
+
 	private String lastSubject = "";
 
 	public SplitAndProcess(ConcurrentLinkedQueue<String> subjectQueue, ConcurrentLinkedQueue<String> objectQueue,
-			String fileName, int distributionID) {
+			String fileName, DistributionDB distribution) {
 		this.objectQueue = objectQueue;
 		this.subjectQueue = subjectQueue;
 		this.fileName = fileName;
-		this.distributionID = distributionID;
+		this.distribution = distribution;
 
 		startFiles();
 	}
@@ -35,12 +34,17 @@ public class SplitAndProcess extends SuperTupleManager {
 	@Override
 	public void startFiles() {
 		try {
-			if (subjectQueue != null)
+			if (subjectQueue != null) {
 				subjectFile = new BufferedWriter(
 						new FileWriter(LODVaderProperties.SUBJECT_FILE_DISTRIBUTION_PATH + fileName));
-			if (objectQueue != null)
+				distribution.setSubjectFile(LODVaderProperties.SUBJECT_PATH+fileName);
+			}
+			if (objectQueue != null){
 				objectFile = new BufferedWriter(
 						new FileWriter(LODVaderProperties.OBJECT_FILE_DISTRIBUTION_PATH + fileName));
+				distribution.setObjectFile(LODVaderProperties.OBJECT_PATH+fileName);
+			}
+			distribution.update(true);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -88,7 +92,7 @@ public class SplitAndProcess extends SuperTupleManager {
 
 		if (stObject.startsWith("<")) {
 			stObject = stObject.substring(1, stObject.length() - 1);
-			if(stObject.endsWith(">"))
+			if (stObject.endsWith(">"))
 				stObject = stObject.substring(0, stObject.length() - 1);
 
 		}
@@ -108,7 +112,6 @@ public class SplitAndProcess extends SuperTupleManager {
 			addToMap(rdfTypeObjects, stObject);
 		}
 
-		
 		// save predicate
 
 		try {
@@ -134,7 +137,7 @@ public class SplitAndProcess extends SuperTupleManager {
 				objectLines++;
 			}
 			while (objectQueue.size() > bufferSize) {
-				Thread.sleep(5); 
+				Thread.sleep(5);
 			}
 			while (subjectQueue.size() > bufferSize) {
 				Thread.sleep(5);
@@ -144,10 +147,10 @@ public class SplitAndProcess extends SuperTupleManager {
 				logger.info("Triples read: " + totalTriplesRead + ", time: " + t.stopTimer());
 				t = new Timer();
 				t.startTimer();
-				logger.info("Sample subject: "+ stSubject);
-				logger.info("Sample predcate: "+ stPredicate);
-				logger.info("Sample object: "+ stObject);
-				
+				logger.info("Sample subject: " + stSubject);
+				logger.info("Sample predcate: " + stPredicate);
+				logger.info("Sample object: " + stObject);
+
 			}
 
 		} catch (Exception e) {

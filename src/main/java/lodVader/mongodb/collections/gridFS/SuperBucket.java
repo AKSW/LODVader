@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.code.externalsorting.ExternalSort;
-import com.google.common.hash.BloomFilter;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.gridfs.GridFS;
@@ -24,13 +23,11 @@ import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSInputFile;
 
 import lodVader.LODVaderProperties;
-import lodVader.bloomfilters.GoogleBloomFilter;
-import lodVader.bloomfilters.models.LoadedBloomFiltersCache;
-import lodVader.enumerators.TuplePart;
+import lodVader.bloomfilters.BloomFilterI;
+import lodVader.bloomfilters.impl.BloomFilterFactory;
 import lodVader.exceptions.LODVaderLODGeneralException;
-import lodVader.linksets.DistributionResourcesData;
+import lodVader.linksets.DistributionBloomFilterContainer;
 import lodVader.mongodb.DBSuperClass2;
-import lodVader.mongodb.collections.DatasetDB;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.queries.DatasetQueries;
 
@@ -58,7 +55,7 @@ public class SuperBucket extends Thread {
 
 	public String resource;
 
-	public GoogleBloomFilter filter = null;
+	public BloomFilterI filter = null;
 
 	int distributionID;
 
@@ -76,7 +73,7 @@ public class SuperBucket extends Thread {
 		this.distributionID = distributionID;
 	}
 
-	public SuperBucket(GoogleBloomFilter filter, String firstResource, String lastResource) {
+	public SuperBucket(BloomFilterI filter, String firstResource, String lastResource) {
 		this.filter = filter;
 		this.firstResource = firstResource;
 		this.lastResource = lastResource;
@@ -132,7 +129,7 @@ public class SuperBucket extends Thread {
 				// describes as subjects
 				else {
 					
-					DistributionResourcesData subjects = new DistributionResourcesData(this.distributionID);
+					DistributionBloomFilterContainer subjects = new DistributionBloomFilterContainer(this.distributionID);
 					int objectCohesion = 0;
 					
 					while ((resource = f.readLine()) != null) {
@@ -182,7 +179,8 @@ public class SuperBucket extends Thread {
 		int chunkSize = chunk.size();
 		if (chunkSize < 5000)
 			chunkSize = 5000;
-		GoogleBloomFilter filter = new GoogleBloomFilter(chunkSize, fpp);
+		BloomFilterI filter = BloomFilterFactory.newBloomFilter();
+		filter.create(chunkSize, fpp);
 		for (String resource : chunk) {
 			filter.add(resource);
 		}
@@ -190,7 +188,7 @@ public class SuperBucket extends Thread {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 
 		try {
-			filter.filter.writeTo(out);
+			filter.writeTo(out);
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -233,11 +231,11 @@ public class SuperBucket extends Thread {
 
 		// Timer t = new Timer();
 		// t.startTimer();
-		GoogleBloomFilter filter = new GoogleBloomFilter();
+		BloomFilterI filter = BloomFilterFactory.newBloomFilter();
 		if (file != null)
 			try {
-				filter.filter = BloomFilter.readFrom(file.getInputStream(), filter.funnel);
-				result = filter.filter.mightContain(resource.getBytes());
+				filter.readFrom(file.getInputStream());
+				result = filter.compare(resource);
 
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -248,7 +246,7 @@ public class SuperBucket extends Thread {
 		return result;
 	}
 
-	public GoogleBloomFilter getFilter() {
+	public BloomFilterI getFilter() {
 
 		GridFS gfs = new GridFS(DBSuperClass2.getDBInstance(), COLLECTION_NAME);
 
@@ -265,11 +263,10 @@ public class SuperBucket extends Thread {
 
 		GridFSDBFile file = gfs.findOne(new BasicDBObject("$and", and));
 
-		GoogleBloomFilter filter = null;
+		BloomFilterI filter = BloomFilterFactory.newBloomFilter();
 		if (file != null)
 			try {
-				filter = new GoogleBloomFilter();
-				filter.filter = BloomFilter.readFrom(file.getInputStream(), filter.funnel);
+				filter.readFrom(file.getInputStream());
 				this.lastResource = file.get(LAST_RESOURCE).toString();
 				this.firstResource = file.get(FIRST_RESOURCE).toString();
 				this.filter = filter;
@@ -299,9 +296,9 @@ public class SuperBucket extends Thread {
 		List<GridFSDBFile> buckets = gfs.find(distributions);
 
 		for (GridFSDBFile f : buckets) {
-			GoogleBloomFilter filter = new GoogleBloomFilter();
+			BloomFilterI filter = BloomFilterFactory.newBloomFilter();
 			try {
-				filter.filter = BloomFilter.readFrom(f.getInputStream(), filter.funnel);
+				filter.readFrom(f.getInputStream());
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

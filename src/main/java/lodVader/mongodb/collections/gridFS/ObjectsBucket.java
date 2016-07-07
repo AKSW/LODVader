@@ -2,17 +2,16 @@ package lodVader.mongodb.collections.gridFS;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import com.google.common.hash.BloomFilter;
 import com.mongodb.BasicDBObject;
 import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSDBFile;
 
-import lodVader.bloomfilters.GoogleBloomFilter;
+import lodVader.bloomfilters.BloomFilterI;
+import lodVader.bloomfilters.impl.BloomFilterFactory;
 import lodVader.mongodb.DBSuperClass2;
 
 public class ObjectsBucket extends SuperBucket{
@@ -41,7 +40,7 @@ public class ObjectsBucket extends SuperBucket{
 		this.distributionID = distributionID;
 	}
 	
-	public ObjectsBucket(GoogleBloomFilter filter, String firstResource, String lastResource){
+	public ObjectsBucket(BloomFilterI filter, String firstResource, String lastResource){
 		this.filter = filter;
 		this.firstResource = firstResource;
 		this.lastResource = lastResource;
@@ -62,9 +61,10 @@ public class ObjectsBucket extends SuperBucket{
 		List<GridFSDBFile> buckets = gfs.find(distribution);
 
 		for (GridFSDBFile f : buckets) {
-			GoogleBloomFilter filter = new GoogleBloomFilter();
+			BloomFilterI filter = BloomFilterFactory.newBloomFilter();
+			
 			try {
-				filter.filter = BloomFilter.readFrom(f.getInputStream(), filter.funnel);
+				filter.readFrom(f.getInputStream()); 
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

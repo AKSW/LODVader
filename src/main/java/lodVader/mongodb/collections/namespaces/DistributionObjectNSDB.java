@@ -39,7 +39,7 @@ public class DistributionObjectNSDB extends SuperNS {
 			String d = (String) pair.getKey();
 			int count = (Integer) pair.getValue();
 			d2 = new DistributionObjectNSDB();
-			d2.setNS(d);
+			d2.setNS(d); 
 			d2.setNumberOfResources(count);
 			d2.setDatasetID(distribution.getTopDatasetID());
 			d2.setDistributionID(distribution.getLODVaderID());
