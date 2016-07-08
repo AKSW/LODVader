@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.TreeMap;
 
 import lodVader.enumerators.TuplePart;
-import lodVader.linksets.DistributionResourcesData;
+import lodVader.linksets.DistributionBloomFilterContainer;
 import lodVader.mongodb.queries.NSQueries;
 import lodVader.utils.NSUtils;
 
@@ -14,7 +14,7 @@ public class AllResources {
 	
 	TreeMap<String, HashSet<Integer>> NSTree = null;
 	
-	HashMap<Integer, DistributionResourcesData> mapOfDistribution = new HashMap<Integer, DistributionResourcesData>();
+	HashMap<Integer, DistributionBloomFilterContainer> mapOfDistribution = new HashMap<Integer, DistributionBloomFilterContainer>();
 	
 	public void loadNS(){
 		NSTree = new NSQueries().getNSTree(TuplePart.SUBJECT, null);
@@ -32,10 +32,10 @@ public class AllResources {
 		for(Integer i : distributions){
 			
 			// check whether distribution has been loaded
-			DistributionResourcesData d = mapOfDistribution.get(i);
+			DistributionBloomFilterContainer d = mapOfDistribution.get(i);
 			
 			if(d==null){
-				d = new DistributionResourcesData(i);
+				d = new DistributionBloomFilterContainer(i);
 				mapOfDistribution.put(i, d);
 			}
 			

@@ -47,7 +47,7 @@ public interface BloomFilterI {
 	 * 
 	 * @return - number of elements
 	 */
-	public double getNumberOfElements();
+	public int getNumberOfElements();
 
 	/**
 	 * Read from an inputstream and save to filter

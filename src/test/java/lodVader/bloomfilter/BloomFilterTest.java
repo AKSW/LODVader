@@ -33,6 +33,7 @@ public class BloomFilterTest {
 		bloomFilter.add("Element1");
 		
 		Assert.assertTrue(bloomFilter.compare("Element1"));
+		Assert.assertFalse(bloomFilter.compare("Element13"));
 	}
 	
 	@Test 
@@ -52,13 +53,17 @@ public class BloomFilterTest {
 	
 	@Test
 	public void testCache(){
-		BloomFilterCache cache = new BloomFilterCache(1000,0.001);
+		BloomFilterCache cache = new BloomFilterCache(2000,0.00001);
 		
 		for(int i=0; i<5000; i++){
 			cache.add(String.valueOf(i));
 		}
 		for(int i=0; i<5000; i++){
 			Assert.assertTrue(cache.contain(String.valueOf(i)));
+		}	
+		
+		for(int i=0; i<5000; i++){
+			Assert.assertFalse(cache.contain("as3 d c/"+String.valueOf(i)+"-asd---"));
 		}	
 		cache.empty();
 	}

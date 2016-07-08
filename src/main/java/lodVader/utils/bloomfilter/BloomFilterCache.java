@@ -27,7 +27,10 @@ public class BloomFilterCache {
 	
 	public BloomFilterCache(int initialSize, double bfFpp) {
 		this.initialSize = initialSize;
-		this.fpp = fpp;
+		this.fpp = bfFpp;
+		BloomFilterI bf = BloomFilterFactory.newBloomFilter();
+		bf.create(initialSize, bfFpp);
+		caches.add(bf);
 	}
 
 	/**
@@ -76,9 +79,4 @@ public class BloomFilterCache {
 		caches = null;
 	}
 	
-	/**
-	 * @param bfFpp 
-	 * Set the bfFpp value.
-	 */
-
 }

@@ -135,6 +135,7 @@ public class Manager {
 
 						// uptate status of distribution
 						distribution.setStatus(DistributionStatus.DONE);
+//						distribution.setStatus(DistributionStatus.WAITING_TO_STREAM);
 
 						DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss dd/MM/yyyy");
 						// get current date time with Date()

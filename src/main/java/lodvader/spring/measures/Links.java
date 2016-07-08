@@ -11,7 +11,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import lodVader.LODVaderProperties;
-import lodVader.bloomfilters.GoogleBloomFilter;
+import lodVader.bloomfilters.BloomFilterI;
+import lodVader.bloomfilters.impl.BloomFilterFactory;
 import lodVader.enumerators.DatasetStatus;
 import lodVader.enumerators.TuplePart;
 import lodVader.mongodb.collections.DatasetCoesionValues;
@@ -21,17 +22,18 @@ import lodVader.mongodb.queries.DistributionQueries;
 import lodVader.mongodb.queries.GeneralQueries;
 import lodVader.mongodb.queries.NSQueries;
 import lodVader.utils.NSUtils;
+import lodVader.utils.bloomfilter.BloomFilterService;
 
 public class Links {
 
 	public void checkLinks() {
 
-		GoogleBloomFilter sFilter = new NSQueries().getNSBloomFilter(TuplePart.SUBJECT);
+		BloomFilterI sFilter = new NSQueries().getNSBloomFilter(TuplePart.SUBJECT);
 
 		AllResources all = new AllResources();
 		all.loadNS();
 
-		try { 
+		try {
 
 			FileInputStream fis = new FileInputStream(new File(LODVaderProperties.EVALUATE_LINKS_PATH));
 			BufferedWriter fvalid = new BufferedWriter(
@@ -73,7 +75,7 @@ public class Links {
 
 	public void checkCohesion() {
 
-		GoogleBloomFilter sFilter = null;
+		BloomFilterI sFilter = null;
 
 		AllResources all = new AllResources();
 
@@ -233,7 +235,8 @@ public class Links {
 
 					// make filter
 
-					GoogleBloomFilter filter = new GoogleBloomFilter(numberOfSubjects, 0.000001);
+					BloomFilterI filter = BloomFilterFactory.newBloomFilter();
+					filter.create(numberOfSubjects, 0.000001);
 					listOfWithinFiles = withinFolder.listFiles();
 
 					System.out.println("Creating BF");
@@ -264,7 +267,8 @@ public class Links {
 
 					// save BF
 					System.out.println("Saving bf");
-					filter.saveFilter(withinFolder.getPath() + "/filter");
+					BloomFilterService service = new BloomFilterService();
+					service.saveFilterToFile(withinFolder.getPath() + "/filter", filter);
 
 					System.out.println("Comparing with BF");
 
@@ -309,7 +313,7 @@ public class Links {
 					System.out.println();
 
 					DatasetCoesionValues cohesion = new DatasetCoesionValues();
-					cohesion.setDatasetID(dataset.getLODVaderID());
+					cohesion.setDatasetID(String.valueOf(dataset.getLODVaderID()));
 					cohesion.setLinks(numberTotalLinks);
 					cohesion.setLiterals(numberLiterals);
 					cohesion.setTriples(numberTriples);

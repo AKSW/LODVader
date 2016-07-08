@@ -52,8 +52,6 @@ public class StreamAndProcess extends SuperStream {
 	final static Logger logger = LoggerFactory.getLogger(StreamAndProcess.class);
 
 	// Paths
-
-	ConcurrentLinkedQueue<String> bufferQueue = new ConcurrentLinkedQueue<String>();
 	ConcurrentLinkedQueue<String> objectQueue = new ConcurrentLinkedQueue<String>();
 	ConcurrentLinkedQueue<String> subjectQueue = new ConcurrentLinkedQueue<String>();
 

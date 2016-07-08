@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import lodVader.exceptions.LODVaderFormatNotAcceptedException;
 import lodVader.exceptions.LODVaderLODGeneralException;
+import lodVader.utils.FileUtils;
 
 public abstract class SuperStream {
 
@@ -31,7 +32,7 @@ public abstract class SuperStream {
 	public double httpContentLength;
 	public String httpLastModified = "0";
 
-	protected static final int BUFFER_SIZE = 1024*256;
+	protected static final int BUFFER_SIZE = 1024 * 256;
 	public URL downloadUrl = null;
 
 	protected InputStream inputStream = null;
@@ -43,7 +44,7 @@ public abstract class SuperStream {
 	public String fileName = null;
 	public String extension = null;
 	public String RDFFormat = null;
-	
+
 	public String objectFilePath;
 	public String uri;
 
@@ -69,7 +70,7 @@ public abstract class SuperStream {
 
 	}
 
-	protected void openStream() throws IOException, LODVaderLODGeneralException   {
+	protected void openStream() throws IOException, LODVaderLODGeneralException {
 		openConnection();
 
 		// opens input stream from HTTP connection
@@ -84,10 +85,9 @@ public abstract class SuperStream {
 
 	}
 
-	private void openConnection() throws IOException, LODVaderLODGeneralException  {
+	private void openConnection() throws IOException, LODVaderLODGeneralException {
 		httpConn = (HttpURLConnection) downloadUrl.openConnection();
 
-		
 		httpConn.setReadTimeout(5000);
 		httpConn.setConnectTimeout(5000);
 		int responseCode = httpConn.getResponseCode();
@@ -97,11 +97,9 @@ public abstract class SuperStream {
 		// check HTTP response code
 		if (responseCode != HttpURLConnection.HTTP_OK) {
 			httpConn.disconnect();
-			throw new LODVaderLODGeneralException (
-					"No file to download. Server replied HTTP code: "
-							+ responseCode);
+			throw new LODVaderLODGeneralException("No file to download. Server replied HTTP code: " + responseCode);
 		}
-		
+
 		logger.debug("Successfuly connected with HTTP OK status.");
 
 	}
@@ -112,24 +110,21 @@ public abstract class SuperStream {
 		logger.debug("Content-Type = " + httpContentType);
 		logger.debug("Last-Modified = " + httpLastModified);
 		logger.debug("Content-Disposition = " + httpDisposition);
-		logger.debug("Content-Length = "
-				+ df.format(httpContentLength / 1024 / 1024) + " MB");
+		logger.debug("Content-Length = " + df.format(httpContentLength / 1024 / 1024) + " MB");
 		logger.debug("fileName = " + fileName);
 	}
 
-	protected void checkBZip2InputStream() throws IOException  {
+	protected void checkBZip2InputStream() throws IOException {
 
 		// check whether file is bz2 type
 		if (getExtension().equals("bz2")) {
 			logger.info("File extension is bz2, creating BZip2CompressorInputStream...");
 			httpConn = (HttpURLConnection) downloadUrl.openConnection();
-			inputStream = new BZip2CompressorInputStream(new BufferedInputStream(
-					httpConn.getInputStream()), true);
+			inputStream = new BZip2CompressorInputStream(new BufferedInputStream(httpConn.getInputStream()), true);
 			setFileName(getFileName().replace(".bz2", ""));
 			setExtension(null);
 
-			logger.info("Done creating BZip2CompressorInputStream! New file name is "
-					+ getFileName());
+			logger.info("Done creating BZip2CompressorInputStream! New file name is " + getFileName());
 		}
 	}
 
@@ -137,13 +132,10 @@ public abstract class SuperStream {
 
 		// check whether file is gz type
 		if (getExtension().equals("gz") || getExtension().equals("tgz")) {
-			logger.info("File extension is " + getExtension()
-					+ ", creating GzipCompressorInputStream...");
-			logger.debug(new FileNameFromURL().getFileName(
-					downloadUrl.toString(), httpDisposition));
+			logger.info("File extension is " + getExtension() + ", creating GzipCompressorInputStream...");
+			logger.debug(new FileUtils().getFileName(downloadUrl.toString(), httpDisposition));
 			httpConn = (HttpURLConnection) downloadUrl.openConnection();
-			inputStream = new GzipCompressorInputStream(
-					new BufferedInputStream(httpConn.getInputStream()), true);
+			inputStream = new GzipCompressorInputStream(new BufferedInputStream(httpConn.getInputStream()), true);
 			setFileName(getFileName().replace(".gz", ""));
 			setFileName(getFileName().replace(".tgz", ".tar"));
 			if (getFileName().contains(".tar"))
@@ -153,20 +145,20 @@ public abstract class SuperStream {
 			else
 				setExtension(null);
 
-			logger.info("Done creating GzipCompressorInputStream! New file name is "
-					+ getFileName() + ", extension: "+getExtension());
+			logger.info("Done creating GzipCompressorInputStream! New file name is " + getFileName() + ", extension: "
+					+ getExtension());
 		}
 	}
 
 	/**
 	 * Get the file name of the current file being streamed
+	 * 
 	 * @return file name
 	 */
 	public String getFileName() {
 		if (fileName == null) {
 			// extracts file name from header field
-			fileName = new FileNameFromURL().getFileName(downloadUrl.toString(),
-					httpDisposition);
+			fileName = new FileUtils().getFileName(downloadUrl.toString(), httpDisposition);
 			logger.debug("Found file name: " + fileName);
 		}
 		return fileName;
@@ -196,14 +188,17 @@ public abstract class SuperStream {
 	public void setUrl(URL url) {
 		this.downloadUrl = url;
 	}
-	
+
 	public abstract void streamDistribution() throws IOException, LODVaderLODGeneralException, InterruptedException,
-	RDFHandlerException, RDFParseException, LODVaderFormatNotAcceptedException;
+			RDFHandlerException, RDFParseException, LODVaderFormatNotAcceptedException;
 
 	/**
-	 * Stream a file. 
-	 * @param file the file name
-	 * @param stream the inputStream
+	 * Stream a file.
+	 * 
+	 * @param file
+	 *            the file name
+	 * @param stream
+	 *            the inputStream
 	 */
 	public void simpleDownload(String file, InputStream stream) {
 		try {

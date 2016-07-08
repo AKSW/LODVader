@@ -29,7 +29,7 @@ public class FileUtils {
 		f = new File(LODVaderProperties.SUBJECT_PATH);
 		if (!f.exists())
 			f.mkdirs();
-		
+
 		f = new File(LODVaderProperties.TMP_FOLDER);
 		if (!f.exists())
 			f.mkdirs();
@@ -48,8 +48,7 @@ public class FileUtils {
 	}
 
 	// TODO make this method more precise
-	public static boolean acceptedFormats(String fileName)
-			throws LODVaderFormatNotAcceptedException {
+	public static boolean acceptedFormats(String fileName) throws LODVaderFormatNotAcceptedException {
 
 		if (fileName.contains(".ttl"))
 			return true;
@@ -102,9 +101,33 @@ public class FileUtils {
 			e.printStackTrace();
 		}
 	}
-	
-	public static String getASCIIFormat(String str){
+
+	public static String getASCIIFormat(String str) {
 		return str.replaceAll("[^A-Za-z0-9]", "");
+	}
+
+	/**
+	 * Get file name based on the URL
+	 * 
+	 * @param accessURL
+	 * @param httpDisposition
+	 * @return
+	 */
+	public String getFileName(String accessURL, String httpDisposition) {
+		String fileName = null;
+
+		if (httpDisposition != null) {
+			int index = httpDisposition.indexOf("filename=");
+			if (index > 0) {
+				fileName = httpDisposition.substring(index + 10, httpDisposition.length() - 1);
+			}
+		} else {
+
+			// extracts file name from URL
+			fileName = accessURL.substring(accessURL.lastIndexOf("/") + 1, accessURL.length());
+		}
+
+		return fileName;
 	}
 
 }

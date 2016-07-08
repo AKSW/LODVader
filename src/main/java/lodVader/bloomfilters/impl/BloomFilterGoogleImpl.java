@@ -42,7 +42,7 @@ class BloomFilterGoogleImpl implements BloomFilterI {
 			fpp = 0.000000001;
 
 		if (filter == null)
-			filter = BloomFilter.create(funnel, insertions, fpp);
+			filter = BloomFilter.create(funnel, initialSize, fpp);
 
 		this.fpp = fpp;
 		this.initialSize = initialSize;
@@ -78,7 +78,7 @@ class BloomFilterGoogleImpl implements BloomFilterI {
 	 * 
 	 * @see bloomfilter.BloomFilterI#getNumberOfElements()
 	 */
-	public double getNumberOfElements() {
+	public int getNumberOfElements() {
 		return insertions;
 	}
 
