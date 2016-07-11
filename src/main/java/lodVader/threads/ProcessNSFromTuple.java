@@ -14,7 +14,7 @@ import lodVader.bloomfilters.BloomFilterI;
 import lodVader.bloomfilters.models.LoadedBloomFiltersCache;
 import lodVader.enumerators.TuplePart;
 import lodVader.invalidLinks.InvalidLinksFilters;
-import lodVader.linksets.DatasetResourcesData;
+import lodVader.linksets.DatasetBloomFilterContainer;
 import lodVader.linksets.DistributionBloomFilterContainer;
 import lodVader.mongodb.collections.DatasetDB;
 import lodVader.mongodb.collections.DatasetLinksetDB;
@@ -41,7 +41,7 @@ public abstract class ProcessNSFromTuple extends Thread {
 
 	// map of dataset with all resources (subject or object)
 	// this is used in order to count each resource only once
-	public ConcurrentHashMap<Integer, DatasetResourcesData> datasetResourceData = new ConcurrentHashMap<Integer, DatasetResourcesData>();
+	public ConcurrentHashMap<Integer, DatasetBloomFilterContainer> datasetResourceData = new ConcurrentHashMap<Integer, DatasetBloomFilterContainer>();
 
 	protected int threadNumber = 0;
 

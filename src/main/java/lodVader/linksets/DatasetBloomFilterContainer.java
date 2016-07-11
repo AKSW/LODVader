@@ -3,13 +3,13 @@ package lodVader.linksets;
 import lodVader.mongodb.collections.DatasetDB;
 import lodVader.utils.bloomfilter.BloomFilterCache;
 
-public class DatasetResourcesData {
+public class DatasetBloomFilterContainer {
 
 	int maxBFSize = 10000;
 
 	double fpp = 0.00001;
 
-	public DatasetResourcesData(int datasetId) {
+	public DatasetBloomFilterContainer(int datasetId) {
 		this.dataset = new DatasetDB(datasetId);
 	}
 

@@ -26,9 +26,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import lodVader.LODVaderProperties;
+import lodVader.Manager;
 import lodVader.enumerators.TuplePart;
 import lodVader.exceptions.LODVaderFormatNotAcceptedException;
 import lodVader.exceptions.LODVaderLODGeneralException;
+import lodVader.mongodb.collections.DatasetLinksetDB;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.RDFResources.allPredicates.AllPredicatesDB;
 import lodVader.mongodb.collections.RDFResources.allPredicates.AllPredicatesRelationDB;
@@ -259,8 +261,8 @@ public class StreamAndProcess extends SuperStream {
 		makeLinksetFromSubjectsThread.join();
 
 		// save links between distribution and datasets
-		logger.info("Saving links between distribution and datasets");
-
+//		logger.info("Saving links between distribution and datasets");
+//
 //		for (int datasetID : Manager.datasetLinkContainer.datasetLinksCounter.keySet()) {
 //			String linksetID = distribution.getLODVaderID() + "-" + datasetID;
 //			DatasetLinksetDB linkset = new DatasetLinksetDB(linksetID);

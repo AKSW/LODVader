@@ -114,10 +114,10 @@ public class LinksetDataThread extends Thread {
 	}
 
 	public void addValidLink(String resource) {
-		if(!datasetLinkContainer.queryDataset(resource)){
-			datasetLinkContainer.incrementDatasetCounter();
-			datasetLinkContainer.addResource(resource);
-		}
+//		if(!datasetLinkContainer.queryDataset(resource)){
+//			datasetLinkContainer.incrementDatasetCounter();
+//			datasetLinkContainer.addResource(resource);
+//		}
 		try {
 			validLinksWriter.write(resource + "\n");
 				
@@ -159,7 +159,6 @@ public class LinksetDataThread extends Thread {
 		try {
 			invalidLinksWriter.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		if (invalidLinks == null)

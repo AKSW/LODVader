@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import lodVader.enumerators.TuplePart;
-import lodVader.linksets.DatasetResourcesData;
+import lodVader.linksets.DatasetBloomFilterContainer;
 import lodVader.linksets.DistributionBloomFilterContainer;
 import lodVader.mongodb.collections.DatasetDB;
 import lodVader.mongodb.collections.DistributionDB;
@@ -46,7 +46,7 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 
 		localNSCopy = chunkOfNS;
 		localNS0Copy = chunkOfNS0;
-		final HashMap<String, String>  resourcesToBeProcessedQueueCopy = resourcesToBeProcessed;
+		final HashMap<String, String> resourcesToBeProcessedQueueCopy = resourcesToBeProcessed;
 		// localNS = new HashSet<String>();
 
 		chunkOfNS0 = new HashSet<String>();
@@ -86,23 +86,28 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 
 								// check whether the resource filters of the
 								// datasets have already been loaded
-								if (!datasetResourceData.containsKey(distributionToCompare.getTopDatasetID())) {
-									datasetResourceData.put(distributionToCompare.getTopDatasetID(),
-											new DatasetResourcesData(distributionToCompare.getTopDatasetID()));
+//								if (!datasetResourceData.containsKey(distributionToCompare.getTopDatasetID())) {
+//									datasetResourceData.put(distributionToCompare.getTopDatasetID(),
+//											new DatasetBloomFilterContainer(distributionToCompare.getTopDatasetID()));
 
-//									if (datasetResourceData.size() > 100) {
-////										for(DatasetDB: datasetResourceData.values())
-//										
-//										for(DatasetResourcesData dataset: datasetResourceData.values()){
-//											System.out.println(dataset.dataset.getTitle());
-//											System.out.println("\n");
-//										}
-										
-//										System.out.println("Oppened datasets: " + datasetResourceData.size());
-//										System.out.println("Oppened distributions: " + distributionsToCompare.size());
-//									}
+									// if (datasetResourceData.size() > 100) {
+									//// for(DatasetDB:
+									// datasetResourceData.values())
+									//
+									// for(DatasetResourcesData dataset:
+									// datasetResourceData.values()){
+									// System.out.println(dataset.dataset.getTitle());
+									// System.out.println("\n");
+									// }
 
-								}
+									// System.out.println("Opened datasets: " +
+									// datasetResourceData.size());
+									// System.out.println("Opened
+									// distributions: " +
+									// distributionsToCompare.size());
+									// }
+
+//								}
 
 								// check if distributions had already been
 								// compared
@@ -135,9 +140,10 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 											}
 											keepTrying = false;
 										} catch (Exception e) {
-											// e.printStackTrace();
+//											 e.printStackTrace();
 											try {
-												Thread.sleep(1);
+												// sleep here while the BF are not loaded yet (they are being loaded by a previous thread)
+												Thread.sleep(100);
 											} catch (InterruptedException e1) {
 												// TODO Auto-generated catch
 												// block
@@ -159,9 +165,10 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 
 											keepTrying = false;
 										} catch (Exception e) {
-											// e.printStackTrace();
+//											 e.printStackTrace();
 											try {
-												Thread.sleep(1);
+												// sleep here while the BF are not loaded yet (they are being loaded by a previous thread)
+												Thread.sleep(100);
 											} catch (InterruptedException e1) {
 												// TODO Auto-generated catch
 												// block
@@ -191,8 +198,7 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 								if (dataThread.active) {
 									if (threads[threadIndex] == null) {
 										threads[threadIndex] = new Thread(new LinksetExtractorThread(dataThread,
-												resourcesToBeProcessedQueueCopy,
-												datasetResourceData));
+												resourcesToBeProcessedQueueCopy, datasetResourceData));
 										threads[threadIndex].setName("MakeLinkSetWorker-" + threadIndex + "-"
 												+ dataThread.targetDistributionID);
 										threads[threadIndex].start();
@@ -205,12 +211,12 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 
 						// wait all threads finish
 						for (int d = 0; d < threads.length; d++)
+							if(threads[d] != null)
 							try {
 								threads[d].join();
-							} catch (InterruptedException e) {
-								// e.printStackTrace();
-							} catch (Exception e) {
-								// TODO: handle exception
+							}  catch (Exception e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
 							}
 					}
 

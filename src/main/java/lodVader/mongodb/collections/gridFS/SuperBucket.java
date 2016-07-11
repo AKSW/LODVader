@@ -135,7 +135,7 @@ public class SuperBucket extends Thread {
 					while ((resource = f.readLine()) != null) {
 						chunk.add(resource);
 						
-						if(subjects.querySubject(resource))
+						if(subjects.querySubject(resource)) 
 							objectCohesion ++;
 						
 						if (chunk.size() == chunkSize) {

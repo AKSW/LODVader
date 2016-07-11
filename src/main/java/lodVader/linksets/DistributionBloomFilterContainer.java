@@ -103,7 +103,11 @@ public class DistributionBloomFilterContainer {
 			if (singleSubject != null)
 				return singleSubject.compare(resource);
 
-			else if (subjectBuckets.floorEntry(resource).getValue().filter.compare(resource))
+			else if (subjectBuckets.
+					floorEntry(resource).
+					getValue().
+					filter.
+					compare(resource))
 				return true;
 
 		} catch (Exception e) {

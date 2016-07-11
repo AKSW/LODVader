@@ -5,7 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import lodVader.bloomfilters.BloomFilterI;
 import lodVader.enumerators.TuplePart;
-import lodVader.linksets.DatasetResourcesData;
+import lodVader.linksets.DatasetBloomFilterContainer;
 import lodVader.utils.NSUtils;
 
 public class LinksetExtractorThread implements Runnable {
@@ -14,13 +14,13 @@ public class LinksetExtractorThread implements Runnable {
 
 	NSUtils nsUtils = new NSUtils();
 	Integer n;
-	ConcurrentHashMap<Integer, DatasetResourcesData> datasetResourceData;
+	ConcurrentHashMap<Integer, DatasetBloomFilterContainer> datasetResourceData;
 
 	// monitor for wait/notify thread
 	Object monitor = new Object();
 
 	public LinksetExtractorThread(LinksetDataThread dataThread, HashMap<String, String> resources,
-			ConcurrentHashMap<Integer, DatasetResourcesData> datasetResourceData) {
+			ConcurrentHashMap<Integer, DatasetBloomFilterContainer> datasetResourceData) {
 		this.listOfResources = resources;
 		this.dataThread = dataThread;
 		this.datasetResourceData = datasetResourceData;
@@ -28,10 +28,10 @@ public class LinksetExtractorThread implements Runnable {
 
 	public void saveValidLink(String resource) {
 		dataThread.addValidLink(resource);
-		if (dataThread.tuplePart.equals(TuplePart.SUBJECT))
-			datasetResourceData.get(dataThread.targetDatasetID).addObject(resource);
-		else
-			datasetResourceData.get(dataThread.targetDatasetID).addSubject(resource);
+//		if (dataThread.tuplePart.equals(TuplePart.SUBJECT))
+//			datasetResourceData.get(dataThread.targetDatasetID).addObject(resource);
+//		else
+//			datasetResourceData.get(dataThread.targetDatasetID).addSubject(resource);
 
 	}
 

@@ -31,7 +31,7 @@ public class Manager {
 	private static Queue<DatasetDB> datasets = new LinkedBlockingQueue<DatasetDB>();
 
 	// tmp links between distribution -> dataset
-	public static ArrayList<DatasetLinksContainer> datasetLinkContainer = new ArrayList<DatasetLinksContainer>(); 
+//	public static ArrayList<DatasetLinksContainer> datasetLinkContainer = new ArrayList<DatasetLinksContainer>(); 
 
 	// list of datasets in the queue to be streamed
 

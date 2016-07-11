@@ -17,6 +17,8 @@ public class DatasetLinksContainer {
 
 	// default bloom filter fpp
 	static double bfFpp = 0.001;
+	
+	public int datasetID;
 
 	public BloomFilterCache datasetLinks = new BloomFilterCache(bfSize, bfFpp);
 
