@@ -132,7 +132,14 @@ public class DistributionDB extends ResourceDB {
 	}
 
 	public int getTopDatasetID() {
-		return ((Number) getField(TOP_DATASET)).intValue();
+		int id = 0;
+		try{
+			id = ((Number) getField(TOP_DATASET)).intValue();
+		}
+		catch(NullPointerException e){
+			System.out.println(getLODVaderID());
+		}
+		return id;
 	}
 
 	public void setTopDataset(int topDataset) {
