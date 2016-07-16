@@ -74,21 +74,21 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 					// a
 					// list (so we don't have to query again)
 					if (tuplePart.equals(TuplePart.OBJECT)) {
-						logger.info("Loading subjects NS from MongoDB.");
+						logger.debug("Loading subjects NS from MongoDB.");
 						Timer t = new Timer();
 						t.startTimer();
 						distributionsToCompare = new DistributionQueries().getDistributionsByOutdegree(nsToSearch,
 								distributionsResourceData);
-						logger.info("Done loading subjects NS from MongoDB. Time to fetch: " + t.stopTimer());
+						logger.debug("Done loading subjects NS from MongoDB. Time to fetch: " + t.stopTimer());
 					}
 
 					else if (tuplePart.equals(TuplePart.SUBJECT)) {
-						logger.info("Loading objects NS from MongoDB.");
+						logger.debug("Loading objects NS from MongoDB.");
 						Timer t = new Timer();
 						t.startTimer();
 						distributionsToCompare = new DistributionQueries().getDistributionsByIndegree(nsToSearch,
 								distributionsResourceData);
-						logger.info("Done loading objects NS from MongoDB. Time to fetch: " + t.stopTimer());
+						logger.debug("Done loading objects NS from MongoDB. Time to fetch: " + t.stopTimer());
 					}
 
 					for (DistributionDB distributionToCompare : distributionsToCompare) {
