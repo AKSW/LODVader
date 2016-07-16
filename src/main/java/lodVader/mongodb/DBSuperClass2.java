@@ -224,7 +224,7 @@ public class DBSuperClass2 {
 			DBCursor cursor = getCollection().find(new BasicDBObject(key, value));
 
 			if (cursor.size() > 0) {
-//				mongoDBObject = cursor.next();
+				// mongoDBObject = cursor.next();
 				getCollection().update(new BasicDBObject(key, value), mongoDBObject);
 			} else {
 				if (create) {
@@ -325,20 +325,22 @@ public class DBSuperClass2 {
 		}
 		return false;
 	}
-	
+
 	/**
-	 * MongoDB bulk save 
+	 * MongoDB bulk save
+	 * 
 	 * @return
 	 */
-	
-	protected boolean bulkSave2(List<DBObject> objects){
-        BulkWriteOperation builder = getCollection().initializeUnorderedBulkOperation();
-        for(DBObject doc :objects)
-        {
-            builder.insert(doc);
-        }
-        BulkWriteResult result = builder.execute();
-        return result.isAcknowledged();
+
+	protected boolean bulkSave2(List<DBObject> objects) {
+		if (objects.size() == 0)
+			return false;
+		BulkWriteOperation builder = getCollection().initializeUnorderedBulkOperation();
+		for (DBObject doc : objects) {
+			builder.insert(doc);
+		}
+		BulkWriteResult result = builder.execute();
+		return result.isAcknowledged();
 	}
 
 	@JsonIgnore

@@ -35,6 +35,7 @@ public class LODVaderProperties {
 			MONGODB_SECURE_MODE = Boolean.valueOf(prop.getProperty("MONGODB_SECURE_MODE"));
 			MONGODB_USERNAME = prop.getProperty("MONGODB_USERNAME");
 			MONGODB_PASSWORD = prop.getProperty("MONGODB_PASSWORD");
+			NR_THREADS = Integer.valueOf(prop.getProperty("NR_THREADS"));
 			LOV_URL = prop.getProperty("LOV_URL");
 			RESUME = Boolean.valueOf(prop.getProperty("RESUME"));
 			RESUME_ERRORS = Boolean.valueOf(prop.getProperty("RESUME_ERRORS"));
@@ -97,6 +98,10 @@ public class LODVaderProperties {
 	
 	// defining folder for temporary files
 	public static String TMP_FOLDER;
+	
+	
+	// defining max number of threads
+	public static Integer NR_THREADS;
 
 	// defining dataids file path
 	public static String FILE_URL_PATH;

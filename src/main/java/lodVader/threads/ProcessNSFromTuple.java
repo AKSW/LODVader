@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +36,9 @@ public abstract class ProcessNSFromTuple extends Thread {
 
 	// tuple part identifies whether we are working with subject or object
 	public TuplePart tuplePart;
+	
+	// control the number of opened threads
+	public static AtomicInteger numberOfActiveThreads = new AtomicInteger(0);
 
 	// map of distributions with all NS and resources (subject or object)
 	public ConcurrentHashMap<Integer, DistributionBloomFilterContainer> distributionsResourceData = new ConcurrentHashMap<Integer, DistributionBloomFilterContainer>();
@@ -209,6 +213,7 @@ public abstract class ProcessNSFromTuple extends Thread {
 					if (numberOfReadedResources % LODVaderProperties.CHECK_LINKS_EACH == 0) {
 						try {
 							makeLinks();
+
 						} catch (Exception e) {
 							e.printStackTrace();
 						}

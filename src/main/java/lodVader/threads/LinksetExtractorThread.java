@@ -129,5 +129,7 @@ public class LinksetExtractorThread implements Runnable {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+		ProcessNSFromTuple.numberOfActiveThreads.decrementAndGet();
 	}
 }
