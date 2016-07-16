@@ -50,7 +50,7 @@ public class NTriplesLODVaderParser extends RDFParserBase {
 							// StandardCharsets.UTF_8));
 							bufferQueue.add(new String(data, 0, nRead, StandardCharsets.UTF_8));
 
-							while (bufferQueue.size() > 500000) {
+							while (bufferQueue.size() > 2500000) {
 								Thread.sleep(3);
 								if (sleeping % 5000 == 0)
 									System.out.println("Streaming thread is sleeping...");
