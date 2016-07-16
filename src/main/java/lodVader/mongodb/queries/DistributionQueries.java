@@ -43,9 +43,13 @@ public class DistributionQueries {
 	public int distributionQuerySize;
 	private NSUtils nsUtils = new NSUtils();
 
+	AggregationOptions aggregationOptions = AggregationOptions.builder().batchSize(100)
+			.outputMode(AggregationOptions.OutputMode.CURSOR).allowDiskUse(true).build();
+
 	public ArrayList<DistributionDB> getDistributionsByOutdegree(ArrayList<String> nsToSearch,
 			ConcurrentHashMap<Integer, DistributionBloomFilterContainer> distributionFilter) {
 		ArrayList<DistributionDB> list = new ArrayList<DistributionDB>();
+		HashSet<Integer> map = new HashSet<Integer>();
 		try {
 
 			// query all NS
@@ -54,19 +58,29 @@ public class DistributionQueries {
 			DBCollection collection = DBSuperClass2.getDBInstance()
 					.getCollection(DistributionSubjectNS0DB.COLLECTION_NAME);
 
-			DBCursor cursor = collection.find(query);
+			// group by
+			Cursor cursor = collection
+					.aggregate(Arrays.asList(
+							new BasicDBObject("$match",
+									new BasicDBObject(DistributionSubjectNS0DB.NS,
+											new BasicDBObject("$in", nsToSearch))),
+							new BasicDBObject("$group",
+									new BasicDBObject("_id", "$" + DistributionSubjectNS0DB.DISTRIBUTION_ID))
+
+			), aggregationOptions);
 
 			// save a list with distribution and fqdn
 			while (cursor.hasNext()) {
 				DBObject instance = cursor.next();
-				DistributionDB distribution = new DistributionDB(
-						((Number) instance.get(DistributionSubjectNS0DB.DISTRIBUTION_ID)).intValue());
+
+				DistributionDB distribution = new DistributionDB(((Number) instance.get("_id")).intValue());
 				list.add(distribution);
 
 				if (!distributionFilter.containsKey(distribution.getLODVaderID())) {
 					distributionFilter.put(distribution.getLODVaderID(),
 							new DistributionBloomFilterContainer(distribution.getLODVaderID()));
 				}
+
 			}
 
 		} catch (Exception e) {
@@ -147,7 +161,7 @@ public class DistributionQueries {
 
 			logger.info("Loaded " + size + " object namespaces.");
 
-		} else if (resourceType.equals(TuplePart.SUBJECT)) { 
+		} else if (resourceType.equals(TuplePart.SUBJECT)) {
 
 			DBCollection collection = DBSuperClass2.getDBInstance()
 					.getCollection(DistributionSubjectNSDB.COLLECTION_NAME);
@@ -172,6 +186,7 @@ public class DistributionQueries {
 	public ArrayList<DistributionDB> getDistributionsByIndegree(ArrayList<String> fqdnToSearch,
 			ConcurrentHashMap<Integer, DistributionBloomFilterContainer> fqdnPerDistribution) {
 		ArrayList<DistributionDB> list = new ArrayList<DistributionDB>();
+		HashSet<Integer> map = new HashSet<Integer>();
 		try {
 
 			BasicDBObject query = new BasicDBObject(DistributionObjectNS0DB.NS, new BasicDBObject("$in", fqdnToSearch));
@@ -179,18 +194,25 @@ public class DistributionQueries {
 			DBCollection collection = DBSuperClass2.getDBInstance()
 					.getCollection(DistributionObjectNS0DB.COLLECTION_NAME);
 
-			DBCursor cursor = collection.find(query);
+			// fileds to be projected
+			BasicDBObject project = new BasicDBObject(DistributionSubjectNS0DB.DISTRIBUTION_ID, 1);
+
+			DBCursor cursor = collection.find(query, project);
 
 			while (cursor.hasNext()) {
 				DBObject instance = cursor.next();
-				DistributionDB distribution = new DistributionDB(
-						((Number) instance.get(DistributionObjectNS0DB.DISTRIBUTION_ID)).intValue());
+				if (!map.contains(((Integer) instance.get(DistributionSubjectNS0DB.DISTRIBUTION_ID)).intValue())) {
 
-				list.add(distribution);
+					DistributionDB distribution = new DistributionDB(
+							((Number) instance.get(DistributionObjectNS0DB.DISTRIBUTION_ID)).intValue());
 
-				if (!fqdnPerDistribution.containsKey(distribution.getUri())) {
-					fqdnPerDistribution.put(distribution.getLODVaderID(),
-							new DistributionBloomFilterContainer(distribution.getLODVaderID()));
+					list.add(distribution);
+
+					if (!fqdnPerDistribution.containsKey(distribution.getUri())) {
+						fqdnPerDistribution.put(distribution.getLODVaderID(),
+								new DistributionBloomFilterContainer(distribution.getLODVaderID()));
+					}
+					map.add(((Integer) instance.get(DistributionSubjectNS0DB.DISTRIBUTION_ID)).intValue());
 				}
 
 			}

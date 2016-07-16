@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import lodVader.LODVaderProperties;
 import lodVader.enumerators.TuplePart;
 import lodVader.linksets.DatasetBloomFilterContainer;
 import lodVader.linksets.DistributionBloomFilterContainer;
@@ -69,15 +70,26 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 						}
 					}
 
-					// get which distributions describe which NS and save in a
+					// get which distributions describe which NS and save in
+					// a
 					// list (so we don't have to query again)
-					if (tuplePart.equals(TuplePart.OBJECT))
+					if (tuplePart.equals(TuplePart.OBJECT)) {
+						logger.info("Loading subjects NS from MongoDB.");
+						Timer t = new Timer();
+						t.startTimer();
 						distributionsToCompare = new DistributionQueries().getDistributionsByOutdegree(nsToSearch,
 								distributionsResourceData);
+						logger.info("Done loading subjects NS from MongoDB. Time to fetch: " + t.stopTimer());
+					}
 
-					else if (tuplePart.equals(TuplePart.SUBJECT))
+					else if (tuplePart.equals(TuplePart.SUBJECT)) {
+						logger.info("Loading objects NS from MongoDB.");
+						Timer t = new Timer();
+						t.startTimer();
 						distributionsToCompare = new DistributionQueries().getDistributionsByIndegree(nsToSearch,
 								distributionsResourceData);
+						logger.info("Done loading objects NS from MongoDB. Time to fetch: " + t.stopTimer());
+					}
 
 					for (DistributionDB distributionToCompare : distributionsToCompare) {
 
@@ -86,31 +98,37 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 
 								// check whether the resource filters of the
 								// datasets have already been loaded
-//								if (!datasetResourceData.containsKey(distributionToCompare.getTopDatasetID())) {
-//									datasetResourceData.put(distributionToCompare.getTopDatasetID(),
-//											new DatasetBloomFilterContainer(distributionToCompare.getTopDatasetID()));
+								// if
+								// (!datasetResourceData.containsKey(distributionToCompare.getTopDatasetID()))
+								// {
+								// datasetResourceData.put(distributionToCompare.getTopDatasetID(),
+								// new
+								// DatasetBloomFilterContainer(distributionToCompare.getTopDatasetID()));
 
-									// if (datasetResourceData.size() > 100) {
-									//// for(DatasetDB:
-									// datasetResourceData.values())
-									//
-									// for(DatasetResourcesData dataset:
-									// datasetResourceData.values()){
-									// System.out.println(dataset.dataset.getTitle());
-									// System.out.println("\n");
-									// }
+								// if (datasetResourceData.size() > 100) {
+								//// for(DatasetDB:
+								// datasetResourceData.values())
+								//
+								// for(DatasetResourcesData dataset:
+								// datasetResourceData.values()){
+								// System.out.println(dataset.dataset.getTitle());
+								// System.out.println("\n");
+								// }
 
-									// System.out.println("Opened datasets: " +
-									// datasetResourceData.size());
-									// System.out.println("Opened
-									// distributions: " +
-									// distributionsToCompare.size());
-									// }
+								// System.out.println("Opened datasets: " +
+								// datasetResourceData.size());
+								// System.out.println("Opened
+								// distributions: " +
+								// distributionsToCompare.size());
+								// }
 
-//								}
+								// }
 
 								// check if distributions had already been
 								// compared
+
+								// System.out.println(distributionToCompare.getDownloadUrl());
+
 								if (!(distributionToCompare.getLODVaderID() == distribution.getLODVaderID())) {
 									LinksetDataThread workerThread = new LinksetDataThread(distribution,
 											distributionToCompare,
@@ -140,9 +158,12 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 											}
 											keepTrying = false;
 										} catch (Exception e) {
-//											 e.printStackTrace();
+											// e.printStackTrace();
 											try {
-												// sleep here while the BF are not loaded yet (they are being loaded by a previous thread)
+												// sleep here while the BF
+												// are not loaded yet (they
+												// are being loaded by a
+												// previous thread)
 												Thread.sleep(100);
 											} catch (InterruptedException e1) {
 												// TODO Auto-generated catch
@@ -165,9 +186,12 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 
 											keepTrying = false;
 										} catch (Exception e) {
-//											 e.printStackTrace();
+											// e.printStackTrace();
 											try {
-												// sleep here while the BF are not loaded yet (they are being loaded by a previous thread)
+												// sleep here while the BF
+												// are not loaded yet (they
+												// are being loaded by a
+												// previous thread)
 												Thread.sleep(100);
 											} catch (InterruptedException e1) {
 												// TODO Auto-generated catch
@@ -201,6 +225,15 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 												resourcesToBeProcessedQueueCopy, datasetResourceData));
 										threads[threadIndex].setName("MakeLinkSetWorker-" + threadIndex + "-"
 												+ dataThread.targetDistributionID);
+										
+										while(numberOfActiveThreads.get() >= LODVaderProperties.NR_THREADS)
+											try {
+												Thread.sleep(10);
+											} catch (InterruptedException e) {
+												// TODO Auto-generated catch block
+												e.printStackTrace();
+											}
+										numberOfActiveThreads.incrementAndGet();
 										threads[threadIndex].start();
 										threadIndex++;
 									} else {
@@ -211,19 +244,20 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 
 						// wait all threads finish
 						for (int d = 0; d < threads.length; d++)
-							if(threads[d] != null)
-							try {
-								threads[d].join();
-							}  catch (Exception e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
+							if (threads[d] != null)
+								try {
+									threads[d].join();
+								} catch (Exception e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
 					}
 
 					// save linksets into mongodb
 					for (LinksetDataThread dataThread : mapOfWorkerThreads.values()) {
 						dataThread.active = false;
 					}
+
 				}
 
 			});
