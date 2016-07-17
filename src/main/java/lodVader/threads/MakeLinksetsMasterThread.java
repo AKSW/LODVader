@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +35,8 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 			throws MalformedURLException {
 		super(resourceQueue, uri);
 	}
+	
+	public static AtomicInteger aaaaa = new AtomicInteger(0);
 
 	final static Logger logger = LoggerFactory.getLogger(MakeLinksetsMasterThread.class);
 
@@ -130,6 +133,16 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 								// System.out.println(distributionToCompare.getDownloadUrl());
 
 								if (!(distributionToCompare.getLODVaderID() == distribution.getLODVaderID())) {
+									try{
+										
+										distributionToCompare.getTopDatasetID();
+										
+									}
+									catch(NullPointerException e){
+										System.out.println(tuplePart.toString());
+										System.out.println(aaaaa.incrementAndGet());
+										System.out.println(distributionToCompare.getLODVaderID());
+									}
 									LinksetDataThread workerThread = new LinksetDataThread(distribution,
 											distributionToCompare,
 											distributionsResourceData.get(distributionToCompare.getLODVaderID()),

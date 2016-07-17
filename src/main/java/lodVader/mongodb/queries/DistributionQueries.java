@@ -49,7 +49,7 @@ public class DistributionQueries {
 	public ArrayList<DistributionDB> getDistributionsByOutdegree(ArrayList<String> nsToSearch,
 			ConcurrentHashMap<Integer, DistributionBloomFilterContainer> distributionFilter) {
 		ArrayList<DistributionDB> list = new ArrayList<DistributionDB>();
-		HashSet<Integer> map = new HashSet<Integer>();
+
 		try {
 
 			// query all NS
@@ -73,12 +73,14 @@ public class DistributionQueries {
 			while (cursor.hasNext()) {
 				DBObject instance = cursor.next();
 
-				DistributionDB distribution = new DistributionDB(((Number) instance.get("_id")).intValue());
-				list.add(distribution);
-
-				if (!distributionFilter.containsKey(distribution.getLODVaderID())) {
-					distributionFilter.put(distribution.getLODVaderID(),
-							new DistributionBloomFilterContainer(distribution.getLODVaderID()));
+				DistributionDB distribution = new DistributionDB();
+				distribution.setLodVaderID(((Number) instance.get("_id")).intValue());
+				if(distribution.find(true)){
+					list.add(distribution);
+					if (!distributionFilter.containsKey(distribution.getLODVaderID())) {
+						distributionFilter.put(distribution.getLODVaderID(),
+								new DistributionBloomFilterContainer(distribution.getLODVaderID()));
+					}					
 				}
 
 			}
@@ -203,16 +205,21 @@ public class DistributionQueries {
 				DBObject instance = cursor.next();
 				if (!map.contains(((Integer) instance.get(DistributionSubjectNS0DB.DISTRIBUTION_ID)).intValue())) {
 
-					DistributionDB distribution = new DistributionDB(
-							((Number) instance.get(DistributionObjectNS0DB.DISTRIBUTION_ID)).intValue());
+//					DistributionDB distribution = new DistributionDB(
+//							((Number) instance.get(DistributionObjectNS0DB.DISTRIBUTION_ID)).intValue());
 
-					list.add(distribution);
-
-					if (!fqdnPerDistribution.containsKey(distribution.getUri())) {
-						fqdnPerDistribution.put(distribution.getLODVaderID(),
-								new DistributionBloomFilterContainer(distribution.getLODVaderID()));
+					DistributionDB distribution = new DistributionDB();
+					distribution.setLodVaderID(((Number) instance.get(DistributionObjectNS0DB.DISTRIBUTION_ID)).intValue());
+					if(distribution.find(true)){
+						list.add(distribution);
+						
+						if (!fqdnPerDistribution.containsKey(distribution.getUri())) {
+							fqdnPerDistribution.put(distribution.getLODVaderID(),
+									new DistributionBloomFilterContainer(distribution.getLODVaderID()));
+						}
 					}
 					map.add(((Integer) instance.get(DistributionSubjectNS0DB.DISTRIBUTION_ID)).intValue());
+
 				}
 
 			}

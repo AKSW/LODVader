@@ -131,7 +131,7 @@ public class DistributionDB extends ResourceDB {
 		}
 	}
 
-	public int getTopDatasetID() {
+	public Integer getTopDatasetID() {
 		return ((Number) getField(TOP_DATASET)).intValue();
 	}
 

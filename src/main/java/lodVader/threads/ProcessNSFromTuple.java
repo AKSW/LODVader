@@ -36,7 +36,7 @@ public abstract class ProcessNSFromTuple extends Thread {
 
 	// tuple part identifies whether we are working with subject or object
 	public TuplePart tuplePart;
-	
+
 	// control the number of opened threads
 	public static AtomicInteger numberOfActiveThreads = new AtomicInteger(0);
 
@@ -94,16 +94,14 @@ public abstract class ProcessNSFromTuple extends Thread {
 
 		if (LoadedBloomFiltersCache.describedSubjectsNSCurrentSize > LODVaderProperties.BF_BUFFER_RANGE
 				|| LoadedBloomFiltersCache.describedSubjectsNS == null) {
-			LoadedBloomFiltersCache.describedSubjectsNS = new DistributionQueries()
-					.getDescribedNS(TuplePart.SUBJECT);
+			LoadedBloomFiltersCache.describedSubjectsNS = new DistributionQueries().getDescribedNS(TuplePart.SUBJECT);
 			LoadedBloomFiltersCache.describedSubjectsNSCurrentSize = 0;
 		}
 
 		if (LoadedBloomFiltersCache.describedObjectsNSCurrentSize > LODVaderProperties.BF_BUFFER_RANGE
 				|| LoadedBloomFiltersCache.describedObjectsNS == null) {
 			LoadedBloomFiltersCache.describedObjectsNSCurrentSize = 0;
-			LoadedBloomFiltersCache.describedObjectsNS = new DistributionQueries()
-					.getDescribedNS(TuplePart.OBJECT);
+			LoadedBloomFiltersCache.describedObjectsNS = new DistributionQueries().getDescribedNS(TuplePart.OBJECT);
 		}
 
 	}
@@ -142,7 +140,7 @@ public abstract class ProcessNSFromTuple extends Thread {
 				t.join();
 			}
 
-		} catch (Exception e) { 
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
@@ -171,16 +169,16 @@ public abstract class ProcessNSFromTuple extends Thread {
 		Integer value;
 
 		while (resourceQueue.size() > 0) {
-			
+
 			// get the resource of the triple
 			resource = resourceQueue.remove();
-			
+
 			// get the namespace
 			ns = nsUtils.getNSFromString(resource);
-			
+
 			// case there is a namespace, keep going
 			if (!ns.equals("")) {
-				
+
 				// get ns0 (FQDN)
 				ns0 = nsUtils.getNS0(resource);
 
@@ -190,7 +188,7 @@ public abstract class ProcessNSFromTuple extends Thread {
 				// case not, put it
 				if (value == null)
 					countTotalNS.put(ns, 1);
-				
+
 				// case yes, increment counter
 				else
 					countTotalNS.put(ns, value + 1);
@@ -200,10 +198,10 @@ public abstract class ProcessNSFromTuple extends Thread {
 
 				// if some set describes the NS, keep going
 				if (describedNSFilter.compare(ns)) {
-					
+
 					// add the resource to a queue
 					resourcesToBeProcessed.put(resource, ns);
-					
+
 					// add namespaces to tmp sets
 					chunkOfNS.add(ns);
 					chunkOfNS0.add(ns0);
@@ -271,16 +269,16 @@ public abstract class ProcessNSFromTuple extends Thread {
 				// InvalidLinksFilters();
 				// invalidLinksFilter.loadDatasetObjectFilter(linkset.getDatasetTarget());
 
-				for (String link : invalidLinksMap.keySet()) {
-					if (!datasetResourceData.get(dataThread.targetDatasetID).queryObject(link))
-						invalidLinksMapFinal.put(link, invalidLinksMap.get(link));
-				}
+//				for (String link : invalidLinksMap.keySet()) {
+//					if (!datasetResourceData.get(dataThread.targetDatasetID).queryObject(link))
+//						invalidLinksMapFinal.put(link, invalidLinksMap.get(link));
+//				}
 
 				// invalidLinksFilter = null;
-				invalidLinks.saveAll(invalidLinksMapFinal, dataThread.targetDistributionID,
-						dataThread.sourceDistributionID);
-				linkset.setInvalidLinks(invalidLinksMapFinal.size());
-				dataThread.setInvalidLinks(null);
+//				invalidLinks.saveAll(invalidLinksMapFinal, dataThread.targetDistributionID,
+//						dataThread.sourceDistributionID);
+//				linkset.setInvalidLinks(invalidLinksMapFinal.size());
+//				dataThread.setInvalidLinks(null);
 
 			} else {
 				// only calculate links from distribution to dataset if we are
@@ -343,34 +341,41 @@ public abstract class ProcessNSFromTuple extends Thread {
 
 				// check if the link is invalid comparing with the whole
 				// dataset, and not only with distributions
-				if (distribution.getTopDatasetID() != linkset.getDatasetTarget()) {
-					InvalidLinksFilters invalidLinksFilter = new InvalidLinksFilters();
-					invalidLinksFilter.loadDatasetSubjectFilter(linkset.getDatasetTarget());
-
-					logger.info(
-							"Comparing links with dataset: " + new DatasetDB(linkset.getDatasetTarget()).getTitle());
-
-					// dont compare links within the same dataset
-					for (String link : invalidLinksMap.keySet()) {
-						if (!datasetResourceData.get(dataThread.targetDatasetID).querySubject(link)) {
-							if (!invalidLinksFilter.queryDatasetSubject(link, linkset.getDatasetTarget())) {
-								invalidLinksMapFinal.put(link, invalidLinksMap.get(link));
-								deadLinksBetweenDistAndDataset++;
-							}
-						}
-					}
-				}
+//				if (distribution.getTopDatasetID() != linkset.getDatasetTarget()) {
+//					InvalidLinksFilters invalidLinksFilter = new InvalidLinksFilters();
+//					invalidLinksFilter.loadDatasetSubjectFilter(linkset.getDatasetTarget());
+//
+//					logger.info(
+//							"Comparing links with dataset: " + new DatasetDB(linkset.getDatasetTarget()).getTitle());
+//
+//					// dont compare links within the same dataset
+//					for (String link : invalidLinksMap.keySet()) {
+//						try {
+//							if (!datasetResourceData.get(
+//									dataThread.targetDatasetID).
+//									querySubject(link)) {
+//								if (!invalidLinksFilter.queryDatasetSubject(link, linkset.getDatasetTarget())) {
+//									invalidLinksMapFinal.put(link, invalidLinksMap.get(link));
+//									deadLinksBetweenDistAndDataset++;
+//								}
+//							}
+//						} catch (NullPointerException e) {
+//							System.out.println(link);
+//							e.printStackTrace();
+//						}
+//					}
+//				}
 
 				datasetLinkset.setLinks(linksBetweenDistAndDataset + datasetLinkset.getLinks());
-				datasetLinkset.setDeadLinks(deadLinksBetweenDistAndDataset);
+//				datasetLinkset.setDeadLinks(deadLinksBetweenDistAndDataset);
 
 				datasetLinkset.update(true, DatasetLinksetDB.LINKSET_ID, datasetLinksetID);
 
 				// save links
 				invalidLinks.saveAll(invalidLinksMapFinal, dataThread.sourceDistributionID,
 						dataThread.targetDistributionID);
-				linkset.setInvalidLinks(invalidLinksMapFinal.size());
-				dataThread.setInvalidLinks(null);
+//				linkset.setInvalidLinks(invalidLinksMapFinal.size());
+//				dataThread.setInvalidLinks(null);
 
 			}
 
