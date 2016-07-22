@@ -29,7 +29,7 @@ public class Application {
 //		
 //		else {
 			SpringApplication.run(Application.class, args);
-			StartLODVader s = new StartLODVader();
+			StartLODVader s = new StartLODVader(); 
 //		}
 	}
 }

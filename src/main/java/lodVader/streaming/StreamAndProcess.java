@@ -44,6 +44,7 @@ import lodVader.mongodb.collections.gridFS.ObjectsBucket;
 import lodVader.mongodb.collections.gridFS.SubjectsBucket;
 import lodVader.parsers.tripleParsers.NTriplesLODVaderParser;
 import lodVader.threads.MakeLinksetsMasterThread;
+import lodVader.threads.MakeLinksetsMasterThreadLDLEx;
 import lodVader.tupleManager.SplitAndProcess;
 import lodVader.tupleManager.SuperTupleManager;
 import lodVader.utils.FileUtils;
@@ -60,8 +61,8 @@ public class StreamAndProcess extends SuperStream {
 	boolean doneReadingFile = false;
 	boolean doneSplittingString = false;
 
-	public MakeLinksetsMasterThread makeLinksetFromObjectsThread = null;
-	public MakeLinksetsMasterThread makeLinksetFromSubjectsThread = null;
+	public MakeLinksetsMasterThreadLDLEx makeLinksetFromObjectsThread = null;
+	public MakeLinksetsMasterThreadLDLEx makeLinksetFromSubjectsThread = null;
 
 	private DistributionDB distribution = null;
 
@@ -124,8 +125,8 @@ public class StreamAndProcess extends SuperStream {
 		splitThread = new SplitAndProcess(subjectQueue, objectQueue, FileUtils.stringToHash(downloadUrl.toString()),
 				distribution);
 
-		makeLinksetFromObjectsThread = new MakeLinksetsMasterThread(objectQueue, uri);
-		makeLinksetFromSubjectsThread = new MakeLinksetsMasterThread(subjectQueue, uri);
+		makeLinksetFromObjectsThread = new MakeLinksetsMasterThreadLDLEx(objectQueue, uri);
+		makeLinksetFromSubjectsThread = new MakeLinksetsMasterThreadLDLEx(subjectQueue, uri);
 
 		// setting thread names
 		makeLinksetFromObjectsThread.setName("getNSFromObjectsThread");

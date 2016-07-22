@@ -22,7 +22,7 @@ public class CheckWhetherToStream {
 			throws Exception {
 
 		logger.debug("Checking whether we need to download "
-				+ distribution.getDownloadUrl() + " again.");
+				+ distribution.getDownloadUrl() + " again."); 
 
 		URL url = new URL(distribution.getDownloadUrl());
 

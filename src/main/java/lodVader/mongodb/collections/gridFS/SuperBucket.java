@@ -129,14 +129,15 @@ public class SuperBucket extends Thread {
 				// describes as subjects
 				else {
 					
-					DistributionBloomFilterContainer subjects = new DistributionBloomFilterContainer(this.distributionID);
+//					DistributionBloomFilterContainer subjects = new DistributionBloomFilterContainer(this.distributionID);
+//					subjects.loadSubjectBuckets();
 					int objectCohesion = 0;
 					
 					while ((resource = f.readLine()) != null) {
 						chunk.add(resource);
 						
-						if(subjects.querySubject(resource)) 
-							objectCohesion ++;
+//						if(subjects.querySubject(resource)) 
+//							objectCohesion ++;
 						
 						if (chunk.size() == chunkSize) {
 							saveChunk((ArrayList<String>) chunk.clone());
