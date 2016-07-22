@@ -35,12 +35,12 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 			throws MalformedURLException {
 		super(resourceQueue, uri);
 	}
-	
+
 	public static AtomicInteger aaaaa = new AtomicInteger(0);
 
 	final static Logger logger = LoggerFactory.getLogger(MakeLinksetsMasterThread.class);
 
-	ArrayList<DistributionDB> distributionsToCompare;
+	ArrayList<DistributionDB> distributionsToCompare = new ArrayList<DistributionDB>();
 
 	public HashSet<String> localNS0Copy;
 	public HashSet<String> localNSCopy;
@@ -76,22 +76,26 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 					// get which distributions describe which NS and save in
 					// a
 					// list (so we don't have to query again)
-					if (tuplePart.equals(TuplePart.OBJECT)) {
-						logger.debug("Loading subjects NS from MongoDB.");
-						Timer t = new Timer();
-						t.startTimer();
-						distributionsToCompare = new DistributionQueries().getDistributionsByOutdegree(nsToSearch,
-								distributionsResourceData);
-						logger.debug("Done loading subjects NS from MongoDB. Time to fetch: " + t.stopTimer());
-					}
+					if (nsToSearch.size() > 0) {
+						if (tuplePart.equals(TuplePart.OBJECT)) {
+							logger.info("Loading " + nsToSearch.size() + " subjects NS from MongoDB.");
+							Timer t = new Timer();
+							t.startTimer();
+							distributionsToCompare = new DistributionQueries().getDistributionsByOutdegree(nsToSearch,
+									distributionsResourceData);
+							logger.info("Done loading subjects NS from MongoDB. Time to fetch: " + t.stopTimer()
+									+ " Number of loaded distributions: " + distributionsToCompare.size());
+						}
 
-					else if (tuplePart.equals(TuplePart.SUBJECT)) {
-						logger.debug("Loading objects NS from MongoDB.");
-						Timer t = new Timer();
-						t.startTimer();
-						distributionsToCompare = new DistributionQueries().getDistributionsByIndegree(nsToSearch,
-								distributionsResourceData);
-						logger.debug("Done loading objects NS from MongoDB. Time to fetch: " + t.stopTimer());
+						else if (tuplePart.equals(TuplePart.SUBJECT)) {
+							logger.info("Loading " + nsToSearch.size() + " objects NS from MongoDB.");
+							Timer t = new Timer();
+							t.startTimer();
+							distributionsToCompare = new DistributionQueries().getDistributionsByIndegree(nsToSearch,
+									distributionsResourceData);
+							logger.info("Done loading objects NS from MongoDB. Time to fetch: " + t.stopTimer()
+									+ " Number of loaded distributions: " + distributionsToCompare.size());
+						}
 					}
 
 					for (DistributionDB distributionToCompare : distributionsToCompare) {
@@ -133,12 +137,11 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 								// System.out.println(distributionToCompare.getDownloadUrl());
 
 								if (!(distributionToCompare.getLODVaderID() == distribution.getLODVaderID())) {
-									try{
-										
+									try {
+
 										distributionToCompare.getTopDatasetID();
-										
-									}
-									catch(NullPointerException e){
+
+									} catch (NullPointerException e) {
 										System.out.println(tuplePart.toString());
 										System.out.println(aaaaa.incrementAndGet());
 										System.out.println(distributionToCompare.getLODVaderID());
@@ -238,12 +241,13 @@ public class MakeLinksetsMasterThread extends ProcessNSFromTuple {
 												resourcesToBeProcessedQueueCopy, datasetResourceData));
 										threads[threadIndex].setName("MakeLinkSetWorker-" + threadIndex + "-"
 												+ dataThread.targetDistributionID);
-										
-										while(numberOfActiveThreads.get() >= LODVaderProperties.NR_THREADS)
+
+										while (numberOfActiveThreads.get() >= LODVaderProperties.NR_THREADS)
 											try {
-												Thread.sleep(10);
+												Thread.sleep(3);
 											} catch (InterruptedException e) {
-												// TODO Auto-generated catch block
+												// TODO Auto-generated catch
+												// block
 												e.printStackTrace();
 											}
 										numberOfActiveThreads.incrementAndGet();

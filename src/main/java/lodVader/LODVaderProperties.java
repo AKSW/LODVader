@@ -149,7 +149,7 @@ public class LODVaderProperties {
 	public static String LOV_URL;
 	public static String REMOVE_DATASET_PASS;
 	
-	public static int MAX_CHUNK_SIZE = 200000;
+	public static int MAX_CHUNK_SIZE = 500000;
 	
 	public static int TOP_N_LINKS = 200;
 
@@ -163,7 +163,7 @@ public class LODVaderProperties {
 
 	public static boolean ONLY_STREAM_DATASETS_AND_SAVE_NT_FORMAT = false;
 
-	public static String VERSION = "v1.2";
+	public static String VERSION = "v1.3";
 
 	public static int MONGODB_MINIMUM_MAJOR_VERSION = 2;
 	public static int MONGODB_MINIMUM_MINOR_VERSION = 6;

@@ -39,7 +39,7 @@ public class SuperBucket extends Thread {
 
 	int chunkSize = LODVaderProperties.MAX_CHUNK_SIZE;
 
-	double fpp = 0.0000001;
+	double fpp = 0.000001;
 
 	public String COLLECTION_NAME = null;
 
