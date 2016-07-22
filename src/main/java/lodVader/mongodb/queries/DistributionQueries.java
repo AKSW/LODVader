@@ -46,6 +46,41 @@ public class DistributionQueries {
 	AggregationOptions aggregationOptions = AggregationOptions.builder().batchSize(100)
 			.outputMode(AggregationOptions.OutputMode.CURSOR).allowDiskUse(true).build();
 
+	public HashSet<Integer> getDistributionsBySubjectNS(String nsToSearch) {
+
+		BasicDBObject query = new BasicDBObject(DistributionSubjectNS0DB.NS, nsToSearch);
+		DBCollection collection = DBSuperClass2.getDBInstance().getCollection(DistributionSubjectNS0DB.COLLECTION_NAME);
+
+		HashSet<Integer> hash = new HashSet<Integer>();
+
+		Cursor cursor = collection.find(query);
+
+		while (cursor.hasNext()) {
+			DBObject instance = cursor.next();
+			hash.add(((Number) instance.get(DistributionSubjectNS0DB.DISTRIBUTION_ID)).intValue());
+		}
+		
+		return hash; 
+	}
+
+	
+	public HashSet<Integer> getDistributionsByObjectNS(String nsToSearch) {
+
+		BasicDBObject query = new BasicDBObject(DistributionObjectNS0DB.NS, nsToSearch);
+		DBCollection collection = DBSuperClass2.getDBInstance().getCollection(DistributionObjectNS0DB.COLLECTION_NAME);
+
+		HashSet<Integer> hash = new HashSet<Integer>();
+
+		Cursor cursor = collection.find(query);
+
+		while (cursor.hasNext()) {
+			DBObject instance = cursor.next();
+			hash.add(((Number) instance.get(DistributionObjectNS0DB.DISTRIBUTION_ID)).intValue());
+		}
+		
+		return hash; 
+	}
+	
 	public ArrayList<DistributionDB> getDistributionsByOutdegree(ArrayList<String> nsToSearch,
 			ConcurrentHashMap<Integer, DistributionBloomFilterContainer> distributionFilter) {
 		ArrayList<DistributionDB> list = new ArrayList<DistributionDB>();
@@ -75,12 +110,12 @@ public class DistributionQueries {
 
 				DistributionDB distribution = new DistributionDB();
 				distribution.setLodVaderID(((Number) instance.get("_id")).intValue());
-				if(distribution.find(true)){
+				if (distribution.find(true)) {
 					list.add(distribution);
 					if (!distributionFilter.containsKey(distribution.getLODVaderID())) {
 						distributionFilter.put(distribution.getLODVaderID(),
 								new DistributionBloomFilterContainer(distribution.getLODVaderID()));
-					}					
+					}
 				}
 
 			}
@@ -205,14 +240,16 @@ public class DistributionQueries {
 				DBObject instance = cursor.next();
 				if (!map.contains(((Integer) instance.get(DistributionSubjectNS0DB.DISTRIBUTION_ID)).intValue())) {
 
-//					DistributionDB distribution = new DistributionDB(
-//							((Number) instance.get(DistributionObjectNS0DB.DISTRIBUTION_ID)).intValue());
+					// DistributionDB distribution = new DistributionDB(
+					// ((Number)
+					// instance.get(DistributionObjectNS0DB.DISTRIBUTION_ID)).intValue());
 
 					DistributionDB distribution = new DistributionDB();
-					distribution.setLodVaderID(((Number) instance.get(DistributionObjectNS0DB.DISTRIBUTION_ID)).intValue());
-					if(distribution.find(true)){
+					distribution
+							.setLodVaderID(((Number) instance.get(DistributionObjectNS0DB.DISTRIBUTION_ID)).intValue());
+					if (distribution.find(true)) {
 						list.add(distribution);
-						
+
 						if (!fqdnPerDistribution.containsKey(distribution.getUri())) {
 							fqdnPerDistribution.put(distribution.getLODVaderID(),
 									new DistributionBloomFilterContainer(distribution.getLODVaderID()));

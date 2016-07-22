@@ -1,5 +1,6 @@
 package lodVader.mongodb.collections.gridFS;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -62,7 +63,7 @@ public class SubjectsBucket extends SuperBucket {
 		for (GridFSDBFile f : buckets) {
 			BloomFilterI filter = BloomFilterFactory.newBloomFilter();
 			try {
-				filter.readFrom(f.getInputStream());
+				filter.readFrom(new BufferedInputStream(f.getInputStream()));
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

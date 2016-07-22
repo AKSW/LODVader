@@ -52,6 +52,7 @@ import lodVader.mongodb.collections.gridFS.ObjectsBucket;
 import lodVader.mongodb.collections.gridFS.SubjectsBucket;
 import lodVader.streaming.SuperStream;
 import lodVader.threads.MakeLinksetsMasterThread;
+import lodVader.threads.MakeLinksetsMasterThreadLDLEx;
 import lodVader.utils.Timer;
 
 public class LOV extends SuperStream {
@@ -215,9 +216,9 @@ public class LOV extends SuperStream {
 				distribution.setStatus(DistributionStatus.WAITING_TO_STREAM);
 				distribution.update(true);
 
-				MakeLinksetsMasterThread makeLinksetsSubjects = new MakeLinksetsMasterThread(subjectsQueue,
+				MakeLinksetsMasterThreadLDLEx makeLinksetsSubjects = new MakeLinksetsMasterThreadLDLEx(subjectsQueue,
 						node.getNameSpace());
-				MakeLinksetsMasterThread makeLinksetsObjects = new MakeLinksetsMasterThread(objectsQueue,
+				MakeLinksetsMasterThreadLDLEx makeLinksetsObjects = new MakeLinksetsMasterThreadLDLEx(objectsQueue,
 						node.getNameSpace());
 				makeLinksetsObjects.tuplePart = TuplePart.OBJECT;
 				makeLinksetsSubjects.tuplePart = TuplePart.SUBJECT;
@@ -310,18 +311,18 @@ public class LOV extends SuperStream {
 		// new OWLClassQueries().insertOWLClasses(owlClasses,
 		// distribution.getDynLodID(), distribution.getTopDataset());
 
-		logger.info("Checking Jaccard Similarities...");
-		// Checking Jaccard Similarities...
-		LinkSimilarity linkSimilarity = new JaccardSimilarity();
-		linkSimilarity.updateLinks(distribution, new AllPredicatesRelationDB());
-		linkSimilarity.updateLinks(distribution, new RDFTypeObjectRelationDB());
-		linkSimilarity.updateLinks(distribution, new RDFSubClassOfRelationDB());
-		linkSimilarity.updateLinks(distribution, new OwlClassRelationDB());
-
-		logger.info("Updating link strength among distributions...");
-		// Saving link similarities
-		LinkStrength linkStrength = new LinkStrength();
-		linkStrength.updateLinks(distribution);
+//		logger.info("Checking Jaccard Similarities...");
+//		// Checking Jaccard Similarities...
+//		LinkSimilarity linkSimilarity = new JaccardSimilarity();
+//		linkSimilarity.updateLinks(distribution, new AllPredicatesRelationDB());
+//		linkSimilarity.updateLinks(distribution, new RDFTypeObjectRelationDB());
+//		linkSimilarity.updateLinks(distribution, new RDFSubClassOfRelationDB());
+//		linkSimilarity.updateLinks(distribution, new OwlClassRelationDB());
+//
+//		logger.info("Updating link strength among distributions...");
+//		// Saving link similarities
+//		LinkStrength linkStrength = new LinkStrength();
+//		linkStrength.updateLinks(distribution);
 
 	}
 

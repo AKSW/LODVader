@@ -18,9 +18,7 @@ public class DistributionBloomFilterContainer {
 
 	private int distributionID;
 
-//	private DistributionDB distributionMongoDBObject;
-
-	private BloomFilterI filterSubjectsNS; 
+	private BloomFilterI filterSubjectsNS;
 
 	private BloomFilterI filterObjectsNS;
 
@@ -33,33 +31,32 @@ public class DistributionBloomFilterContainer {
 	private TreeMap<String, SubjectsBucket> subjectBuckets = new TreeMap<String, SubjectsBucket>();
 
 	public DistributionBloomFilterContainer(int distributionID) {
-//		this.distributionMongoDBObject = new DistributionDB(distributionID);
 		this.distributionID = distributionID;
-		loadObjectBuckets();
-		loadSubjectBuckets();
-		loadNamespaces();
+//		loadObjectBuckets();
+//		loadSubjectBuckets();
+//		loadNamespaces();
 	}
 
 	public int getDistributionID() {
 		return distributionID;
 	}
-	
+
 	public TreeMap<String, ObjectsBucket> getObjectBuckets() {
 		return objectBuckets;
 	}
-	
+
 	public TreeMap<String, SubjectsBucket> getSubjectBuckets() {
 		return subjectBuckets;
 	}
-	
+
 	public BloomFilterI getFilterObjectsNS() {
 		return filterObjectsNS;
 	}
-	
+
 	public BloomFilterI getFilterSubjectsNS() {
 		return filterSubjectsNS;
 	}
-		
+
 	public boolean querySubjectNS(String fqdn) {
 		return filterSubjectsNS.compare(fqdn);
 
@@ -103,11 +100,7 @@ public class DistributionBloomFilterContainer {
 			if (singleSubject != null)
 				return singleSubject.compare(resource);
 
-			else if (subjectBuckets.
-					floorEntry(resource).
-					getValue().
-					filter.
-					compare(resource))
+			else if (subjectBuckets.floorEntry(resource).getValue().filter.compare(resource))
 				return true;
 
 		} catch (Exception e) {
@@ -117,8 +110,7 @@ public class DistributionBloomFilterContainer {
 		return false;
 	}
 
-	public void loadNamespaces() {
-
+	public void loadSubjectNamespaces() {
 		// query all subjects ns for the distribution
 		BasicDBObject subjectQuery = new BasicDBObject(DistributionSubjectNSDB.DISTRIBUTION_ID, distributionID);
 
@@ -129,11 +121,10 @@ public class DistributionBloomFilterContainer {
 		// HashSet<String> subjectsNS = new HashSet<String>();
 		String resource;
 		filterSubjectsNS = BloomFilterFactory.newBloomFilter();
-		if (cursor.size() < 10000){
+		if (cursor.size() < 10000) {
 			filterSubjectsNS.create(10000, 0.0000001);
-		}
-		else{
-			filterSubjectsNS.create(cursor.size(), 0.0000001);		
+		} else {
+			filterSubjectsNS.create(cursor.size(), 0.0000001);
 		}
 
 		while (cursor.hasNext()) {
@@ -142,18 +133,24 @@ public class DistributionBloomFilterContainer {
 			filterSubjectsNS.add(resource);
 		}
 
+	}
+
+	public void loadObjectNamespaces() {
+
 		// doing the same for objects ns
 		BasicDBObject objectQuery = new BasicDBObject(DistributionObjectNSDB.DISTRIBUTION_ID, distributionID);
 
-		collection = DBSuperClass2.getCollection(DistributionObjectNSDB.COLLECTION_NAME);
+		DBCollection collection = DBSuperClass2.getCollection(DistributionObjectNSDB.COLLECTION_NAME);
 
-		cursor = collection.find(objectQuery);
+		DBCursor cursor = collection.find(objectQuery);
 
-		filterObjectsNS= BloomFilterFactory.newBloomFilter();
+		String resource;
+
+		filterObjectsNS = BloomFilterFactory.newBloomFilter();
 		if (cursor.size() < 10000)
 			filterObjectsNS.create(10000, 0.0000001);
 		else
-			filterObjectsNS.create(cursor.size(), 0.0000001);		
+			filterObjectsNS.create(cursor.size(), 0.0000001);
 		while (cursor.hasNext()) {
 			resource = cursor.next().get(DistributionObjectNSDB.NS).toString();
 			// objectsNS.add(resource);
