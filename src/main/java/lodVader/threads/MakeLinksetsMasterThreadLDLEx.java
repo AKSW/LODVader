@@ -5,17 +5,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ldlex.seeder.MapperService;
 import lodVader.LODVaderProperties;
-import lodVader.enumerators.TuplePart;
-import lodVader.linksets.DistributionBloomFilterContainer;
 import lodVader.mongodb.collections.DistributionDB;
-import lodVader.utils.Timer;
 
 public class MakeLinksetsMasterThreadLDLEx extends ProcessNSFromTupleLDLEX {
 
@@ -56,6 +52,19 @@ public class MakeLinksetsMasterThreadLDLEx extends ProcessNSFromTupleLDLEX {
 			Thread t = new Thread(new Runnable() {
 				public void run() {
 
+					while (numberOfMakeLinksActiveThreads.get() >= 5) {
+						try {
+							Thread.sleep(20);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+					
+					numberOfMakeLinksActiveThreads.incrementAndGet();
+					
+//					System.out.println("Starting making links.");
+
 					ArrayList<String> nsToSearch = new ArrayList<String>();
 
 					// create a list of NS which should be fetched from
@@ -69,48 +78,68 @@ public class MakeLinksetsMasterThreadLDLEx extends ProcessNSFromTupleLDLEX {
 					}
 
 					// Update namespace - distribution map
-					if(nsToSearch.size()>0)
+					if (nsToSearch.size() > 0)
 						new MapperService().updateMapping(nsToSearch, tuplePart, mapper);
 
 					// distribute the resources to be processed to the correct
 					// distributions
 					for (String resource : resourcesToBeProcessedQueueCopy.keySet()) {
 						String ns = resourcesToBeProcessedQueueCopy.get(resource);
- 
+
 						for (Integer targetDistributionID : mapper.getDistributions(ns)) {
 
+							try {
 
-							// if the distribution has not been loaded
-							if (distributionStatus.get(targetDistributionID) == null) {
-								DistributionDB targetDistribution = new DistributionDB(targetDistributionID);
-								distributionStatus.put(targetDistributionID, 1);
-								mapOfWorkerThreads.put(targetDistributionID,
-										new LinksetDataThreadLDLEx(targetDistribution, tuplePart));
-								
-								distributionStatus.put(targetDistributionID, 2);
-								mapOfWorkerThreads.get(targetDistributionID).resources.add(resource);
+								// if the distribution has not been loaded
+								if (distributionStatus.get(targetDistributionID) == null) {
+									DistributionDB targetDistribution = new DistributionDB(targetDistributionID);
+									distributionStatus.put(targetDistributionID, 1);
+									mapOfWorkerThreads.put(targetDistributionID,
+											new LinksetDataThreadLDLEx(targetDistribution, tuplePart));
 
-							} else if (distributionStatus.get(targetDistributionID) == 1) {
+									distributionStatus.put(targetDistributionID, 2);
+									mapOfWorkerThreads.get(targetDistributionID).resources.add(resource);
 
-								while (distributionStatus.get(targetDistributionID) == 1) {
-									try {
-										Thread.sleep(100);
-									} catch (InterruptedException e) {
-										// TODO Auto-generated catch block
-										e.printStackTrace();
+								} else if (distributionStatus.get(targetDistributionID) == 1) {
+
+									while (distributionStatus.get(targetDistributionID) == 1) {
+										try {
+											Thread.sleep(30);
+										} catch (InterruptedException e) {
+											// TODO Auto-generated catch block
+											e.printStackTrace();
+										}
 									}
+
+								} else if (distributionStatus.get(targetDistributionID) == 2) {
+									// add resource to the correct distribution
+									mapOfWorkerThreads.get(targetDistributionID).resources.add(resource);
+
+									// while
+									// (mapOfWorkerThreads.get(targetDistributionID).resources.size()
+									// > 150000)
+									// try {
+									// logger.info(String.valueOf(mapOfWorkerThreads.get(targetDistributionID).resources.size()));
+									// Thread.sleep(30);
+									// } catch (InterruptedException e) {
+									// // TODO Auto-generated catch block
+									// e.printStackTrace();
+									// }
+
 								}
 
-							} else if (distributionStatus.get(targetDistributionID) == 2) {
-								// add resource to the correct distribution
-								mapOfWorkerThreads.get(targetDistributionID).resources.add(resource); 
+							} catch (NullPointerException e) {
+								e.printStackTrace();
+								distributionStatus.put(targetDistributionID, null);
+
 							}
+
 						}
 					}
 
-//					int bufferSize = resourcesToBeProcessedQueueCopy.size();
+					// int bufferSize = resourcesToBeProcessedQueueCopy.size();
 
-//					String[] buffer = new String[bufferSize];
+					// String[] buffer = new String[bufferSize];
 
 					if (mapOfWorkerThreads.size() > 0) {
 
@@ -120,21 +149,21 @@ public class MakeLinksetsMasterThreadLDLEx extends ProcessNSFromTupleLDLEX {
 
 						for (LinksetDataThreadLDLEx dataThread : mapOfWorkerThreads.values()) {
 							if (distribution.getLODVaderID() != dataThread.distributionID)
-								if (dataThread.resources.size() > 1000 && !dataThread.isBeingConsumed.get()) {
+								if (dataThread.resources.size() > 0 && !dataThread.isBeingConsumed.get()) {
 									if (threads[threadIndex] == null) {
 										dataThread.isBeingConsumed.set(true);
 										threads[threadIndex] = new Thread(
-												new LinksetExtractorThreadLDLEx(dataThread, dataThread.resources)); 
-										threads[threadIndex].setName("worker--"
-												+ dataThread.distribution.getDownloadUrl());
+												new LinksetExtractorThreadLDLEx(dataThread, dataThread.resources));
+										threads[threadIndex]
+												.setName("worker--" + dataThread.distribution.getDownloadUrl());
 
-										while (numberOfActiveThreads.get() >= LODVaderProperties.NR_THREADS)
+										while (numberOfWorkerActiveThreads.get() >= LODVaderProperties.NR_THREADS)
 											try {
-												Thread.sleep(20);
+												Thread.sleep(10);
 											} catch (InterruptedException e) {
 												e.printStackTrace();
 											}
-										numberOfActiveThreads.incrementAndGet();
+										numberOfWorkerActiveThreads.incrementAndGet();
 										threads[threadIndex].start();
 										threadIndex++;
 									} else {
@@ -155,9 +184,12 @@ public class MakeLinksetsMasterThreadLDLEx extends ProcessNSFromTupleLDLEX {
 					}
 
 					// save linksets into mongodb
-//					for (LinksetDataThreadLDLEx dataThread : mapOfWorkerThreads.values()) {
-//						dataThread.resources = new HashSet<String>();
-//					}
+					// for (LinksetDataThreadLDLEx dataThread :
+					// mapOfWorkerThreads.values()) {
+					// dataThread.resources = new HashSet<String>();
+					// }
+					numberOfMakeLinksActiveThreads.decrementAndGet();
+					System.out.println("MakeLink thread finished. "+tuplePart.toString()+" resources processed: "+numberOfFinishedThreads.incrementAndGet() * LODVaderProperties.CHECK_LINKS_EACH);
 
 				}
 
@@ -165,6 +197,7 @@ public class MakeLinksetsMasterThreadLDLEx extends ProcessNSFromTupleLDLEX {
 			threadNumber++;
 			t.setName("MakingLinksets:" + (threadNumber) + ":" + distribution.getUri());
 			mapOfThreads.put("MakingLinksets:" + (threadNumber) + ":" + distribution.getUri(), t);
+
 			t.start();
 
 		} catch (Exception e) {

@@ -257,8 +257,8 @@ public class StreamAndProcess extends SuperStream {
 		
 		makeLinksetFromObjectsThread.setDoneSplittingString(true);
 		makeLinksetFromObjectsThread.join();
-
 		makeLinksetFromSubjectsThread.setDoneSplittingString(true);
+
 		makeLinksetFromSubjectsThread.join();
 
 		// save links between distribution and datasets

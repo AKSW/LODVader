@@ -49,6 +49,7 @@ public class DistributionQueries {
 	public HashSet<Integer> getDistributionsBySubjectNS(String nsToSearch) {
 
 		BasicDBObject query = new BasicDBObject(DistributionSubjectNS0DB.NS, nsToSearch);
+
 		DBCollection collection = DBSuperClass2.getDBInstance().getCollection(DistributionSubjectNS0DB.COLLECTION_NAME);
 
 		HashSet<Integer> hash = new HashSet<Integer>();
@@ -57,13 +58,17 @@ public class DistributionQueries {
 
 		while (cursor.hasNext()) {
 			DBObject instance = cursor.next();
-			hash.add(((Number) instance.get(DistributionSubjectNS0DB.DISTRIBUTION_ID)).intValue());
+
+//			DistributionDB distribution = new DistributionDB(
+//					((Number) instance.get(DistributionSubjectNS0DB.DISTRIBUTION_ID)).intValue());
+//
+//			if (distribution.getTriples() >= 1000)
+				hash.add(((Number) instance.get(DistributionSubjectNS0DB.DISTRIBUTION_ID)).intValue());
 		}
-		
-		return hash; 
+
+		return hash;
 	}
 
-	
 	public HashSet<Integer> getDistributionsByObjectNS(String nsToSearch) {
 
 		BasicDBObject query = new BasicDBObject(DistributionObjectNS0DB.NS, nsToSearch);
@@ -75,12 +80,16 @@ public class DistributionQueries {
 
 		while (cursor.hasNext()) {
 			DBObject instance = cursor.next();
-			hash.add(((Number) instance.get(DistributionObjectNS0DB.DISTRIBUTION_ID)).intValue());
+//			DistributionDB distribution = new DistributionDB(
+//					((Number) instance.get(DistributionSubjectNS0DB.DISTRIBUTION_ID)).intValue());
+//
+//			if (distribution.getTriples() >= 1000)
+				hash.add(((Number) instance.get(DistributionObjectNS0DB.DISTRIBUTION_ID)).intValue());
 		}
-		
-		return hash; 
+
+		return hash;
 	}
-	
+
 	public ArrayList<DistributionDB> getDistributionsByOutdegree(ArrayList<String> nsToSearch,
 			ConcurrentHashMap<Integer, DistributionBloomFilterContainer> distributionFilter) {
 		ArrayList<DistributionDB> list = new ArrayList<DistributionDB>();

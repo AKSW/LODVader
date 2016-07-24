@@ -6,6 +6,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.apache.jena.riot.RiotException;
 import org.junit.Test;
@@ -65,10 +66,10 @@ public class CLODFileParser implements FileParserInterface {
 				dataset.setIsVocabulary(false);
 				dataset.setDescriptionFileURL(URL);
 				dataset.setTitle(stmt.getObject().toString());
-				dataset.update(true, DatasetDB.URI, url);
+				dataset.update(true);
+//				dataset.update(true, DatasetDB.URI, url);
 
-				DistributionDB distribution = new DistributionDB();
-				distribution.setUri(url);
+				DistributionDB distribution = new DistributionDB(url);
 				distribution.setDownloadUrl(url);
 				distribution.setTitle(url);
 				distribution.setTopDatasetTitle(url);
@@ -83,15 +84,20 @@ public class CLODFileParser implements FileParserInterface {
 
 				StmtIterator otherIterator = inModel.listStatements(stmt.getSubject().asResource(), formatProp,
 						(RDFNode) null);
+				try{
 				distribution.setFormat(
 						Formats.getEquivalentFormat(otherIterator.next().getObject().asLiteral().getString()));
-
+				}
+				catch(NoSuchElementException e){
+					distribution.setFormat("");
+				}
 				distribution.update(true, DistributionDB.URI, url);
 
 				ArrayList<Integer> distributionList = new ArrayList<Integer>();
 				distributionList.add(distribution.getLODVaderID());
 				dataset.setDistributionsIds(defaultDatasets);
-				dataset.update(false, DatasetDB.URI, url);
+				dataset.update(true);
+//				dataset.update(false, DatasetDB.URI, url);
 
 				distributionsLinks.add(dataset);
 

@@ -37,19 +37,7 @@ public class LinksetExtractorThreadLDLEx implements Runnable {
 						saveValidLink(resource);
 					}
 				}
-				// for (String resource : listOfResources) {
-				// if (filter.compare(resource)) {
-				// saveValidLink(resource);
-				// }
-				// }
-				// } else {
-				// for (String resource : listOfResources) {
-				//
-				// if (filter.compare(resource)) {
-				// saveValidLink(resource);
-				// }
-				// }
-				// }
+			
 			}
 
 			else if (dataThread.distributionFilters.size() > 1) {
@@ -65,41 +53,13 @@ public class LinksetExtractorThreadLDLEx implements Runnable {
 					}
 
 				}
-				// if (!dataThread.tuplePart.equals(TuplePart.SUBJECT)) {
-				// for (String resource : listOfResources) {
-				// found = false;
-				//
-				// try {
-				// if
-				// (dataThread.distributionFilters.floorEntry(resource).getValue().filter
-				// .compare(resource)) {
-				// found = true;
-				// saveValidLink(resource);
-				// }
-				// } catch (NullPointerException e) {
-				//
-				// }
-				// }
-				// } else {
-				// for (String resource : listOfResources) {
-				// try {
-				// if
-				// (dataThread.distributionFilters.floorEntry(resource).getValue().filter
-				// .compare(resource)) {
-				// saveValidLink(resource);
-				// }
-				// } catch (NullPointerException e) {
-				//
-				// }
-				//
-				// }
-				// }
+				
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
 		dataThread.isBeingConsumed.set(false);
-		ProcessNSFromTupleLDLEX.numberOfActiveThreads.decrementAndGet();
+		ProcessNSFromTupleLDLEX.numberOfWorkerActiveThreads.decrementAndGet();
 	}
 }

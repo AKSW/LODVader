@@ -158,7 +158,7 @@ public class LODVaderProperties {
 	public static int LINKSET_TRESHOLD = 1;
 	
 //	public static int CHECK_LINKS_EACH = 15000;
-	public static int CHECK_LINKS_EACH = 100000;
+	public static int CHECK_LINKS_EACH = 15000;
 	
 	public static boolean CHECK_LOV = true;
 

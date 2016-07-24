@@ -81,7 +81,7 @@ public class StartLODVader {
 				// re-download distributions with "Downloading" status
 				ArrayList<String> q = new GeneralQueries().getMongoDBObject(DistributionDB.COLLECTION_NAME,
 						DistributionDB.STATUS, DistributionStatus.STREAMING.toString());
-				logger.debug("re-download distributions with \"" + DistributionStatus.STREAMING + "\" status");
+				logger.info("re-download distributions with \"" + DistributionStatus.STREAMING + "\" status");
 
 				for (String s : q) {
 					DistributionDB dist = new DistributionDB(s);
@@ -92,11 +92,11 @@ public class StartLODVader {
 				// download distributions with "STATUS_WAITING_TO_STREAM" status
 				q = new GeneralQueries().getMongoDBObject(DistributionDB.COLLECTION_NAME, DistributionDB.STATUS,
 						DistributionStatus.WAITING_TO_STREAM.toString());
-				logger.debug("download distributions with \"" + DistributionStatus.WAITING_TO_STREAM + "\" status");
+				logger.info("download distributions with \"" + DistributionStatus.WAITING_TO_STREAM + "\" status");
 
 				for (String s : q) {
 					DistributionDB dist = new DistributionDB(s);
-					dist.update(true);
+					dist.find(true);
 					datasets.put(dist.getTopDatasetID(), new DatasetDB(dist.getTopDatasetID()));
 				}
 
@@ -107,7 +107,7 @@ public class StartLODVader {
 				// status
 				ArrayList<String> q = new GeneralQueries().getMongoDBObject(DistributionDB.COLLECTION_NAME,
 						DistributionDB.STATUS, DistributionStatus.ERROR.toString());
-				logger.debug("download distributions with \"" + DistributionStatus.WAITING_TO_STREAM + "\" status");
+				logger.info("download distributions with \"" + DistributionStatus.WAITING_TO_STREAM + "\" status");
 
 				for (String s : q) {
 					DistributionDB dist = new DistributionDB(s);
