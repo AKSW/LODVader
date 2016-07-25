@@ -42,6 +42,7 @@ public class MakeLinksetsMasterThreadLDLEx extends ProcessNSFromTupleLDLEX {
 		localNSCopy = chunkOfNS;
 		localNS0Copy = chunkOfNS0;
 		final HashMap<String, String> resourcesToBeProcessedQueueCopy = resourcesToBeProcessedBuffer;
+		
 		// localNS = new HashSet<String>();
 
 		chunkOfNS0 = new HashSet<String>();
@@ -52,7 +53,9 @@ public class MakeLinksetsMasterThreadLDLEx extends ProcessNSFromTupleLDLEX {
 			Thread t = new Thread(new Runnable() {
 				public void run() {
 
-					while (numberOfMakeLinksActiveThreads.get() >= 5) {
+					numberThreadsWaiting.incrementAndGet();
+					while (numberOfMakeLinksActiveThreads.get() >= 10) {
+						
 						try {
 							Thread.sleep(20);
 						} catch (InterruptedException e) {
@@ -60,6 +63,7 @@ public class MakeLinksetsMasterThreadLDLEx extends ProcessNSFromTupleLDLEX {
 							e.printStackTrace();
 						}
 					}
+					numberThreadsWaiting.decrementAndGet();
 					
 					numberOfMakeLinksActiveThreads.incrementAndGet();
 					
@@ -159,7 +163,7 @@ public class MakeLinksetsMasterThreadLDLEx extends ProcessNSFromTupleLDLEX {
 
 										while (numberOfWorkerActiveThreads.get() >= LODVaderProperties.NR_THREADS)
 											try {
-												Thread.sleep(10);
+												Thread.sleep(6);
 											} catch (InterruptedException e) {
 												e.printStackTrace();
 											}
@@ -188,8 +192,10 @@ public class MakeLinksetsMasterThreadLDLEx extends ProcessNSFromTupleLDLEX {
 					// mapOfWorkerThreads.values()) {
 					// dataThread.resources = new HashSet<String>();
 					// }
-					numberOfMakeLinksActiveThreads.decrementAndGet();
-					System.out.println("MakeLink thread finished. "+tuplePart.toString()+" resources processed: "+numberOfFinishedThreads.incrementAndGet() * LODVaderProperties.CHECK_LINKS_EACH);
+					numberOfMakeLinksActiveThreads.decrementAndGet(); 
+					logger.info("MakeLink thread finished. "+tuplePart.toString()+" resources processed: "+
+					numberOfFinishedThreads.incrementAndGet() * LODVaderProperties.CHECK_LINKS_EACH +
+					". Threads waiting: "+ numberThreadsWaiting.get()+". Queue size: "+resourceQueue.size());
 
 				}
 

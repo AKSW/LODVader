@@ -151,7 +151,7 @@ public class LODVaderProperties {
 	
 	public static int MAX_CHUNK_SIZE = 500000;
 	
-	public static int TOP_N_LINKS = 200;
+	public static int TOP_N_LINKS = 1000;
 
 	public static int BF_BUFFER_RANGE = 500000;
 

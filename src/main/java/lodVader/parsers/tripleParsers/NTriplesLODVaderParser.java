@@ -29,7 +29,9 @@ public class NTriplesLODVaderParser extends RDFParserBase {
 	boolean doneReading = false;
 	
 //	private int BUFFER_SIZE = 655360;
-	private int BUFFER_SIZE = 1024*16;
+	private int BUFFER_SIZE = 1024*8;
+
+	static int numberOfReadedResources = 0;
 
 	public void stream(InputStream inStream) {
 
@@ -39,6 +41,7 @@ public class NTriplesLODVaderParser extends RDFParserBase {
 			Thread t = new Thread(new Runnable() {
 
 				public void run() {
+					Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
 					try {
 
 						int nRead;
@@ -48,9 +51,12 @@ public class NTriplesLODVaderParser extends RDFParserBase {
 						while ((nRead = new BufferedInputStream(inputStream).read(data, 0, data.length)) != -1) {
 							// bufferQueue.add(new String(data,
 							// StandardCharsets.UTF_8));
+//							if (++numberOfReadedResources % 1000 == 0) {
+//								System.out.println(numberOfReadedResources);
+//							}
 							bufferQueue.add(new String(data, 0, nRead, StandardCharsets.UTF_8));
 
-							while (bufferQueue.size() > 250000) {
+							while (bufferQueue.size() > 500000) {
 								Thread.sleep(3);
 								if (sleeping % 5000 == 0)
 									System.out.println("Streaming thread is sleeping...");
@@ -64,6 +70,7 @@ public class NTriplesLODVaderParser extends RDFParserBase {
 						e.printStackTrace();
 						doneReading = true;
 					}
+					logger.info("DONE STREAMING!!!");
 				}
 			});
 			t.setName("StreammingThread");
@@ -87,8 +94,9 @@ public class NTriplesLODVaderParser extends RDFParserBase {
 
 			String lastLine = "";
 
-			int showMsgInterval = 1000;
+			int showMsgInterval = 4;
 			int bufferCount = 0;
+			Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
 
 			// starts reading buffer queue
 			while (!doneReading) {

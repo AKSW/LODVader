@@ -24,7 +24,7 @@ public abstract class SuperTupleManager extends RDFHandlerBase {
 
 	public Integer totalTriplesRead = 0;
 
-	protected int bufferSize = 100000;
+	protected int bufferSize = 350000;
 
 	protected Timer t = new Timer();
 

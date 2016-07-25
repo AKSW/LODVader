@@ -59,7 +59,7 @@ public class StartLODVader {
 			FileUtils.checkIfFolderExists();
 
 			// creating indexes
-			logger.info("Creating MondoDB indexes...");
+			logger.info("Creating MongoDB indexes...");
 
 			// checking counter
 			try {

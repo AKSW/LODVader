@@ -15,6 +15,8 @@ public class SuperTop extends DBSuperClass2{
 
 	public static String AMOUNT = "amount";
 
+	public static String DETAILS = "details";
+
 	public static String LINK = "link";
 
 	public static String SOURCE_DISTRIBUTION_ID = "sourceDistributionID";
@@ -30,16 +32,22 @@ public class SuperTop extends DBSuperClass2{
 		removeAll(sourceDistributionID, targetDistributionID);
 
 		DBCollection collection = DBSuperClass2.getDBInstance().getCollection(COLLECTION_NAME);
+		BasicDBObject mainDoc = new BasicDBObject();
+		mainDoc.append(SOURCE_DISTRIBUTION_ID, sourceDistributionID);
+		mainDoc.append(TARGET_DISTRIBUTION_ID, targetDistributionID);
+		BasicDBList innerList = new BasicDBList();
 
 		for (String s : topNKeys(values, LODVaderProperties.TOP_N_LINKS).keySet()) {
-			BasicDBObject insert = new BasicDBObject();
-			insert.append(AMOUNT, values.get(s));
-			insert.append(LINK, s);
-			insert.append(SOURCE_DISTRIBUTION_ID, sourceDistributionID);
-			insert.append(TARGET_DISTRIBUTION_ID, targetDistributionID);
-			collection.insert(insert);
+			BasicDBObject innerDoc = new BasicDBObject();
+			innerDoc.append(AMOUNT, values.get(s));
+			innerDoc.append(LINK, s);
+			innerList.add(innerDoc);
 		}
+		if(innerList.size()>0){
+		mainDoc.append(DETAILS, innerList);
 
+		collection.insert(mainDoc);
+		}
 	}
 
 	public HashMap<String, Integer> topNKeys(final HashMap<String, Integer> map, int n) {

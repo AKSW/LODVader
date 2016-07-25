@@ -41,6 +41,8 @@ public abstract class ProcessNSFromTupleLDLEX extends Thread {
 	
 	public AtomicInteger numberOfFinishedThreads = new AtomicInteger(0);
 
+	public AtomicInteger numberThreadsWaiting = new AtomicInteger(0);
+
 	
 	// map of NS and Distributions
 	NSDistributionMapperInterface mapper = new NSDistributionMapperHashImpl();
@@ -118,6 +120,7 @@ public abstract class ProcessNSFromTupleLDLEX extends Thread {
 	public void run() {
 
 		logger.debug("Starting GetDomainsFromTriplesThread class.");
+		Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
 
 		while (!doneSplittingString) {
 
@@ -129,7 +132,7 @@ public abstract class ProcessNSFromTupleLDLEX extends Thread {
 			}
 
 			try {
-				Thread.sleep(100);
+				Thread.sleep(4);
 			} catch (InterruptedException e1) {
 				e1.printStackTrace();
 			}
@@ -178,16 +181,11 @@ public abstract class ProcessNSFromTupleLDLEX extends Thread {
 
 			// get the resource of the triple
 			resource = resourceQueue.remove();
+			
 
 			// get the namespace
 			ns = nsUtils.getNSFromString(resource);
 
-//			if (dae++ % 2000 == 0){
-//				System.out.println("leu " + dae);
-//				System.out.println("queue size: "+ resourceQueue.size());
-//				System.out.println();
-//				
-//			}
 
 			// case there is a namespace, keep going
 			if (!ns.equals("")) {
