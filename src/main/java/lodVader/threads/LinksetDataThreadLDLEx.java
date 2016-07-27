@@ -147,6 +147,7 @@ public class LinksetDataThreadLDLEx extends Thread {
 	public HashMap<String, Integer> getAllValidLinks() {
 		try {
 			validLinksWriter.close();
+			isvalidLinksWriterOpen = false;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

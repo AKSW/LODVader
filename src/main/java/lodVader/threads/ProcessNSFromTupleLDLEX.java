@@ -253,7 +253,6 @@ public abstract class ProcessNSFromTupleLDLEX extends Thread {
 		new LinksetDB().removeAllLinks(distribution.getLODVaderID());
 
 		for (LinksetDataThreadLDLEx dataThread : mapOfWorkerThreads.values()) {
-			logger.info("Saving links for " + new DistributionDB(dataThread.distributionID).getTitle());
 			LinksetDB linkset;
 
 			Timer t = new Timer();
@@ -262,6 +261,7 @@ public abstract class ProcessNSFromTupleLDLEX extends Thread {
 			String linksetID;
 
 			if (dataThread.getAllValidLinks() != null) {
+				logger.info("Saving links for " + new DistributionDB(dataThread.distributionID).getTitle());
 
 				if (tuplePart.equals(TuplePart.SUBJECT)) {
 					linksetID = dataThread.distributionID + "-" + distribution.getLODVaderID();
