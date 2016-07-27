@@ -11,7 +11,7 @@ import com.mongodb.DBCollection;
 import lodVader.LODVaderProperties;
 import lodVader.mongodb.DBSuperClass2;
 
-public class SuperTop extends DBSuperClass2{
+public class SuperTop extends DBSuperClass2 {
 
 	public static String AMOUNT = "amount";
 
@@ -22,14 +22,14 @@ public class SuperTop extends DBSuperClass2{
 	public static String SOURCE_DISTRIBUTION_ID = "sourceDistributionID";
 
 	public static String TARGET_DISTRIBUTION_ID = "targetDistributionID";
-	
+
 	public SuperTop(String collectionName) {
 		super(collectionName);
 	}
 
 	public void saveAll(HashMap<String, Integer> values, int sourceDistributionID, int targetDistributionID) {
-		
-		removeAll(sourceDistributionID, targetDistributionID);
+
+//		removeAll(sourceDistributionID, targetDistributionID);
 
 		DBCollection collection = DBSuperClass2.getDBInstance().getCollection(COLLECTION_NAME);
 		BasicDBObject mainDoc = new BasicDBObject();
@@ -43,10 +43,10 @@ public class SuperTop extends DBSuperClass2{
 			innerDoc.append(LINK, s);
 			innerList.add(innerDoc);
 		}
-		if(innerList.size()>0){
-		mainDoc.append(DETAILS, innerList);
+		if (innerList.size() > 0) {
+			mainDoc.append(DETAILS, innerList);
 
-		collection.insert(mainDoc);
+			collection.insert(mainDoc);
 		}
 	}
 
@@ -63,7 +63,7 @@ public class SuperTop extends DBSuperClass2{
 			else if (map.get(topN.peek()) < map.get(key)) {
 				topN.poll();
 				topN.add(key);
-			} 
+			}
 		}
 
 		HashMap<String, Integer> returnValue = new HashMap<String, Integer>();
@@ -76,7 +76,7 @@ public class SuperTop extends DBSuperClass2{
 
 	public void removeAll(int distributionSourceID, int targetDistributionID) {
 		DBCollection collection = DBSuperClass2.getDBInstance().getCollection(COLLECTION_NAME);
-		
+
 		BasicDBList list = new BasicDBList();
 		list.add(new BasicDBObject(SOURCE_DISTRIBUTION_ID, distributionSourceID));
 		list.add(new BasicDBObject(TARGET_DISTRIBUTION_ID, targetDistributionID));

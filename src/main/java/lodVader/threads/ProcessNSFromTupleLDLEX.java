@@ -1,6 +1,7 @@
 package lodVader.threads;
 
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
@@ -87,6 +88,7 @@ public abstract class ProcessNSFromTupleLDLEX extends Thread {
 	// namespace counter
 	private ConcurrentHashMap<String, Integer> countTotalNS = null;
 	private ConcurrentHashMap<String, Integer> countTotalNS0 = null;
+		
 	int dae = 0;
 
 	int numberOfReadedResources = 0;
@@ -250,7 +252,8 @@ public abstract class ProcessNSFromTupleLDLEX extends Thread {
 
 	private void saveLinks() {
 
-		new LinksetDB().removeAllLinks(distribution.getLODVaderID());
+		// remove all links previously created for this distribution
+		new LinksetDB().removeAllLinks(distribution.getLODVaderID());		
 
 		for (LinksetDataThreadLDLEx dataThread : mapOfWorkerThreads.values()) {
 			LinksetDB linkset;
@@ -259,19 +262,19 @@ public abstract class ProcessNSFromTupleLDLEX extends Thread {
 			t.startTimer();
 
 			String linksetID;
-
+			
 			if (dataThread.getAllValidLinks() != null) {
-				logger.info("Saving links for " + new DistributionDB(dataThread.distributionID).getTitle());
+				logger.debug("Saving links for " + dataThread.distribution.getTitle());
 
 				if (tuplePart.equals(TuplePart.SUBJECT)) {
 					linksetID = dataThread.distributionID + "-" + distribution.getLODVaderID();
-					linkset = new LinksetDB(linksetID);  
+					linkset = new LinksetDB();  
+					linkset.setLinksetID(linksetID);
 					linkset.setDistributionSource(dataThread.distributionID);
 					linkset.setDistributionTarget(distribution.getLODVaderID());
 					linkset.setDatasetSource(dataThread.datasetID);
 					linkset.setDatasetTarget(distribution.getTopDatasetID());
-					linkset.setDistributionSourceIsVocabulary(
-							new DistributionDB(dataThread.distributionID).getIsVocabulary());
+					linkset.setDistributionSourceIsVocabulary(dataThread.distribution.getIsVocabulary());
 					linkset.setDistributionTargetIsVocabulary(distribution.getIsVocabulary());
 
 					// save top N valid and invalid links
@@ -284,15 +287,15 @@ public abstract class ProcessNSFromTupleLDLEX extends Thread {
 				} else {
 					// calculate linksets
 					linksetID = distribution.getLODVaderID() + "-" + dataThread.distributionID;
-					linkset = new LinksetDB(linksetID);
+					linkset = new LinksetDB();  
+					linkset.setLinksetID(linksetID);
 
 					linkset.setDistributionSource(distribution.getLODVaderID());
 					linkset.setDistributionTarget(dataThread.distributionID);
 					linkset.setDatasetSource(distribution.getLODVaderID());
 					linkset.setDatasetTarget(dataThread.datasetID);
 					linkset.setDistributionSourceIsVocabulary(distribution.getIsVocabulary());
-					linkset.setDistributionTargetIsVocabulary(
-							new DistributionDB(dataThread.distributionID).getIsVocabulary());
+					linkset.setDistributionTargetIsVocabulary(dataThread.distribution.getIsVocabulary());
 
 					// save top N valid and invalid links
 					TopValidLinks validLinks = new TopValidLinks();
@@ -331,6 +334,7 @@ public abstract class ProcessNSFromTupleLDLEX extends Thread {
 		}
 		return true;
 	}
+	
 
 	public abstract void makeLinks() throws Exception;
 

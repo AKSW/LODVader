@@ -5,11 +5,14 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
 import lodVader.mongodb.DBSuperClass2;
+import lodVader.mongodb.collections.toplinks.TopValidLinks;
 
 public class LinksetDB extends DBSuperClass2 {
 
 	public LinksetDB() {
 		super(COLLECTION_NAME);
+		initializeVariables();
+
 	}
 
 	// Collection name
@@ -129,19 +132,19 @@ public class LinksetDB extends DBSuperClass2 {
 	public void setLinks(int links) {
 		addField(LINK_NUMBER_LINKS, links);
 	}
-	
+
 	public void setDistributionTargetIsVocabulary(Boolean isVocabulary) {
 		addField(DISTRIBUTION_TARGET_IS_VOCABULARY, isVocabulary);
 	}
-	
+
 	public void setDistributionSourceIsVocabulary(Boolean isVocabulary) {
 		addField(DISTRIBUTION_SOURCE_IS_VOCABULARY, isVocabulary);
 	}
-	
+
 	public Boolean getDistributionTargetIsVocabulary() {
 		return (Boolean) getField(DISTRIBUTION_TARGET_IS_VOCABULARY);
 	}
-	
+
 	public Boolean getDistributionSourceIsVocabulary() {
 		return (Boolean) getField(DISTRIBUTION_SOURCE_IS_VOCABULARY);
 	}
@@ -238,8 +241,15 @@ public class LinksetDB extends DBSuperClass2 {
 		BasicDBList or = new BasicDBList();
 		or.add(query);
 		or.add(query2);
-		DBSuperClass2.getDBInstance().getCollection(DistributionDB.COLLECTION_NAME)
-				.remove(new BasicDBObject("$or", or));
+		DBSuperClass2.getDBInstance().getCollection(LinksetDB.COLLECTION_NAME).remove(new BasicDBObject("$or", or));
+
+		query = new BasicDBObject(TopValidLinks.SOURCE_DISTRIBUTION_ID, distributionID);
+		query2 = new BasicDBObject(TopValidLinks.TARGET_DISTRIBUTION_ID, distributionID);
+		or = new BasicDBList();
+		or.add(query);
+		or.add(query2);
+
+		DBSuperClass2.getDBInstance().getCollection(TopValidLinks.COLLECTION_NAME).remove(new BasicDBObject("$or", or));
 
 	}
 

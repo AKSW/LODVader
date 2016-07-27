@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.TreeMap;
@@ -57,12 +58,13 @@ public class LinksetDataThreadLDLEx extends Thread {
 	public HashMap<String, Integer> validLinks = null;
 
 	public BufferedWriter validLinksWriter;
-	private Boolean isvalidLinksWriterOpen = false;
 	// public BufferedWriter invalidLinksWriter;
 
 	public AtomicInteger numberOfValidLinks = new AtomicInteger(0);
 
 	public TreeMap<String, ? extends SuperBucket> distributionFilters = null;
+
+	ArrayList<String> links = new ArrayList<String>();
 
 	// public BloomFilterI targetNSSet;
 	// HashSet<String> resources = new HashSet<String>();
@@ -106,7 +108,6 @@ public class LinksetDataThreadLDLEx extends Thread {
 			try {
 				validLinksWriter = new BufferedWriter(
 						new FileWriter(LODVaderProperties.TMP_FOLDER + "valid_" + this.distributionID));
-				isvalidLinksWriterOpen = true;
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -114,14 +115,9 @@ public class LinksetDataThreadLDLEx extends Thread {
 	}
 
 	public void addValidLink(String resource) {
-		try {
-			if (isvalidLinksWriterOpen)
-				validLinksWriter.write(resource + "\n");
-			else
-				openFileStreams();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		links.add(resource);
+		if (links.size() > 10000)
+			saveLinksToFile();
 	}
 
 	public void addInvalidLink(String resource) {
@@ -145,12 +141,7 @@ public class LinksetDataThreadLDLEx extends Thread {
 	}
 
 	public HashMap<String, Integer> getAllValidLinks() {
-		try {
-			validLinksWriter.close();
-			isvalidLinksWriterOpen = false;
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		saveLinksToFile();
 		if (validLinks == null)
 			validLinks = getLinks(LODVaderProperties.TMP_FOLDER + "valid_" + this.distributionID);
 		return validLinks;
@@ -186,17 +177,32 @@ public class LinksetDataThreadLDLEx extends Thread {
 		catch (Exception e) {
 			e.printStackTrace();
 		}
+		if (links.size() == 0)
+			return null;
 		return links;
 	}
 
 	public void closeFiles() {
 		try {
 			validLinksWriter.close();
-			isvalidLinksWriterOpen = false;
 			// invalidLinksWriter.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public void saveLinksToFile() {
+		openFileStreams();
+		try {
+			for (String resource : links)
+				validLinksWriter.write(resource + "\n");
+			links = new ArrayList<String>();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		closeFiles();
+
 	}
 
 }

@@ -221,16 +221,18 @@ public class DBSuperClass2 {
 
 		try {
 			checkMandatoryFields();
-			DBCursor cursor = getCollection().find(new BasicDBObject(key, value));
+			if (create)
+				getCollection().update(new BasicDBObject(key, value), mongoDBObject, true, false);
+//			else 
+//				DBCursor cursor = getCollection().find(new BasicDBObject(key, value)); 
 
-			if (cursor.size() > 0) {
-				// mongoDBObject = cursor.next();
-				getCollection().update(new BasicDBObject(key, value), mongoDBObject);
-			} else {
-				if (create) {
-					getCollection().insert(mongoDBObject);
-				}
-			}
+//			if (cursor.size() > 0) {
+//				// mongoDBObject = cursor.next();
+//			} else {
+//				if (create) {
+//					getCollection().insert(mongoDBObject);
+//				}
+//			}
 
 		} catch (LODVaderMissingPropertiesException e) {
 			// TODO Auto-generated catch block
