@@ -16,7 +16,6 @@ import lodVader.LODVaderProperties;
 import lodVader.bloomfilters.BloomFilterI;
 import lodVader.bloomfilters.models.LoadedBloomFiltersCache;
 import lodVader.enumerators.TuplePart;
-import lodVader.mongodb.collections.DatasetLinksetDB;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.LinksetDB;
 import lodVader.mongodb.collections.namespaces.DistributionObjectNS0DB;
@@ -30,25 +29,27 @@ import lodVader.utils.Timer;
 
 public abstract class ProcessNSFromTupleLDLEX extends Thread {
 	final static Logger logger = LoggerFactory.getLogger(ProcessNSFromTupleLDLEX.class);
-
+ 
 	// tuple part identifies whether we are working with subject or object
-	public TuplePart tuplePart;
+	protected TuplePart tuplePart;
 
 	// control the number of opened threads
-	public static AtomicInteger numberOfWorkerActiveThreads = new AtomicInteger(0);
+	public static AtomicInteger numberOfWorkerActiveThreads = new AtomicInteger(0); 
 
-	public AtomicInteger numberOfMakeLinksActiveThreads = new AtomicInteger(0);
-	
+	public AtomicInteger numberOfMakeLinksActiveThreads = new AtomicInteger(0); 
+
 	public AtomicInteger numberOfFinishedThreads = new AtomicInteger(0);
 
-	public AtomicInteger numberThreadsWaiting = new AtomicInteger(0);
+	public AtomicInteger numberThreadsWaiting = new AtomicInteger(0); 
 
-	
 	// map of NS and Distributions
 	NSDistributionMapperInterface mapper = new NSDistributionMapperHashImpl();
 
 	// status of the distribution: null = not loaded, 1 = loading, 2 = loaded
-	ConcurrentHashMap<Integer, Integer> distributionStatus = new ConcurrentHashMap<Integer, Integer>();
+	static protected ConcurrentHashMap<Integer, Integer> distributionStatusSubject = new ConcurrentHashMap<Integer, Integer>();
+	static protected ConcurrentHashMap<Integer, Integer> distributionStatusObject = new ConcurrentHashMap<Integer, Integer>();
+
+	protected ConcurrentHashMap<Integer, Integer> distributionStatus = new ConcurrentHashMap<Integer, Integer>();
 
 	protected int threadNumber = 0;
 
@@ -75,6 +76,8 @@ public abstract class ProcessNSFromTupleLDLEX extends Thread {
 	public DistributionDB distribution;
 
 	// map containing the distribution ID (key) and the thread (value)
+	protected static ConcurrentHashMap<Integer, LinksetDataThreadLDLEx> mapOfWorkerThreadsSubject = new ConcurrentHashMap<Integer, LinksetDataThreadLDLEx>();
+	protected static ConcurrentHashMap<Integer, LinksetDataThreadLDLEx> mapOfWorkerThreadsObject = new ConcurrentHashMap<Integer, LinksetDataThreadLDLEx>();
 	protected ConcurrentHashMap<Integer, LinksetDataThreadLDLEx> mapOfWorkerThreads = new ConcurrentHashMap<Integer, LinksetDataThreadLDLEx>();
 
 	// map containing all namespaces processed
@@ -88,12 +91,25 @@ public abstract class ProcessNSFromTupleLDLEX extends Thread {
 
 	int numberOfReadedResources = 0;
 
-	public ProcessNSFromTupleLDLEX(ConcurrentLinkedQueue<String> resourceQueue, String uri)
+	public ProcessNSFromTupleLDLEX(ConcurrentLinkedQueue<String> resourceQueue, String uri, TuplePart tuplePart)
 			throws MalformedURLException {
 		this.resourceQueue = resourceQueue;
+		this.tuplePart = tuplePart;
 		this.countTotalNS = new ConcurrentHashMap<String, Integer>();
 		this.countTotalNS0 = new ConcurrentHashMap<String, Integer>();
 		this.distribution = new DistributionDB(uri);
+
+		if (tuplePart.equals(TuplePart.OBJECT))
+			mapOfWorkerThreads = mapOfWorkerThreadsObject;
+		else
+			mapOfWorkerThreads = mapOfWorkerThreadsSubject;
+		
+		if (tuplePart.equals(TuplePart.OBJECT))
+			distributionStatus = distributionStatusObject;
+		else
+			distributionStatus = distributionStatusSubject;
+		
+		logger.info(mapOfWorkerThreads.size() + " distributions loaded in the buffer.");
 
 		if (LoadedBloomFiltersCache.describedSubjectsNSCurrentSize > LODVaderProperties.BF_BUFFER_RANGE
 				|| LoadedBloomFiltersCache.describedSubjectsNS == null) {
@@ -164,7 +180,8 @@ public abstract class ProcessNSFromTupleLDLEX extends Thread {
 		saveNamespaces();
 		logger.debug("Time: " + t.stopTimer());
 
-		mapOfWorkerThreads = new ConcurrentHashMap<Integer, LinksetDataThreadLDLEx>();
+		// mapOfWorkerThreads = new ConcurrentHashMap<Integer,
+		// LinksetDataThreadLDLEx>();
 
 		logger.debug("Ending GetDomainsFromTriplesThread class.");
 	}
@@ -181,11 +198,9 @@ public abstract class ProcessNSFromTupleLDLEX extends Thread {
 
 			// get the resource of the triple
 			resource = resourceQueue.remove();
-			
 
 			// get the namespace
 			ns = nsUtils.getNSFromString(resource);
-
 
 			// case there is a namespace, keep going
 			if (!ns.equals("")) {
@@ -238,65 +253,66 @@ public abstract class ProcessNSFromTupleLDLEX extends Thread {
 		new LinksetDB().removeAllLinks(distribution.getLODVaderID());
 
 		for (LinksetDataThreadLDLEx dataThread : mapOfWorkerThreads.values()) {
-			logger.debug("Saving links for " + new DistributionDB(dataThread.distributionID).getTitle());
+			logger.info("Saving links for " + new DistributionDB(dataThread.distributionID).getTitle());
 			LinksetDB linkset;
-
-			DatasetLinksetDB datasetLinkset;
 
 			Timer t = new Timer();
 			t.startTimer();
 
 			String linksetID;
 
-			if (tuplePart.equals(TuplePart.SUBJECT)) {
-				linksetID = dataThread.distributionID + "-" + distribution.getLODVaderID();
-				linkset = new LinksetDB(linksetID);
-				linkset.setDistributionSource(dataThread.distributionID);
-				linkset.setDistributionTarget(distribution.getLODVaderID());
-				linkset.setDatasetSource(dataThread.datasetID);
-				linkset.setDatasetTarget(distribution.getTopDatasetID());
-				linkset.setDistributionSourceIsVocabulary(
-						new DistributionDB(dataThread.distributionID).getIsVocabulary());
-				linkset.setDistributionTargetIsVocabulary(distribution.getIsVocabulary());
+			if (dataThread.getAllValidLinks() != null) {
 
-				// save top N valid and invalid links
-				TopValidLinks validLinks = new TopValidLinks();
-				validLinks.saveAll(dataThread.getAllValidLinks(), dataThread.distributionID,
-						distribution.getLODVaderID());
-				linkset.setLinks(dataThread.getAllValidLinks().size());
-				dataThread.setValidLinks(null);
+				if (tuplePart.equals(TuplePart.SUBJECT)) {
+					linksetID = dataThread.distributionID + "-" + distribution.getLODVaderID();
+					linkset = new LinksetDB(linksetID);  
+					linkset.setDistributionSource(dataThread.distributionID);
+					linkset.setDistributionTarget(distribution.getLODVaderID());
+					linkset.setDatasetSource(dataThread.datasetID);
+					linkset.setDatasetTarget(distribution.getTopDatasetID());
+					linkset.setDistributionSourceIsVocabulary(
+							new DistributionDB(dataThread.distributionID).getIsVocabulary());
+					linkset.setDistributionTargetIsVocabulary(distribution.getIsVocabulary());
 
-			} else {
-				// calculate linksets
-				linksetID = distribution.getLODVaderID() + "-" + dataThread.distributionID;
-				linkset = new LinksetDB(linksetID);
+					// save top N valid and invalid links
+					TopValidLinks validLinks = new TopValidLinks();
+					validLinks.saveAll(dataThread.getAllValidLinks(), dataThread.distributionID,
+							distribution.getLODVaderID());
+					linkset.setLinks(dataThread.getAllValidLinks().size());
+					dataThread.setValidLinks(null);
+ 
+				} else {
+					// calculate linksets
+					linksetID = distribution.getLODVaderID() + "-" + dataThread.distributionID;
+					linkset = new LinksetDB(linksetID);
 
-				linkset.setDistributionSource(distribution.getLODVaderID());
-				linkset.setDistributionTarget(dataThread.distributionID);
-				linkset.setDatasetSource(distribution.getLODVaderID());
-				linkset.setDatasetTarget(dataThread.datasetID);
-				linkset.setDistributionSourceIsVocabulary(distribution.getIsVocabulary());
-				linkset.setDistributionTargetIsVocabulary(
-						new DistributionDB(dataThread.distributionID).getIsVocabulary());
+					linkset.setDistributionSource(distribution.getLODVaderID());
+					linkset.setDistributionTarget(dataThread.distributionID);
+					linkset.setDatasetSource(distribution.getLODVaderID());
+					linkset.setDatasetTarget(dataThread.datasetID);
+					linkset.setDistributionSourceIsVocabulary(distribution.getIsVocabulary());
+					linkset.setDistributionTargetIsVocabulary(
+							new DistributionDB(dataThread.distributionID).getIsVocabulary());
 
-				// save top N valid and invalid links
-				TopValidLinks validLinks = new TopValidLinks();
-				validLinks.saveAll(dataThread.getAllValidLinks(), distribution.getLODVaderID(),
-						dataThread.distributionID);
-				linkset.setLinks(dataThread.getAllValidLinks().size());
-				dataThread.setValidLinks(null);
+					// save top N valid and invalid links
+					TopValidLinks validLinks = new TopValidLinks();
+					validLinks.saveAll(dataThread.getAllValidLinks(), distribution.getLODVaderID(),
+							dataThread.distributionID);
+					linkset.setLinks(dataThread.getAllValidLinks().size());
+					dataThread.setValidLinks(null);
 
+				}
+
+				if (linkset.getLinks() > 0)
+					linkset.update(true, LinksetDB.LINKSET_ID, linksetID);
+ 
+				logger.debug("Saved links: " + linkset.getLinks() + " (good) " + linkset.getInvalidLinks()
+						+ " (bad) in " + t.stopTimer() + "s");
 			}
-
-			if (linkset.getLinks() > 0)
-				linkset.update(true, LinksetDB.LINKSET_ID, linksetID);
-
-			logger.debug("Saved links: " + linkset.getLinks() + " (good) " + linkset.getInvalidLinks() + " (bad) in "
-					+ t.stopTimer() + "s");
 		}
 	}
 
-	// external-links_en.nt
+	// external-links_en.nt 
 	private boolean saveNamespaces() {
 		logger.info("Saving NS0...");
 		if (tuplePart.equals(TuplePart.SUBJECT)) {
@@ -308,7 +324,7 @@ public abstract class ProcessNSFromTupleLDLEX extends Thread {
 		logger.info("Saving NS...");
 		if (tuplePart.equals(TuplePart.SUBJECT)) {
 			DistributionSubjectNSDB d = new DistributionSubjectNSDB();
-			d.bulkSave(countTotalNS, distribution);
+			d.bulkSave(countTotalNS, distribution); 
 		} else {
 			DistributionObjectNSDB d = new DistributionObjectNSDB();
 			d.bulkSave(countTotalNS, distribution);

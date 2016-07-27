@@ -35,9 +35,6 @@ import lodVader.enumerators.DistributionStatus;
 import lodVader.enumerators.TuplePart;
 import lodVader.exceptions.LODVaderFormatNotAcceptedException;
 import lodVader.exceptions.LODVaderLODGeneralException;
-import lodVader.links.similarity.JaccardSimilarity;
-import lodVader.links.similarity.LinkSimilarity;
-import lodVader.links.strength.LinkStrength;
 import lodVader.mongodb.collections.DatasetDB;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.RDFResources.allPredicates.AllPredicatesDB;
@@ -51,7 +48,6 @@ import lodVader.mongodb.collections.RDFResources.rdfType.RDFTypeObjectRelationDB
 import lodVader.mongodb.collections.gridFS.ObjectsBucket;
 import lodVader.mongodb.collections.gridFS.SubjectsBucket;
 import lodVader.streaming.SuperStream;
-import lodVader.threads.MakeLinksetsMasterThread;
 import lodVader.threads.MakeLinksetsMasterThreadLDLEx;
 import lodVader.utils.Timer;
 
@@ -217,11 +213,11 @@ public class LOV extends SuperStream {
 				distribution.update(true);
 
 				MakeLinksetsMasterThreadLDLEx makeLinksetsSubjects = new MakeLinksetsMasterThreadLDLEx(subjectsQueue,
-						node.getNameSpace());
+						node.getNameSpace(), TuplePart.SUBJECT); 
 				MakeLinksetsMasterThreadLDLEx makeLinksetsObjects = new MakeLinksetsMasterThreadLDLEx(objectsQueue,
-						node.getNameSpace());
-				makeLinksetsObjects.tuplePart = TuplePart.OBJECT;
-				makeLinksetsSubjects.tuplePart = TuplePart.SUBJECT;
+						node.getNameSpace(), TuplePart.OBJECT);
+//				makeLinksetsObjects.tuplePart = TuplePart.OBJECT;
+//				makeLinksetsSubjects.tuplePart = TuplePart.SUBJECT; 
 				makeLinksetsSubjects.start();
 				makeLinksetsObjects.start();
 

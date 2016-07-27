@@ -22,7 +22,7 @@ class BloomFilterGoogleImpl implements BloomFilterI {
 	// final static Logger logger =
 	// LoggerFactory.getLogger(GoogleBloomFilter.class);
 
-	private double fpp = 0;
+	private double fpp = 0;  
 
 	private int insertions = 0;
 

@@ -8,10 +8,9 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.HashSet;
 import java.util.TreeMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -55,10 +54,11 @@ public class LinksetDataThreadLDLEx extends Thread {
 	// 0 for filter not loaded, 1 for loading and 2 for loaded
 	public AtomicInteger filterLoaded = new AtomicInteger(0);
 	public AtomicBoolean isBeingConsumed = new AtomicBoolean(false);
-	private HashMap<String, Integer> validLinks = null;
+	public HashMap<String, Integer> validLinks = null;
 
 	public BufferedWriter validLinksWriter;
-	public BufferedWriter invalidLinksWriter;
+	private Boolean isvalidLinksWriterOpen = false;
+	// public BufferedWriter invalidLinksWriter;
 
 	public AtomicInteger numberOfValidLinks = new AtomicInteger(0);
 
@@ -66,8 +66,10 @@ public class LinksetDataThreadLDLEx extends Thread {
 
 	// public BloomFilterI targetNSSet;
 	// HashSet<String> resources = new HashSet<String>();
-//	ConcurrentLinkedQueue<String> resources = new ConcurrentLinkedQueue<String>();
-	Queue<String> resources = new ConcurrentLinkedQueue<>();
+	// ConcurrentLinkedQueue<String> resources = new
+	// ConcurrentLinkedQueue<String>();
+	// Queue<String> resources = new ConcurrentLinkedQueue<>();
+	ConcurrentHashMap<String, HashSet<String>> resources = new ConcurrentHashMap<String, HashSet<String>>();
 
 	// flat to execute or not this model in a thread
 	public boolean active = false;
@@ -83,12 +85,7 @@ public class LinksetDataThreadLDLEx extends Thread {
 		DistributionBloomFilterContainer distributionFilter = new DistributionBloomFilterContainer(
 				distribution.getLODVaderID());
 
-		try {
-			validLinksWriter = new BufferedWriter(
-					new FileWriter(LODVaderProperties.TMP_FOLDER + "valid_" + this.distributionID));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		openFileStreams();
 
 		if (tuplePart.equals(TuplePart.SUBJECT)) {
 			distributionFilter.loadObjectBuckets();
@@ -103,20 +100,44 @@ public class LinksetDataThreadLDLEx extends Thread {
 		}
 	}
 
+	private void openFileStreams() {
+
+		synchronized (this) {
+			try {
+				validLinksWriter = new BufferedWriter(
+						new FileWriter(LODVaderProperties.TMP_FOLDER + "valid_" + this.distributionID));
+				isvalidLinksWriterOpen = true;
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
 	public void addValidLink(String resource) {
 		try {
-			validLinksWriter.write(resource + "\n");
+			if (isvalidLinksWriterOpen)
+				validLinksWriter.write(resource + "\n");
+			else
+				openFileStreams();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
 	public void addInvalidLink(String resource) {
-		try {
-			invalidLinksWriter.write(resource + "\n");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		// try {
+		// invalidLinksWriter.write(resource + "\n");
+		// } catch (IOException e) {
+		// openFileStreams();
+		// try {
+		// validLinksWriter.write(resource + "\n");
+		// } catch (IOException e1) {
+		// // TODO Auto-generated catch block
+		// e1.printStackTrace();
+		// }
+		//
+		// e.printStackTrace();
+		// }
 	}
 
 	public void setValidLinks(HashMap<String, Integer> l) {
@@ -131,17 +152,17 @@ public class LinksetDataThreadLDLEx extends Thread {
 		}
 		if (validLinks == null)
 			validLinks = getLinks(LODVaderProperties.TMP_FOLDER + "valid_" + this.distributionID);
-
 		return validLinks;
 	}
 
 	public HashMap<String, Integer> getLinks(String fileName) {
-		HashMap<String, Integer> links = new HashMap<String, Integer>();
+		HashMap<String, Integer> links = null;
 		String resource = null;
 		BufferedReader br = null;
 		Integer n = null;
 		try {
 			br = new BufferedReader(new FileReader(fileName));
+			links = new HashMap<String, Integer>();
 			while ((resource = br.readLine()) != null) {
 				n = links.get(resource);
 				if (n != null)
@@ -170,7 +191,8 @@ public class LinksetDataThreadLDLEx extends Thread {
 	public void closeFiles() {
 		try {
 			validLinksWriter.close();
-			invalidLinksWriter.close();
+			isvalidLinksWriterOpen = false;
+			// invalidLinksWriter.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

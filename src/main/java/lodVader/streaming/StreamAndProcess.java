@@ -125,16 +125,16 @@ public class StreamAndProcess extends SuperStream {
 		splitThread = new SplitAndProcess(subjectQueue, objectQueue, FileUtils.stringToHash(downloadUrl.toString()),
 				distribution);
 
-		makeLinksetFromObjectsThread = new MakeLinksetsMasterThreadLDLEx(objectQueue, uri);
-		makeLinksetFromSubjectsThread = new MakeLinksetsMasterThreadLDLEx(subjectQueue, uri);
+		makeLinksetFromObjectsThread = new MakeLinksetsMasterThreadLDLEx(objectQueue, uri, TuplePart.OBJECT); 
+		makeLinksetFromSubjectsThread = new MakeLinksetsMasterThreadLDLEx(subjectQueue, uri, TuplePart.SUBJECT); 
 
 		// setting thread names
 		makeLinksetFromObjectsThread.setName("getNSFromObjectsThread");
 		makeLinksetFromSubjectsThread.setName("getNSFromSubjectsThread");
 
 		// setting part of the tuple being processed
-		makeLinksetFromSubjectsThread.tuplePart = TuplePart.SUBJECT;
-		makeLinksetFromObjectsThread.tuplePart = TuplePart.OBJECT;
+//		makeLinksetFromSubjectsThread.tuplePart = TuplePart.SUBJECT;
+//		makeLinksetFromObjectsThread.tuplePart = TuplePart.OBJECT;
 
 		try {
 
