@@ -61,6 +61,7 @@ public class LinksetDataThreadLDLEx extends Thread {
 	// public BufferedWriter invalidLinksWriter;
 
 	public AtomicInteger numberOfValidLinks = new AtomicInteger(0);
+	public static AtomicInteger numberOfOppenedFiles = new AtomicInteger(0);
 
 	public TreeMap<String, ? extends SuperBucket> distributionFilters = null;
 
@@ -87,7 +88,6 @@ public class LinksetDataThreadLDLEx extends Thread {
 		DistributionBloomFilterContainer distributionFilter = new DistributionBloomFilterContainer(
 				distribution.getLODVaderID());
 
-		openFileStreams();
 
 		if (tuplePart.equals(TuplePart.SUBJECT)) {
 			distributionFilter.loadObjectBuckets();
@@ -102,16 +102,21 @@ public class LinksetDataThreadLDLEx extends Thread {
 		}
 	}
 
-	private void openFileStreams() {
+	private void openFileStreams() throws IOException {
 
-		synchronized (this) {
+		while (numberOfOppenedFiles.get()>1000)
 			try {
-				validLinksWriter = new BufferedWriter(
-						new FileWriter(LODVaderProperties.TMP_FOLDER + "valid_" + this.distributionID));
-			} catch (IOException e) {
+				Thread.sleep(10);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}
+		
+			numberOfOppenedFiles.incrementAndGet();
+			validLinksWriter = new BufferedWriter(
+					new FileWriter(LODVaderProperties.TMP_FOLDER + "valid_" + this.distributionID));
+
+		
 	}
 
 	public void addValidLink(String resource) {
@@ -170,11 +175,8 @@ public class LinksetDataThreadLDLEx extends Thread {
 			File f = new File(fileName);
 			f.delete();
 
-		} catch (FileNotFoundException e) {
-
-		}
-
-		catch (Exception e) {
+		} catch (Exception e) {
+			links = null;
 			e.printStackTrace();
 		}
 		if (links.size() == 0)
@@ -185,6 +187,7 @@ public class LinksetDataThreadLDLEx extends Thread {
 	public void closeFiles() {
 		try {
 			validLinksWriter.close();
+			numberOfOppenedFiles.decrementAndGet();
 			// invalidLinksWriter.close();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -192,8 +195,8 @@ public class LinksetDataThreadLDLEx extends Thread {
 	}
 
 	public void saveLinksToFile() {
-		openFileStreams();
 		try {
+			openFileStreams();
 			for (String resource : links)
 				validLinksWriter.write(resource + "\n");
 			links = new ArrayList<String>();

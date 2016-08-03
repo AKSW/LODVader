@@ -1,5 +1,6 @@
 package lodVader.mongodb.collections.namespaces;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,12 +38,28 @@ public class DistributionSubjectNSDB extends SuperNS {
 	}
 
 	public void bulkSave(ConcurrentHashMap<String, Integer> map, DistributionDB distribution) {
+		
+//		ArrayList<DBObject> bulkList = new ArrayList<DBObject>();
+//		
+//		for (String s : nsSet) {
+//			mongoDBObject = new BasicDBObject();
+//			setDistributionID(distributionLodVaderID);
+//			setNS(s);
+//			setDatasetID(topDatasetID);
+//			bulkList.add(mongoDBObject);
+//		}
+//		
+//		bulkSave2(bulkList);
+		
+		
 		Iterator it = map.entrySet().iterator();
 		getCollection().remove(new BasicDBObject(DISTRIBUTION_ID, distribution.getLODVaderID()));
 
 		DistributionSubjectNSDB d2 ;
 		int distributionLODVaderID = distribution.getLODVaderID();
 		int topDatasetLODVaderID = distribution.getTopDatasetID();
+		
+		ArrayList<DBObject> bulkObjects = new ArrayList<>();
 		
 		while (it.hasNext()) {
 			Map.Entry pair = (Map.Entry) it.next();
@@ -60,11 +77,19 @@ public class DistributionSubjectNSDB extends SuperNS {
 				LoadedBloomFiltersCache.describedSubjectsNSCurrentSize ++;
 			}
 
-			try {
-				d2.insert(true);
-			} catch (LODVaderObjectAlreadyExistsException | LODVaderNoPKFoundException e) {
-				e.printStackTrace();
-			}
+//			try {
+				bulkObjects.add(d2.mongoDBObject);
+//				d2.insert(true);
+//			} catch (LODVaderObjectAlreadyExistsException | LODVaderNoPKFoundException e) {
+//				e.printStackTrace();
+//			}
+				
+				
 		}
+		bulkSave2(bulkObjects);
+		
+		
+		
+		
 	}
 }

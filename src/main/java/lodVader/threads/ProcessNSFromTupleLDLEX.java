@@ -158,7 +158,7 @@ public abstract class ProcessNSFromTupleLDLEX extends Thread {
 		}
 
 		try {
-			makeLinks();
+			makeLinks(0);
 
 			logger.info("Waiting all threads finish their jobs...");
 			int threadMapSize = mapOfThreads.size();
@@ -239,7 +239,7 @@ public abstract class ProcessNSFromTupleLDLEX extends Thread {
 					if (numberOfReadedResources % LODVaderProperties.CHECK_LINKS_EACH == 0) {
 						try {
 
-							makeLinks();
+							makeLinks(5000);
 
 						} catch (Exception e) {
 							e.printStackTrace();
@@ -251,7 +251,7 @@ public abstract class ProcessNSFromTupleLDLEX extends Thread {
 	}
 
 	private void saveLinks() {
-
+		int nrLinkedDatasets = 0;
 		// remove all links previously created for this distribution
 		new LinksetDB().removeAllLinks(distribution.getLODVaderID());		
 
@@ -264,7 +264,9 @@ public abstract class ProcessNSFromTupleLDLEX extends Thread {
 			String linksetID;
 			
 			if (dataThread.getAllValidLinks() != null) {
-				logger.debug("Saving links for " + dataThread.distribution.getTitle());
+//				logger.info("Saving links for " + dataThread.distribution.getTitle() + "... links: "+dataThread.getAllValidLinks().size());
+//				System.out.println(dataThread.getAllValidLinks().keySet().iterator().next().toString());
+				nrLinkedDatasets++;
 
 				if (tuplePart.equals(TuplePart.SUBJECT)) {
 					linksetID = dataThread.distributionID + "-" + distribution.getLODVaderID();
@@ -312,7 +314,9 @@ public abstract class ProcessNSFromTupleLDLEX extends Thread {
 				logger.debug("Saved links: " + linkset.getLinks() + " (good) " + linkset.getInvalidLinks()
 						+ " (bad) in " + t.stopTimer() + "s");
 			}
+			
 		}
+		logger.info("Links saved with "+nrLinkedDatasets+ " dataset(s).");
 	}
 
 	// external-links_en.nt 
@@ -336,6 +340,6 @@ public abstract class ProcessNSFromTupleLDLEX extends Thread {
 	}
 	
 
-	public abstract void makeLinks() throws Exception;
+	public abstract void makeLinks(int treshold) throws Exception;
 
 }

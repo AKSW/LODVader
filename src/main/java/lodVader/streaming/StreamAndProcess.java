@@ -308,7 +308,6 @@ public class StreamAndProcess extends SuperStream {
 
 		logger.info("Creating subjects bucket.");
 		subjectBucket.start();
-		subjectBucket.join();
 
 		logger.info("Creating objects BF");
 		logger.info("Reading resources from file system...");
@@ -318,6 +317,7 @@ public class StreamAndProcess extends SuperStream {
 		logger.info("Creating objects bucket.");
 		objectBucket.start();
 
+		subjectBucket.join();
 		objectBucket.join();
 
 		logger.info("Done creating buckets.");

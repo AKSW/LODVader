@@ -1,5 +1,6 @@
 package lodVader.mongodb.collections.gridFS;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -198,7 +199,7 @@ public class SuperBucket extends Thread {
 		GridFS gfs = new GridFS(DBSuperClass2.getDBInstance(), COLLECTION_NAME);
 		GridFSInputFile gfsFile;
 		try {
-			gfsFile = gfs.createFile(new ByteArrayInputStream(out.toByteArray()));
+			gfsFile = gfs.createFile(new BufferedInputStream(new ByteArrayInputStream(out.toByteArray())));
 			gfsFile.put(FIRST_RESOURCE, firstResource);
 			gfsFile.put(LAST_RESOURCE, lastResource);
 			gfsFile.put(DISTRIBUTION_ID, distributionID);

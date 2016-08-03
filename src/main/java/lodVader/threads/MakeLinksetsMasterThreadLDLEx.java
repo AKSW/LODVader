@@ -39,7 +39,7 @@ public class MakeLinksetsMasterThreadLDLEx extends ProcessNSFromTupleLDLEX {
 	public HashSet<String> localNSCopy;
 
 	@Override
-	public void makeLinks() {
+	public void makeLinks(final int treshold) {
 
 		localNSCopy = chunkOfNS;
 		localNS0Copy = chunkOfNS0;
@@ -235,7 +235,7 @@ public class MakeLinksetsMasterThreadLDLEx extends ProcessNSFromTupleLDLEX {
 
 						for (LinksetDataThreadLDLEx dataThread : mapOfWorkerThreads.values()) {
 							if (distribution.getLODVaderID() != dataThread.distributionID)
-								if (dataThread.resources.size() > 0 && !dataThread.isBeingConsumed.get()) {
+								if (dataThread.resources.size() > treshold && !dataThread.isBeingConsumed.get()) {
 									if (threads[threadIndex] == null) {
 										dataThread.isBeingConsumed.set(true);
 										threads[threadIndex] = new Thread(
