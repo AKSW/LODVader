@@ -9,6 +9,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.TreeSet;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.jena.riot.Lang;
@@ -152,8 +154,8 @@ public class LOV extends SuperStream {
 
 			StmtIterator triples = m.listStatements(null, null, (RDFNode) null);
 
-			ConcurrentLinkedQueue<String> subjectsQueue = new ConcurrentLinkedQueue<String>();
-			ConcurrentLinkedQueue<String> objectsQueue = new ConcurrentLinkedQueue<String>();
+			BlockingQueue<String> subjectsQueue = new ArrayBlockingQueue<String>(50000);
+			BlockingQueue<String> objectsQueue = new ArrayBlockingQueue<String>(50000);
 			TreeSet<String> subjects = new TreeSet<String>();
 			TreeSet<String> objects = new TreeSet<String>();
 
@@ -173,12 +175,12 @@ public class LOV extends SuperStream {
 				if (triple.getSubject().toString().contains(node.getNameSpace())) {
 					if (triple.getSubject().toString().startsWith("http")) {
 						subjects.add(triple.getSubject().toString());
-						subjectsQueue.add(triple.getSubject().toString());
+						subjectsQueue.put(triple.getSubject().toString());
 					}
 					if (triple.getObject().isResource()) {
 						if (triple.getObject().toString().startsWith("http")) {
 							objects.add(triple.getObject().toString());
-							objectsQueue.add(triple.getObject().toString());
+							objectsQueue.put(triple.getObject().toString());
 						}
 
 						if (triple.getObject().toString().equals("http://www.w3.org/2002/07/owl#Class")) {

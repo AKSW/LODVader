@@ -1,6 +1,7 @@
 package lodVader.tupleManager;
 
 import java.util.HashMap;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.openrdf.rio.helpers.RDFHandlerBase;
@@ -14,9 +15,9 @@ public abstract class SuperTupleManager extends RDFHandlerBase {
 
 	protected boolean doneReadingFile = false;
 
-	ConcurrentLinkedQueue<String> objectQueue = null;
+	BlockingQueue<String> objectQueue = null;
 
-	ConcurrentLinkedQueue<String> subjectQueue = null;
+	BlockingQueue<String> subjectQueue = null;
 
 	public Integer subjectLines = 0;
 

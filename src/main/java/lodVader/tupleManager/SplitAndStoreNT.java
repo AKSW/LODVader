@@ -2,6 +2,7 @@ package lodVader.tupleManager;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.openrdf.model.Statement;
@@ -20,7 +21,7 @@ public class SplitAndStoreNT extends SuperTupleManager {
 	
 	NSUtils nsUtils = new NSUtils();
 
-	public SplitAndStoreNT(ConcurrentLinkedQueue<String> subjectQueue, ConcurrentLinkedQueue<String> objectQueue,
+	public SplitAndStoreNT(BlockingQueue<String> subjectQueue, BlockingQueue<String> objectQueue,
 			String fileName, DistributionDB distribution) {
 		this.objectQueue = objectQueue;
 		this.subjectQueue = subjectQueue;

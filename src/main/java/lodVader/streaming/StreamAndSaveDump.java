@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -46,9 +48,9 @@ public class StreamAndSaveDump extends SuperStream {
 
 	public double contentLengthAfterDownloaded = 0;
 
-	ConcurrentLinkedQueue<String> bufferQueue = new ConcurrentLinkedQueue<String>();
-	ConcurrentLinkedQueue<String> objectQueue = new ConcurrentLinkedQueue<String>();
-	ConcurrentLinkedQueue<String> subjectQueue = new ConcurrentLinkedQueue<String>();
+	BlockingQueue<String> bufferQueue = new ArrayBlockingQueue<String>(200000);
+	BlockingQueue<String> objectQueue = new ArrayBlockingQueue<String>(200000);
+	BlockingQueue<String> subjectQueue = new ArrayBlockingQueue<String>(200000);
 
 	boolean doneReadingFile = false;
 	boolean doneSplittingString = false;

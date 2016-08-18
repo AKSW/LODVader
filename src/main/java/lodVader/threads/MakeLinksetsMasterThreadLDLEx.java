@@ -4,8 +4,12 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +30,7 @@ public class MakeLinksetsMasterThreadLDLEx extends ProcessNSFromTupleLDLEX {
 	 *            of the distribution (usually the distribution URL)
 	 * @throws MalformedURLException
 	 */
-	public MakeLinksetsMasterThreadLDLEx(ConcurrentLinkedQueue<String> resourceQueue, String uri, TuplePart tuplePart)
+	public MakeLinksetsMasterThreadLDLEx(BlockingQueue<String> resourceQueue, String uri, TuplePart tuplePart)
 			throws MalformedURLException {
 		super(resourceQueue, uri,tuplePart);
 	}
@@ -228,6 +232,8 @@ public class MakeLinksetsMasterThreadLDLEx extends ProcessNSFromTupleLDLEX {
 					// String[] buffer = new String[bufferSize];
 
 					if (mapOfWorkerThreads.size() > 0) {
+						
+						ExecutorService executor = Executors.newFixedThreadPool(8);
 
 						int threadIndex = 0;
 
@@ -243,14 +249,15 @@ public class MakeLinksetsMasterThreadLDLEx extends ProcessNSFromTupleLDLEX {
 										threads[threadIndex]
 												.setName("worker--" + dataThread.distribution.getDownloadUrl());
 
-										while (numberOfWorkerActiveThreads.get() >= LODVaderProperties.NR_THREADS)
-											try {
-												Thread.sleep(6);
-											} catch (InterruptedException e) {
-												e.printStackTrace();
-											}
+//										while (numberOfWorkerActiveThreads.get() >= LODVaderProperties.NR_THREADS)
+//											try {
+//												Thread.sleep(6);
+//											} catch (InterruptedException e) {
+//												e.printStackTrace();
+//											}
 										numberOfWorkerActiveThreads.incrementAndGet();
-										threads[threadIndex].start();
+//										threads[threadIndex].start();
+										executor.submit(threads[threadIndex]);
 										threadIndex++;
 									} else {
 										// threads[threadIndex].
@@ -258,15 +265,22 @@ public class MakeLinksetsMasterThreadLDLEx extends ProcessNSFromTupleLDLEX {
 								}
 						}
 
+						executor.shutdown();
+						try {
+							executor.awaitTermination(1, TimeUnit.DAYS);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 						// wait all threads finish
-						for (int d = 0; d < threads.length; d++)
-							if (threads[d] != null)
-								try {
-									threads[d].join();
-								} catch (Exception e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
+//						for (int d = 0; d < threads.length; d++)
+//							if (threads[d] != null)
+//								try {
+//									threads[d].join();
+//								} catch (Exception e) {
+//									// TODO Auto-generated catch block
+//									e.printStackTrace();
+//								}
 					}
 
 					// save linksets into mongodb

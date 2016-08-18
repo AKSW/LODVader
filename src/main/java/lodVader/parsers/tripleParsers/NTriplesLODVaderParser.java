@@ -6,26 +6,25 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.NoSuchElementException;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.helpers.RDFParserBase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import lodVader.tupleManager.SplitAndProcess;
 import lodVader.tupleManager.SuperTupleManager;
 
 public class NTriplesLODVaderParser extends RDFParserBase {
 
 	final static Logger logger = LoggerFactory.getLogger(RDFParserBase.class);
 
-	Queue<String> bufferQueue = new ConcurrentLinkedQueue<String>();
+	BlockingQueue<String> bufferQueue = new ArrayBlockingQueue<String>(100000);
 	boolean doneReading = false;
 	
 //	private int BUFFER_SIZE = 655360;
@@ -54,22 +53,28 @@ public class NTriplesLODVaderParser extends RDFParserBase {
 //							if (++numberOfReadedResources % 1000 == 0) {
 //								System.out.println(numberOfReadedResources);
 //							}
-							bufferQueue.add(new String(data, 0, nRead, StandardCharsets.UTF_8));
-
-							while (bufferQueue.size() > 500000) {
-								Thread.sleep(3);
-								if (sleeping % 5000 == 0)
-									System.out.println("Streaming thread is sleeping...");
-								sleeping++;
+							try {
+								bufferQueue.put(new String(data, 0, nRead, StandardCharsets.UTF_8));
+							} catch (InterruptedException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
 							}
+
+//							while (bufferQueue.size() > 500000) {
+//								Thread.sleep(3);
+//								if (sleeping % 5000 == 0)
+//									System.out.println("Streaming thread is sleeping...");
+//								sleeping++;
+//							}
 						}
 						doneReading = true;
 					} catch (IOException e) {
 						doneReading = true;
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-						doneReading = true;
-					}
+					} 
+//					catch (InterruptedException e) {
+//						e.printStackTrace();
+//						doneReading = true;
+//					}
 					logger.info("DONE STREAMING!!!");
 				}
 			});
@@ -113,7 +118,7 @@ public class NTriplesLODVaderParser extends RDFParserBase {
 
 						// split queue line by line
 						String triples[];
-						triples = bufferQueue.remove().split("\n");
+						triples = bufferQueue.take().split("\n");
 
 						// case buffer starts with an incomplete triple,
 						// concatenate with the last line of the previous buffer

@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -55,8 +57,8 @@ public class StreamAndProcess extends SuperStream {
 	final static Logger logger = LoggerFactory.getLogger(StreamAndProcess.class);
 
 	// Paths
-	ConcurrentLinkedQueue<String> objectQueue = new ConcurrentLinkedQueue<String>();
-	ConcurrentLinkedQueue<String> subjectQueue = new ConcurrentLinkedQueue<String>();
+	BlockingQueue<String> objectQueue = new ArrayBlockingQueue<String>(100000);
+	BlockingQueue<String> subjectQueue = new ArrayBlockingQueue<String>(100000);
 
 	boolean doneReadingFile = false;
 	boolean doneSplittingString = false;
@@ -123,7 +125,7 @@ public class StreamAndProcess extends SuperStream {
 		SuperTupleManager splitThread;
 
 		splitThread = new SplitAndProcess(subjectQueue, objectQueue, FileUtils.stringToHash(downloadUrl.toString()),
-				distribution);
+				distribution); 
 
 		makeLinksetFromObjectsThread = new MakeLinksetsMasterThreadLDLEx(objectQueue, uri, TuplePart.OBJECT); 
 		makeLinksetFromSubjectsThread = new MakeLinksetsMasterThreadLDLEx(subjectQueue, uri, TuplePart.SUBJECT); 
@@ -150,7 +152,7 @@ public class StreamAndProcess extends SuperStream {
 			// checking ntriples to use turtle parser
 			else if (RDFFormat.equals(Formats.DEFAULT_NTRIPLES)) {
 				// rdfParser = new NTriplesParser();
-				rdfParser = new NTriplesLODVaderParser();
+				rdfParser = new NTriplesLODVaderParser(); 
 				logger.info("==== NTriples Parser loaded ====");
 			}
 

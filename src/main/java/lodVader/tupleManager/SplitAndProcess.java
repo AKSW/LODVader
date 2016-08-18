@@ -2,7 +2,7 @@ package lodVader.tupleManager;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.BlockingQueue;
 
 import org.openrdf.model.Statement;
 import org.slf4j.Logger;
@@ -21,7 +21,7 @@ public class SplitAndProcess extends SuperTupleManager {
 
 	private String lastSubject = "";
 
-	public SplitAndProcess(ConcurrentLinkedQueue<String> subjectQueue, ConcurrentLinkedQueue<String> objectQueue,
+	public SplitAndProcess(BlockingQueue<String> subjectQueue, BlockingQueue<String> objectQueue,
 			String fileName, DistributionDB distribution) {
 		this.objectQueue = objectQueue;
 		this.subjectQueue = subjectQueue;
@@ -46,7 +46,7 @@ public class SplitAndProcess extends SuperTupleManager {
 			}
 			distribution.update(true);
 
-		} catch (Exception e) {
+		} catch (Exception e) { 
 			e.printStackTrace();
 		}
 	}
@@ -124,7 +124,7 @@ public class SplitAndProcess extends SuperTupleManager {
 					// get subject and save to file
 					subjectFile.write(stSubject + "\n");
 					subjectLines++;
-					subjectQueue.add(stSubject);
+					subjectQueue.put(stSubject);
 					lastSubject = stSubject;
 				}
 
@@ -134,15 +134,15 @@ public class SplitAndProcess extends SuperTupleManager {
 			// to queue and save to file
 			if (stObject.startsWith("h")) {
 				objectFile.write(stObject + "\n");
-				objectQueue.add(stObject);
+				objectQueue.put(stObject);
 				objectLines++;
 			}
-			while (objectQueue.size() > bufferSize) {
-				Thread.sleep(5);
-			}
-			while (subjectQueue.size() > bufferSize) {
-				Thread.sleep(5);
-			}
+//			while (objectQueue.size() > bufferSize) {
+//				Thread.sleep(5);
+//			}
+//			while (subjectQueue.size() > bufferSize) {
+//				Thread.sleep(5);
+//			}
 
 			if (totalTriplesRead % 1000000 == 0) {
 				logger.info("Triples read: " + totalTriplesRead + ", time: " + t.stopTimer());
@@ -151,7 +151,7 @@ public class SplitAndProcess extends SuperTupleManager {
 				logger.info("Sample subject: " + stSubject);
 				logger.info("Sample predcate: " + stPredicate);
 				logger.info("Sample object: " + stObject);
-
+				
 			}
 
 		} catch (Exception e) {

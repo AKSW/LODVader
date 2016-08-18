@@ -4,6 +4,7 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -30,18 +31,18 @@ import lodVader.utils.Timer;
 
 public abstract class ProcessNSFromTupleLDLEX extends Thread {
 	final static Logger logger = LoggerFactory.getLogger(ProcessNSFromTupleLDLEX.class);
- 
+
 	// tuple part identifies whether we are working with subject or object
 	protected TuplePart tuplePart;
 
 	// control the number of opened threads
-	public static AtomicInteger numberOfWorkerActiveThreads = new AtomicInteger(0); 
+	public static AtomicInteger numberOfWorkerActiveThreads = new AtomicInteger(0);
 
-	public AtomicInteger numberOfMakeLinksActiveThreads = new AtomicInteger(0); 
+	public AtomicInteger numberOfMakeLinksActiveThreads = new AtomicInteger(0);
 
 	public AtomicInteger numberOfFinishedThreads = new AtomicInteger(0);
 
-	public AtomicInteger numberThreadsWaiting = new AtomicInteger(0); 
+	public AtomicInteger numberThreadsWaiting = new AtomicInteger(0);
 
 	// map of NS and Distributions
 	NSDistributionMapperInterface mapper = new NSDistributionMapperHashImpl();
@@ -64,10 +65,10 @@ public abstract class ProcessNSFromTupleLDLEX extends Thread {
 	public HashSet<String> chunkOfNS0 = new HashSet<String>();
 
 	// control whether the thread is still working or not
-	private boolean doneSplittingString;
+	volatile private boolean doneSplittingString;
 
 	// queue of resources (objects OR subjects)
-	protected ConcurrentLinkedQueue<String> resourceQueue = null;
+	protected BlockingQueue<String> resourceQueue = null;
 
 	// resource, NS
 	protected HashMap<String, String> resourcesToBeProcessedBuffer = new HashMap<String, String>(
@@ -88,12 +89,12 @@ public abstract class ProcessNSFromTupleLDLEX extends Thread {
 	// namespace counter
 	private ConcurrentHashMap<String, Integer> countTotalNS = null;
 	private ConcurrentHashMap<String, Integer> countTotalNS0 = null;
-		
+
 	int dae = 0;
 
 	int numberOfReadedResources = 0;
 
-	public ProcessNSFromTupleLDLEX(ConcurrentLinkedQueue<String> resourceQueue, String uri, TuplePart tuplePart)
+	public ProcessNSFromTupleLDLEX(BlockingQueue<String> resourceQueue, String uri, TuplePart tuplePart)
 			throws MalformedURLException {
 		this.resourceQueue = resourceQueue;
 		this.tuplePart = tuplePart;
@@ -105,12 +106,12 @@ public abstract class ProcessNSFromTupleLDLEX extends Thread {
 			mapOfWorkerThreads = mapOfWorkerThreadsObject;
 		else
 			mapOfWorkerThreads = mapOfWorkerThreadsSubject;
-		
+
 		if (tuplePart.equals(TuplePart.OBJECT))
 			distributionStatus = distributionStatusObject;
 		else
 			distributionStatus = distributionStatusSubject;
-		
+
 		logger.info(mapOfWorkerThreads.size() + " distributions loaded in the buffer.");
 
 		if (LoadedBloomFiltersCache.describedSubjectsNSCurrentSize > LODVaderProperties.BF_BUFFER_RANGE
@@ -138,24 +139,24 @@ public abstract class ProcessNSFromTupleLDLEX extends Thread {
 	public void run() {
 
 		logger.debug("Starting GetDomainsFromTriplesThread class.");
-		Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
+		// Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
 
-		while (!doneSplittingString) {
+		// while (!doneSplittingString) {
 
-			if (tuplePart.equals(TuplePart.OBJECT)) {
-				processResource(LoadedBloomFiltersCache.describedSubjectsNS);
+		if (tuplePart.equals(TuplePart.OBJECT)) {
+			processResource(LoadedBloomFiltersCache.describedSubjectsNS);
 
-			} else {
-				processResource(LoadedBloomFiltersCache.describedObjectsNS);
-			}
-
-			try {
-				Thread.sleep(4);
-			} catch (InterruptedException e1) {
-				e1.printStackTrace();
-			}
-
+		} else {
+			processResource(LoadedBloomFiltersCache.describedObjectsNS);
 		}
+
+		// try {
+		// Thread.sleep(4);
+		// } catch (InterruptedException e1) {
+		// e1.printStackTrace();
+		// }
+
+		// }
 
 		try {
 			makeLinks(0);
@@ -196,56 +197,65 @@ public abstract class ProcessNSFromTupleLDLEX extends Thread {
 		String resource;
 		Integer value;
 
-		while (resourceQueue.size() > 0) {
+		while (true) {
 
 			// get the resource of the triple
-			resource = resourceQueue.remove();
+			try {
+				resource = resourceQueue.take();
 
-			// get the namespace
-			ns = nsUtils.getNSFromString(resource);
+				// get the namespace
+				ns = nsUtils.getNSFromString(resource);
 
-			// case there is a namespace, keep going
-			if (!ns.equals("")) {
+				// case there is a namespace, keep going
+				if (!ns.equals("")) {
 
-				// get ns0 (FQDN)
-				ns0 = nsUtils.getNS0(resource);
+					// get ns0 (FQDN)
+					ns0 = nsUtils.getNS0(resource);
 
-				// check whether the ns is already in the set
-				value = countTotalNS.get(ns);
+					// check whether the ns is already in the set
+					value = countTotalNS.get(ns);
 
-				// case not, put it
-				if (value == null)
-					countTotalNS.put(ns, 1);
+					// case not, put it
+					if (value == null)
+						countTotalNS.put(ns, 1);
 
-				// case yes, increment counter
-				else
-					countTotalNS.put(ns, value + 1);
+					// case yes, increment counter
+					else
+						countTotalNS.put(ns, value + 1);
 
-				// save ns0 (no needs to count)
-				countTotalNS0.put(ns0, 0);
+					// save ns0 (no needs to count)
+					countTotalNS0.put(ns0, 0);
 
-				// if some set describes the NS, keep going
-				if (describedNSFilter.compare(ns)) {
+					// if some set describes the NS, keep going
+					if (describedNSFilter.compare(ns)) {
 
-					// add the resource to a queue
-					resourcesToBeProcessedBuffer.put(resource, ns0);
+						// add the resource to a queue
+						resourcesToBeProcessedBuffer.put(resource, ns0);
 
-					// add namespaces to tmp sets
-					chunkOfNS.add(ns);
-					chunkOfNS0.add(ns0);
-					numberOfReadedResources++;
+						// add namespaces to tmp sets
+						chunkOfNS.add(ns);
+						chunkOfNS0.add(ns0);
+						numberOfReadedResources++;
 
-					// case the chunk is full, make linksets!
-					if (numberOfReadedResources % LODVaderProperties.CHECK_LINKS_EACH == 0) {
-						try {
+						// case the chunk is full, make linksets!
+						if (numberOfReadedResources % LODVaderProperties.CHECK_LINKS_EACH == 0) {
+							try {
 
-							makeLinks(5000);
+								makeLinks(5000);
 
-						} catch (Exception e) {
-							e.printStackTrace();
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
 						}
 					}
 				}
+
+				if (resourceQueue.size() == 0 && doneSplittingString)
+					return;
+
+			} catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
 			}
 		}
 	}
@@ -253,7 +263,7 @@ public abstract class ProcessNSFromTupleLDLEX extends Thread {
 	private void saveLinks() {
 		int nrLinkedDatasets = 0;
 		// remove all links previously created for this distribution
-		new LinksetDB().removeAllLinks(distribution.getLODVaderID());		
+		new LinksetDB().removeAllLinks(distribution.getLODVaderID());
 
 		for (LinksetDataThreadLDLEx dataThread : mapOfWorkerThreads.values()) {
 			LinksetDB linkset;
@@ -262,15 +272,17 @@ public abstract class ProcessNSFromTupleLDLEX extends Thread {
 			t.startTimer();
 
 			String linksetID;
-			
+
 			if (dataThread.getAllValidLinks() != null) {
-//				logger.info("Saving links for " + dataThread.distribution.getTitle() + "... links: "+dataThread.getAllValidLinks().size());
-//				System.out.println(dataThread.getAllValidLinks().keySet().iterator().next().toString());
+				// logger.info("Saving links for " +
+				// dataThread.distribution.getTitle() + "... links:
+				// "+dataThread.getAllValidLinks().size());
+				// System.out.println(dataThread.getAllValidLinks().keySet().iterator().next().toString());
 				nrLinkedDatasets++;
 
 				if (tuplePart.equals(TuplePart.SUBJECT)) {
 					linksetID = dataThread.distributionID + "-" + distribution.getLODVaderID();
-					linkset = new LinksetDB();  
+					linkset = new LinksetDB();
 					linkset.setLinksetID(linksetID);
 					linkset.setDistributionSource(dataThread.distributionID);
 					linkset.setDistributionTarget(distribution.getLODVaderID());
@@ -285,11 +297,11 @@ public abstract class ProcessNSFromTupleLDLEX extends Thread {
 							distribution.getLODVaderID());
 					linkset.setLinks(dataThread.getAllValidLinks().size());
 					dataThread.setValidLinks(null);
- 
+
 				} else {
 					// calculate linksets
 					linksetID = distribution.getLODVaderID() + "-" + dataThread.distributionID;
-					linkset = new LinksetDB();  
+					linkset = new LinksetDB();
 					linkset.setLinksetID(linksetID);
 
 					linkset.setDistributionSource(distribution.getLODVaderID());
@@ -310,16 +322,16 @@ public abstract class ProcessNSFromTupleLDLEX extends Thread {
 
 				if (linkset.getLinks() > 0)
 					linkset.update(true, LinksetDB.LINKSET_ID, linksetID);
- 
+
 				logger.debug("Saved links: " + linkset.getLinks() + " (good) " + linkset.getInvalidLinks()
 						+ " (bad) in " + t.stopTimer() + "s");
 			}
-			
+
 		}
-		logger.info("Links saved with "+nrLinkedDatasets+ " dataset(s).");
+		logger.info("Links saved with " + nrLinkedDatasets + " dataset(s).");
 	}
 
-	// external-links_en.nt 
+	// external-links_en.nt
 	private boolean saveNamespaces() {
 		logger.info("Saving NS0...");
 		if (tuplePart.equals(TuplePart.SUBJECT)) {
@@ -331,14 +343,13 @@ public abstract class ProcessNSFromTupleLDLEX extends Thread {
 		logger.info("Saving NS...");
 		if (tuplePart.equals(TuplePart.SUBJECT)) {
 			DistributionSubjectNSDB d = new DistributionSubjectNSDB();
-			d.bulkSave(countTotalNS, distribution); 
+			d.bulkSave(countTotalNS, distribution);
 		} else {
 			DistributionObjectNSDB d = new DistributionObjectNSDB();
 			d.bulkSave(countTotalNS, distribution);
 		}
 		return true;
 	}
-	
 
 	public abstract void makeLinks(int treshold) throws Exception;
 
