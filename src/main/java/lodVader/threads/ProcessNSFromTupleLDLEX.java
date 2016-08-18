@@ -197,10 +197,10 @@ public abstract class ProcessNSFromTupleLDLEX extends Thread {
 		String resource;
 		Integer value;
 
-		while (true) {
+		try {
+			while (true) {
 
-			// get the resource of the triple
-			try {
+				// get the resource of the triple
 				resource = resourceQueue.take();
 
 				// get the namespace
@@ -250,14 +250,13 @@ public abstract class ProcessNSFromTupleLDLEX extends Thread {
 					}
 				}
 
-				if (resourceQueue.size() == 0 && doneSplittingString)
-					return;
-
-			} catch (InterruptedException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
 			}
+		} catch (InterruptedException e1) {
+			setDoneSplittingString(true);
+//			e1.printStackTrace();
+			return;
 		}
+
 	}
 
 	private void saveLinks() {

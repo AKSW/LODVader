@@ -25,10 +25,10 @@ public class NTriplesLODVaderParser extends RDFParserBase {
 	final static Logger logger = LoggerFactory.getLogger(RDFParserBase.class);
 
 	BlockingQueue<String> bufferQueue = new ArrayBlockingQueue<String>(100000);
-	boolean doneReading = false;
-	
-//	private int BUFFER_SIZE = 655360;
-	private int BUFFER_SIZE = 1024*8;
+	volatile boolean doneReading = false;
+
+	// private int BUFFER_SIZE = 655360;
+	private int BUFFER_SIZE = 1024 * 8;
 
 	static int numberOfReadedResources = 0;
 
@@ -50,9 +50,9 @@ public class NTriplesLODVaderParser extends RDFParserBase {
 						while ((nRead = new BufferedInputStream(inputStream).read(data, 0, data.length)) != -1) {
 							// bufferQueue.add(new String(data,
 							// StandardCharsets.UTF_8));
-//							if (++numberOfReadedResources % 1000 == 0) {
-//								System.out.println(numberOfReadedResources);
-//							}
+							// if (++numberOfReadedResources % 1000 == 0) {
+							// System.out.println(numberOfReadedResources);
+							// }
 							try {
 								bufferQueue.put(new String(data, 0, nRead, StandardCharsets.UTF_8));
 							} catch (InterruptedException e) {
@@ -60,21 +60,22 @@ public class NTriplesLODVaderParser extends RDFParserBase {
 								e.printStackTrace();
 							}
 
-//							while (bufferQueue.size() > 500000) {
-//								Thread.sleep(3);
-//								if (sleeping % 5000 == 0)
-//									System.out.println("Streaming thread is sleeping...");
-//								sleeping++;
-//							}
+							// while (bufferQueue.size() > 500000) {
+							// Thread.sleep(3);
+							// if (sleeping % 5000 == 0)
+							// System.out.println("Streaming thread is
+							// sleeping...");
+							// sleeping++;
+							// }
 						}
 						doneReading = true;
 					} catch (IOException e) {
 						doneReading = true;
-					} 
-//					catch (InterruptedException e) {
-//						e.printStackTrace();
-//						doneReading = true;
-//					}
+					}
+					// catch (InterruptedException e) {
+					// e.printStackTrace();
+					// doneReading = true;
+					// }
 					logger.info("DONE STREAMING!!!");
 				}
 			});
@@ -101,73 +102,67 @@ public class NTriplesLODVaderParser extends RDFParserBase {
 
 			int showMsgInterval = 4;
 			int bufferCount = 0;
-			Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
 
-			// starts reading buffer queue
-			while (!doneReading) {
-				Thread.sleep(1);
+			while (bufferQueue.size() > 0 ||  !doneReading) {
+				bufferCount++;
 
-				while (bufferQueue.size() > 0) {
-					bufferCount++;
+				// shows buffer size each interval
+				if (bufferCount % showMsgInterval == 0)
+					logger.debug("Buffer Streaming size: " + bufferQueue.size());
 
-					// shows buffer size each interval
-					if (bufferCount % showMsgInterval == 0)
-						logger.debug("Buffer Streaming size: " + bufferQueue.size());
+				try {
 
-					try {
+					// split queue line by line
+					String triples[];
+					triples = bufferQueue.take().split("\n");
 
-						// split queue line by line
-						String triples[];
-						triples = bufferQueue.take().split("\n");
-
-						// case buffer starts with an incomplete triple,
-						// concatenate with the last line of the previous buffer
-						if (!lastLine.equals("")) {
-							triples[0] = lastLine.concat(triples[0]);
-							lastLine = "";
-						}
-
-						// for each triple, separate s, p, o
-						for (int q = 0; q < triples.length; q++) {
-							String triple = triples[q];
-
-							// if (!triple.startsWith("#")) {
-							try {
-
-								// Pattern pattern = Pattern
-								// .compile("^(<[^>]+>)\\s+(<[^>]+>)\\s(.*)(\\s\\.)");
-
-								// Pattern pattern = Pattern
-								// .compile("^<([^>]+)>\\s+<([^>]+)>\\s<(.*)>(\\s\\.)");
-
-								Pattern pattern = Pattern.compile("^<([^>]+)>\\s+<([^>]+)>\\s(.*)(\\s\\.)");
-
-								Matcher matcher = pattern.matcher(triple);
-
-								// case it is an incomplete line means it is the
-								// end of the buffer
-								// handle in the catch statement
-								if (!matcher.matches()) {
-									throw new ArrayIndexOutOfBoundsException();
-								}
-
-								subjectStmt = matcher.group(1);
-								propertyStmt = matcher.group(2);
-								objectStmt = matcher.group(3);
-
-								splitAndStore.saveStatement(subjectStmt, propertyStmt, objectStmt);
-
-							} catch (ArrayIndexOutOfBoundsException e) {
-								lastLine = triple;
-							}
-							// }
-						}
-
-					} catch (NoSuchElementException em) {
-						// em.printStackTrace();
-					} catch (Exception e) {
-						e.printStackTrace();
+					// case buffer starts with an incomplete triple,
+					// concatenate with the last line of the previous buffer
+					if (!lastLine.equals("")) {
+						triples[0] = lastLine.concat(triples[0]);
+						lastLine = "";
 					}
+
+					// for each triple, separate s, p, o
+					for (int q = 0; q < triples.length; q++) {
+						String triple = triples[q];
+
+						// if (!triple.startsWith("#")) {
+						try {
+
+							// Pattern pattern = Pattern
+							// .compile("^(<[^>]+>)\\s+(<[^>]+>)\\s(.*)(\\s\\.)");
+
+							// Pattern pattern = Pattern
+							// .compile("^<([^>]+)>\\s+<([^>]+)>\\s<(.*)>(\\s\\.)");
+
+							Pattern pattern = Pattern.compile("^<([^>]+)>\\s+<([^>]+)>\\s(.*)(\\s\\.)");
+
+							Matcher matcher = pattern.matcher(triple);
+
+							// case it is an incomplete line means it is the
+							// end of the buffer
+							// handle in the catch statement
+							if (!matcher.matches()) {
+								throw new ArrayIndexOutOfBoundsException();
+							}
+
+							subjectStmt = matcher.group(1);
+							propertyStmt = matcher.group(2);
+							objectStmt = matcher.group(3);
+
+							splitAndStore.saveStatement(subjectStmt, propertyStmt, objectStmt);
+
+						} catch (ArrayIndexOutOfBoundsException e) {
+							lastLine = triple;
+						}
+						// }
+					}
+
+				} catch (NoSuchElementException em) {
+					// em.printStackTrace();
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
 			}
 

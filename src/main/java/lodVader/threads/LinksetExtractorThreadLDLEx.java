@@ -70,6 +70,7 @@ public class LinksetExtractorThreadLDLEx implements Runnable {
 			e.printStackTrace();
 		}
 
+		listOfResources.clear();
 		dataThread.isBeingConsumed.set(false);
 		ProcessNSFromTupleLDLEX.numberOfWorkerActiveThreads.decrementAndGet();
 	}

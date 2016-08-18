@@ -257,11 +257,20 @@ public class StreamAndProcess extends SuperStream {
 		subjectLines = splitThread.getSubjectLines();
 		totalTriples = splitThread.getTotalTriples();
 		
-		makeLinksetFromObjectsThread.setDoneSplittingString(true);
-		makeLinksetFromObjectsThread.join();
-		makeLinksetFromSubjectsThread.setDoneSplittingString(true);
+		while(objectQueue.size()>0)
+			Thread.sleep(10);
+		
+		makeLinksetFromObjectsThread.interrupt();
 
+		while(subjectQueue.size()>0)
+			Thread.sleep(10);
+
+		
+		makeLinksetFromSubjectsThread.interrupt();
+		
+		makeLinksetFromObjectsThread.join();
 		makeLinksetFromSubjectsThread.join();
+
 
 		// save links between distribution and datasets
 //		logger.info("Saving links between distribution and datasets");

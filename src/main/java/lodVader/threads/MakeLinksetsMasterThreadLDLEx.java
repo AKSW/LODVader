@@ -120,8 +120,8 @@ public class MakeLinksetsMasterThreadLDLEx extends ProcessNSFromTupleLDLEX {
 									mapOfWorkerThreads.put(targetDistributionID,
 											new LinksetDataThreadLDLEx(targetDistribution, tuplePart));
 
-									distributionStatus.put(targetDistributionID, 2);
 									mapOfWorkerThreads.get(targetDistributionID).resources.put(ns,nsLists.get(ns)); 
+									distributionStatus.put(targetDistributionID, 2);
 
 								} else if (distributionStatus.get(targetDistributionID) == 1) {
 
@@ -233,7 +233,7 @@ public class MakeLinksetsMasterThreadLDLEx extends ProcessNSFromTupleLDLEX {
 
 					if (mapOfWorkerThreads.size() > 0) {
 						
-						ExecutorService executor = Executors.newFixedThreadPool(8);
+						ExecutorService executor = Executors.newFixedThreadPool(4);
 
 						int threadIndex = 0;
 

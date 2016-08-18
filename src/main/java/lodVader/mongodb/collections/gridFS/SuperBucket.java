@@ -206,6 +206,9 @@ public class SuperBucket extends Thread {
 			gfsFile.save();
 
 		} catch (Exception e) {
+			System.out.println(firstResource);
+			System.out.println(lastResource);
+			System.out.println(distributionID);
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

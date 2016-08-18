@@ -224,6 +224,14 @@ public class LOV extends SuperStream {
 				makeLinksetsObjects.start();
 
 				Thread.sleep(50);
+				
+				while(objectsQueue.size()>0)
+					Thread.sleep(10);
+				makeLinksetsObjects.interrupt();
+
+				while(subjectsQueue.size()>0)
+					Thread.sleep(10);
+				makeLinksetsSubjects.interrupt();
 
 				makeLinksetsSubjects.setDoneSplittingString(true);
 				makeLinksetsObjects.setDoneSplittingString(true);
