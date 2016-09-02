@@ -233,7 +233,7 @@ public class MakeLinksetsMasterThreadLDLEx extends ProcessNSFromTupleLDLEX {
 
 					if (mapOfWorkerThreads.size() > 0) {
 						
-						ExecutorService executor = Executors.newFixedThreadPool(4);
+						ExecutorService executor = Executors.newFixedThreadPool(7);
 
 						int threadIndex = 0;
 

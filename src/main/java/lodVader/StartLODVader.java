@@ -86,7 +86,7 @@ public class StartLODVader {
 				for (String s : q) {
 					DistributionDB dist = new DistributionDB(s);
 					dist.setStatus(DistributionStatus.WAITING_TO_STREAM);
-					dist.update(true);
+						dist.update(true);
 				}
 
 				// download distributions with "STATUS_WAITING_TO_STREAM" status
@@ -97,7 +97,8 @@ public class StartLODVader {
 				for (String s : q) {
 					DistributionDB dist = new DistributionDB(s);
 					dist.find(true);
-					datasets.put(dist.getTopDatasetID(), new DatasetDB(dist.getTopDatasetID()));
+        				//if(!dist.getFormat().equals("rdf"))
+						datasets.put(dist.getTopDatasetID(), new DatasetDB(dist.getTopDatasetID()));
 				}
 
 			}
