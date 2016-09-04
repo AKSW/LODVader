@@ -35,6 +35,8 @@ public class CLODFileParser implements FileParserInterface {
 
 	Property urlProp = ResourceFactory.createProperty("http://lodlaundromat.org/ontology/url");
 	Property formatProp = ResourceFactory.createProperty("http://lodlaundromat.org/ontology/fileExtension");
+	
+	String downloadURLPrefix = "http://download.lodlaundromat.org/";
 
 	public List<DatasetDB> distributionsLinks = new ArrayList<DatasetDB>();
 
@@ -70,11 +72,12 @@ public class CLODFileParser implements FileParserInterface {
 //				dataset.update(true, DatasetDB.URI, url);
 
 				DistributionDB distribution = new DistributionDB(url);
-				distribution.setDownloadUrl(url);
+				distribution.setDownloadUrl(downloadURLPrefix+ stmt.getSubject().toString().split("resource")[1]);
 				distribution.setTitle(url);
 				distribution.setTopDatasetTitle(url);
 				distribution.setTopDataset(dataset.getLODVaderID());
 				distribution.setIsVocabulary(false);
+				
 
 				ArrayList<Integer> defaultDatasets = new ArrayList<Integer>();
 				defaultDatasets.add(dataset.getLODVaderID());
@@ -129,5 +132,7 @@ public class CLODFileParser implements FileParserInterface {
 			return "RDF/XML";
 
 	}
+	
+	
 
 }
