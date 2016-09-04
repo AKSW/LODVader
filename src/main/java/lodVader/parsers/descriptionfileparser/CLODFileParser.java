@@ -60,7 +60,7 @@ public class CLODFileParser implements FileParserInterface {
 
 			try {
 
-				String downloadURL = downloadURLPrefix + stmt.getSubject().toString().split("resource")[1] + ".nt.gz";
+				String downloadURL = downloadURLPrefix + stmt.getSubject().toString().split("resource")[1];
 
 				String url = stmt.getObject().toString();
 				url = url.split("#")[0];
@@ -88,7 +88,7 @@ public class CLODFileParser implements FileParserInterface {
 				StmtIterator otherIterator = inModel.listStatements(stmt.getSubject().asResource(), formatProp,
 						(RDFNode) null);
 				try {
-					distribution.setFormat(downloadURL);
+					distribution.setFormat("nt.gz");
 				} catch (NoSuchElementException e) {
 					distribution.setFormat("");
 				}
