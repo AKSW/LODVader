@@ -28,9 +28,9 @@ public class BloomFilterOrestesImpl implements BloomFilterI {
 	int numberOfElements = 0;
 
 	int initialSize = 0;
-	
+
 	Double fpp;
-	
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -38,11 +38,13 @@ public class BloomFilterOrestesImpl implements BloomFilterI {
 	 */
 	@Override
 	public boolean create(int initialSize, double fpp) {
-		
-		if (fpp > 1)
-			fpp = 0.000000001;
 
-		if (bf == null)			
+		if (fpp > 1)
+			fpp = 0.00000001;
+		if (initialSize < 200000)
+			initialSize = 200000;
+
+		if (bf == null)
 			bf = new FilterBuilder(initialSize, fpp).buildBloomFilter();
 		this.initialSize = initialSize;
 		this.fpp = fpp;
@@ -132,5 +134,5 @@ public class BloomFilterOrestesImpl implements BloomFilterI {
 	public double getFilterInitialSize() {
 		return initialSize;
 	}
-	
+
 }
