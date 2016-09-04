@@ -14,6 +14,7 @@ public class BloomFilterFactory {
 	
 	public static BloomFilterI newBloomFilter(){ 
 		return new BloomFilterGoogleImpl();
+//		return new BloomFilterOrestesImpl();
 	}
 
 }
