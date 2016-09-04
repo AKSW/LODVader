@@ -35,10 +35,11 @@ public class CLODFileParser implements FileParserInterface {
 
 	Property urlProp = ResourceFactory.createProperty("http://lodlaundromat.org/ontology/url");
 	Property formatProp = ResourceFactory.createProperty("http://lodlaundromat.org/ontology/fileExtension");
-
+	
 	String downloadURLPrefix = "http://download.lodlaundromat.org";
 
 	public List<DatasetDB> distributionsLinks = new ArrayList<DatasetDB>();
+
 
 	// read dataID file and return the dataset uri
 	public String readModel(String URL, String format)
@@ -59,8 +60,8 @@ public class CLODFileParser implements FileParserInterface {
 			Statement stmt = someIterator.next();
 
 			try {
-
-				String downloadURL = downloadURLPrefix + stmt.getSubject().toString().split("resource")[1];
+				
+				String downloadURL = downloadURLPrefix+ stmt.getSubject().toString().split("resource")[1]+ ".nt.gz";
 
 				String url = stmt.getObject().toString();
 				url = url.split("#")[0];
@@ -70,7 +71,7 @@ public class CLODFileParser implements FileParserInterface {
 				dataset.setDescriptionFileURL(URL);
 				dataset.setTitle(stmt.getObject().toString());
 				dataset.update(true);
-				// dataset.update(true, DatasetDB.URI, url);
+//				dataset.update(true, DatasetDB.URI, url);
 
 				DistributionDB distribution = new DistributionDB(url);
 				distribution.setDownloadUrl(downloadURL);
@@ -78,6 +79,7 @@ public class CLODFileParser implements FileParserInterface {
 				distribution.setTopDatasetTitle(url);
 				distribution.setTopDataset(dataset.getLODVaderID());
 				distribution.setIsVocabulary(false);
+				
 
 				ArrayList<Integer> defaultDatasets = new ArrayList<Integer>();
 				defaultDatasets.add(dataset.getLODVaderID());
@@ -87,9 +89,11 @@ public class CLODFileParser implements FileParserInterface {
 
 				StmtIterator otherIterator = inModel.listStatements(stmt.getSubject().asResource(), formatProp,
 						(RDFNode) null);
-				try {
-					distribution.setFormat("nt.gz");
-				} catch (NoSuchElementException e) {
+				try{
+				distribution.setFormat(
+						Formats.getEquivalentFormat("nt.gz"));
+				}
+				catch(NoSuchElementException e){
 					distribution.setFormat("");
 				}
 				distribution.update(true, DistributionDB.URI, url);
@@ -98,7 +102,7 @@ public class CLODFileParser implements FileParserInterface {
 				distributionList.add(distribution.getLODVaderID());
 				dataset.setDistributionsIds(defaultDatasets);
 				dataset.update(true);
-				// dataset.update(false, DatasetDB.URI, url);
+//				dataset.update(false, DatasetDB.URI, url);
 
 				distributionsLinks.add(dataset);
 
@@ -130,5 +134,7 @@ public class CLODFileParser implements FileParserInterface {
 			return "RDF/XML";
 
 	}
+	
+	
 
 }
