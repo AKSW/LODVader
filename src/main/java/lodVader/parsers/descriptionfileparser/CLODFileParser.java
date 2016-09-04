@@ -61,7 +61,7 @@ public class CLODFileParser implements FileParserInterface {
 
 			try {
 				
-				String downloadURL = downloadURLPrefix+ stmt.getSubject().toString().split("resource")[1]+ ".nt.gz";
+				String downloadURL = downloadURLPrefix+ stmt.getSubject().toString().split("resource")[1];
 
 				String url = stmt.getObject().toString();
 				url = url.split("#")[0];
