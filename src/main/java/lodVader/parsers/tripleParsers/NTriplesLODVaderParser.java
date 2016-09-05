@@ -102,10 +102,10 @@ public class NTriplesLODVaderParser extends RDFParserBase {
 
 			int showMsgInterval = 4;
 			int bufferCount = 0;
-			
+
 			Thread.sleep(400);
 
-			while (bufferQueue.size() > 0 ||  !doneReading) {
+			while (bufferQueue.size() > 0 || !doneReading) {
 				bufferCount++;
 
 				// shows buffer size each interval
@@ -150,8 +150,9 @@ public class NTriplesLODVaderParser extends RDFParserBase {
 							subjectStmt = matcher.group(1);
 							propertyStmt = matcher.group(2);
 							objectStmt = matcher.group(3);
-							if(objectStmt.contains(" "))
-								objectStmt = objectStmt.split(" ")[0].split(">")[0];
+							if (objectStmt.contains(" "))
+								if (objectStmt.contains("> <"))
+									objectStmt = objectStmt.split(" ")[0].split(">")[0];
 
 							splitAndStore.saveStatement(subjectStmt, propertyStmt, objectStmt);
 
