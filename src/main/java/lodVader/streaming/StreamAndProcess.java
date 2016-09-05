@@ -265,7 +265,6 @@ public class StreamAndProcess extends SuperStream {
 			Thread.sleep(10);
 		
 		makeLinksetFromSubjectsThread.interrupt();
-		System.out.println("5");
 		
 		makeLinksetFromObjectsThread.join();
 		makeLinksetFromSubjectsThread.join();
