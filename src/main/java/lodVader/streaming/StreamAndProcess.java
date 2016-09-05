@@ -8,7 +8,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -27,12 +26,12 @@ import org.openrdf.rio.turtle.TurtleParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.jsonldjava.impl.NQuadRDFParser;
+
 import lodVader.LODVaderProperties;
-import lodVader.Manager;
 import lodVader.enumerators.TuplePart;
 import lodVader.exceptions.LODVaderFormatNotAcceptedException;
 import lodVader.exceptions.LODVaderLODGeneralException;
-import lodVader.mongodb.collections.DatasetLinksetDB;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.RDFResources.allPredicates.AllPredicatesDB;
 import lodVader.mongodb.collections.RDFResources.allPredicates.AllPredicatesRelationDB;
@@ -45,7 +44,6 @@ import lodVader.mongodb.collections.RDFResources.rdfType.RDFTypeObjectRelationDB
 import lodVader.mongodb.collections.gridFS.ObjectsBucket;
 import lodVader.mongodb.collections.gridFS.SubjectsBucket;
 import lodVader.parsers.tripleParsers.NTriplesLODVaderParser;
-import lodVader.threads.MakeLinksetsMasterThread;
 import lodVader.threads.MakeLinksetsMasterThreadLDLEx;
 import lodVader.tupleManager.SplitAndProcess;
 import lodVader.tupleManager.SuperTupleManager;

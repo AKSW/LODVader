@@ -150,6 +150,8 @@ public class NTriplesLODVaderParser extends RDFParserBase {
 							subjectStmt = matcher.group(1);
 							propertyStmt = matcher.group(2);
 							objectStmt = matcher.group(3);
+							if(objectStmt.contains(" "))
+								objectStmt = objectStmt.split(" ")[0].split(">")[0];
 
 							splitAndStore.saveStatement(subjectStmt, propertyStmt, objectStmt);
 
