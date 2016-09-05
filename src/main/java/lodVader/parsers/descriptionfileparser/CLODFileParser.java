@@ -91,7 +91,7 @@ public class CLODFileParser implements FileParserInterface {
 						(RDFNode) null);
 				try{
 				distribution.setFormat(
-						Formats.getEquivalentFormat("nt.gz"));
+						Formats.getEquivalentFormat("nt"));
 				}
 				catch(NoSuchElementException e){
 					distribution.setFormat("");
