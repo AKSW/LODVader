@@ -138,10 +138,7 @@ public abstract class ProcessNSFromTupleLDLEX extends Thread {
 
 	public void run() {
 
-		logger.debug("Starting GetDomainsFromTriplesThread class.");
-		// Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
-
-		// while (!doneSplittingString) {
+		logger.info("Starting GetDomainsFromTriplesThread class: " + tuplePart.toString());
 
 		if (tuplePart.equals(TuplePart.OBJECT)) {
 			processResource(LoadedBloomFiltersCache.describedSubjectsNS);
@@ -149,14 +146,6 @@ public abstract class ProcessNSFromTupleLDLEX extends Thread {
 		} else {
 			processResource(LoadedBloomFiltersCache.describedObjectsNS);
 		}
-
-		// try {
-		// Thread.sleep(4);
-		// } catch (InterruptedException e1) {
-		// e1.printStackTrace();
-		// }
-
-		// }
 
 		try {
 			makeLinks(0);
@@ -199,7 +188,6 @@ public abstract class ProcessNSFromTupleLDLEX extends Thread {
 
 		try {
 			while (true) {
-
 				// get the resource of the triple
 				resource = resourceQueue.take();
 
@@ -253,7 +241,7 @@ public abstract class ProcessNSFromTupleLDLEX extends Thread {
 			}
 		} catch (InterruptedException e1) {
 			setDoneSplittingString(true);
-//			e1.printStackTrace();
+			// e1.printStackTrace();
 			return;
 		}
 

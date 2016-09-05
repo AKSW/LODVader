@@ -102,6 +102,8 @@ public class NTriplesLODVaderParser extends RDFParserBase {
 
 			int showMsgInterval = 4;
 			int bufferCount = 0;
+			
+			Thread.sleep(400);
 
 			while (bufferQueue.size() > 0 ||  !doneReading) {
 				bufferCount++;
@@ -111,7 +113,6 @@ public class NTriplesLODVaderParser extends RDFParserBase {
 					logger.debug("Buffer Streaming size: " + bufferQueue.size());
 
 				try {
-
 					// split queue line by line
 					String triples[];
 					triples = bufferQueue.take().split("\n");
@@ -129,7 +130,6 @@ public class NTriplesLODVaderParser extends RDFParserBase {
 
 						// if (!triple.startsWith("#")) {
 						try {
-
 							// Pattern pattern = Pattern
 							// .compile("^(<[^>]+>)\\s+(<[^>]+>)\\s(.*)(\\s\\.)");
 

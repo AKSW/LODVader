@@ -44,7 +44,7 @@ public class MakeLinksetsMasterThreadLDLEx extends ProcessNSFromTupleLDLEX {
 
 	@Override
 	public void makeLinks(final int treshold) {
-
+		
 		localNSCopy = chunkOfNS;
 		localNS0Copy = chunkOfNS0;
 		final HashMap<String, String> resourcesToBeProcessedQueueCopy = resourcesToBeProcessedBuffer;

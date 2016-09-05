@@ -52,6 +52,7 @@ public class Manager {
 			for (DistributionDB distribution : dataset.getDistributionsAsMongoDBObjects()) {
 
 				logger.info("Processing distribution: " + distribution.getUri());
+				logger.info("DownloadURL: " + distribution.getDownloadUrl());
 
 				distribution.setStatus(DistributionStatus.WAITING_TO_STREAM);
 
