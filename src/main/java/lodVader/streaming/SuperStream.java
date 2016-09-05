@@ -57,12 +57,19 @@ public abstract class SuperStream {
 	HttpURLConnection httpConn = null;
 
 	String accessURL = null;
+	
 
 	protected void getMetadataFromHTTPHeaders(HttpURLConnection httpConn) {
 
 		httpDisposition = httpConn.getHeaderField("Content-Disposition");
 		httpContentType = httpConn.getContentType();
 		httpContentLength = httpConn.getContentLength();
+		try{
+			setFileName(httpConn.getHeaderField("Content-Disposition").split("filename=")[1]);
+		}
+		catch(Exception e){
+			
+		}
 		if (httpConn.getLastModified() > 0)
 			httpLastModified = String.valueOf(httpConn.getLastModified());
 
