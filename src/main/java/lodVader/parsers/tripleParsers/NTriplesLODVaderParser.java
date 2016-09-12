@@ -10,6 +10,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
@@ -23,6 +24,7 @@ import lodVader.tupleManager.SuperTupleManager;
 public class NTriplesLODVaderParser extends RDFParserBase {
 
 	final static Logger logger = LoggerFactory.getLogger(RDFParserBase.class);
+	AtomicBoolean startedStreaming = new AtomicBoolean(false);
 
 	BlockingQueue<String> bufferQueue = new ArrayBlockingQueue<String>(100000);
 	volatile boolean doneReading = false;
@@ -48,6 +50,7 @@ public class NTriplesLODVaderParser extends RDFParserBase {
 						int sleeping = 0;
 
 						while ((nRead = new BufferedInputStream(inputStream).read(data, 0, data.length)) != -1) {
+							startedStreaming.set(true);
 							// bufferQueue.add(new String(data,
 							// StandardCharsets.UTF_8));
 							// if (++numberOfReadedResources % 1000 == 0) {
@@ -68,6 +71,7 @@ public class NTriplesLODVaderParser extends RDFParserBase {
 							// sleeping++;
 							// }
 						}
+						startedStreaming.set(true);
 						doneReading = true;
 					} catch (IOException e) {
 						doneReading = true;
@@ -101,9 +105,10 @@ public class NTriplesLODVaderParser extends RDFParserBase {
 			String lastLine = "";
 
 			int showMsgInterval = 4;
-			int bufferCount = 0;
-
-			Thread.sleep(400);
+			int bufferCount = -1;
+			// block this thread is the streaming process did not started yet
+			while(!startedStreaming.get())
+				Thread.sleep(5);
 
 			while (bufferQueue.size() > 0 || !doneReading) {
 				bufferCount++;
