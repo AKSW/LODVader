@@ -19,6 +19,7 @@ import org.openrdf.rio.RDFParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Component;
 
 import com.hp.hpl.jena.graph.Graph;
@@ -43,12 +44,7 @@ import lodVader.mongodb.collections.DatasetDB;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.RDFResources.allPredicates.AllPredicatesDB;
 import lodVader.mongodb.collections.RDFResources.allPredicates.AllPredicatesRelationDB;
-import lodVader.mongodb.collections.RDFResources.owlClass.OwlClassDB;
-import lodVader.mongodb.collections.RDFResources.owlClass.OwlClassRelationDB;
-import lodVader.mongodb.collections.RDFResources.rdfSubClassOf.RDFSubClassOfDB;
-import lodVader.mongodb.collections.RDFResources.rdfSubClassOf.RDFSubClassOfRelationDB;
 import lodVader.mongodb.collections.RDFResources.rdfType.RDFTypeObjectDB;
-import lodVader.mongodb.collections.RDFResources.rdfType.RDFTypeObjectRelationDB;
 import lodVader.mongodb.collections.gridFS.ObjectsBucket;
 import lodVader.mongodb.collections.gridFS.SubjectsBucket;
 import lodVader.streaming.SuperStream;
@@ -63,6 +59,22 @@ public class LOV extends SuperStream {
 	
 	@Autowired
 	Config conf;
+	
+	@Autowired
+	TaskExecutor makeLinksetsSubjectsTaskExecutor;
+	
+	@Autowired
+	TaskExecutor makeLinksetsObjectsTaskExecutor;
+	
+	@Autowired
+	TaskExecutor saveDistS;
+	
+	@Autowired
+	TaskExecutor saveDistO;
+	
+
+    @Autowired
+    private TaskExecutor taskExecutor;
 	
 	final static Logger logger = LoggerFactory.getLogger(LOV.class);
 
@@ -226,6 +238,7 @@ public class LOV extends SuperStream {
 				distribution.setStatus(DistributionStatus.WAITING_TO_STREAM);
 				distribution.db.update(true);
 
+				
 				MakeLinksetsMasterThreadLDLEx makeLinksetsSubjects = conf.getMakeLinksetsMasterThreadLDLEx();
 				makeLinksetsSubjects.init(subjectsQueue,
 						node.getNameSpace(), TuplePart.SUBJECT);
@@ -236,8 +249,12 @@ public class LOV extends SuperStream {
 				
 //				makeLinksetsObjects.tuplePart = TuplePart.OBJECT;
 //				makeLinksetsSubjects.tuplePart = TuplePart.SUBJECT; 
-				makeLinksetsSubjects.start();
-				makeLinksetsObjects.start();
+				
+//				makeLinksetsSubjects.start(); ciro can
+//				makeLinksetsObjects.start();
+				
+				makeLinksetsSubjectsTaskExecutor.execute(makeLinksetsSubjects);
+				makeLinksetsObjectsTaskExecutor.execute(makeLinksetsObjects);
 
 				Thread.sleep(50);
 				
@@ -268,13 +285,13 @@ public class LOV extends SuperStream {
 		Timer t = new Timer();
 		t.startTimer();
 		SubjectsBucket s = new SubjectsBucket(new TreeSet<String>(subjects), distribution.getLODVaderID());
-		s.start();
+		saveDistS.execute(s);
 		String timer1 = t.stopTimer();
 
 		Timer t2 = new Timer();
 		t.startTimer();
 		ObjectsBucket o = new ObjectsBucket(new TreeSet<String>(objects), distribution.getLODVaderID());
-		o.start();
+		saveDistO.execute(o);
 		String timer2 = t2.stopTimer();
 		
 		s.join();

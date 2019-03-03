@@ -12,30 +12,33 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.task.TaskExecutor;
 
-import ldlex.seeder.MapperService;
 import lodVader.configuration.LODVaderProperties;
 import lodVader.enumerators.TuplePart;
 import lodVader.mongodb.collections.DistributionDB;
 
 public class MakeLinksetsMasterThreadLDLEx extends ProcessNSFromTupleLDLEX {
 
+	@Autowired
+	TaskExecutor taskExecutor;
+
 	/**
 	 * Create linksets for a distribution
 	 * 
-	 * @param resourceQueue
-	 *            string queue of objects or subjects resources
-	 * @param uri
-	 *            of the distribution (usually the distribution URL)
+	 * @param resourceQueue string queue of objects or subjects resources
+	 * @param uri           of the distribution (usually the distribution URL)
 	 * @throws MalformedURLException
 	 */
 //	public MakeLinksetsMasterThreadLDLEx(BlockingQueue<String> resourceQueue, String uri, TuplePart tuplePart)
 //			throws MalformedURLException {
 //	super(resourceQueue, uri,tuplePart);	
 //	}
-	
-	public void init(BlockingQueue<String> resourceQueue, String uri, TuplePart tuplePart) throws MalformedURLException {
-		super.init(resourceQueue, uri,tuplePart);
+
+	public void init(BlockingQueue<String> resourceQueue, String uri, TuplePart tuplePart)
+			throws MalformedURLException {
+		super.init(resourceQueue, uri, tuplePart);
 	}
 
 	final static Logger logger = LoggerFactory.getLogger(MakeLinksetsMasterThreadLDLEx.class);
@@ -47,7 +50,7 @@ public class MakeLinksetsMasterThreadLDLEx extends ProcessNSFromTupleLDLEX {
 
 	@Override
 	public void makeLinks(final int treshold) {
-		
+
 		localNSCopy = chunkOfNS;
 		localNS0Copy = chunkOfNS0;
 		final HashMap<String, String> resourcesToBeProcessedQueueCopy = resourcesToBeProcessedBuffer;
@@ -61,7 +64,6 @@ public class MakeLinksetsMasterThreadLDLEx extends ProcessNSFromTupleLDLEX {
 		try {
 			Thread t = new Thread(new Runnable() {
 				public void run() {
-
 
 					numberThreadsWaiting.incrementAndGet();
 					while (numberOfMakeLinksActiveThreads.get() >= 1) {
@@ -124,7 +126,7 @@ public class MakeLinksetsMasterThreadLDLEx extends ProcessNSFromTupleLDLEX {
 									mapOfWorkerThreads.put(targetDistributionID,
 											new LinksetDataThreadLDLEx(targetDistribution, tuplePart));
 
-									mapOfWorkerThreads.get(targetDistributionID).resources.put(ns,nsLists.get(ns)); 
+									mapOfWorkerThreads.get(targetDistributionID).resources.put(ns, nsLists.get(ns));
 									distributionStatus.put(targetDistributionID, 2);
 
 								} else if (distributionStatus.get(targetDistributionID) == 1) {
@@ -140,7 +142,7 @@ public class MakeLinksetsMasterThreadLDLEx extends ProcessNSFromTupleLDLEX {
 
 								} else if (distributionStatus.get(targetDistributionID) == 2) {
 									// add resource to the correct distribution
-									mapOfWorkerThreads.get(targetDistributionID).resources.put(ns,nsLists.get(ns));
+									mapOfWorkerThreads.get(targetDistributionID).resources.put(ns, nsLists.get(ns));
 //									mapOfWorkerThreads.get(targetDistributionID).resources.add(resource);
 
 									// while
@@ -236,7 +238,7 @@ public class MakeLinksetsMasterThreadLDLEx extends ProcessNSFromTupleLDLEX {
 					// String[] buffer = new String[bufferSize];
 
 					if (mapOfWorkerThreads.size() > 0) {
-						
+
 						ExecutorService executor = Executors.newFixedThreadPool(7);
 
 						int threadIndex = 0;
@@ -304,7 +306,7 @@ public class MakeLinksetsMasterThreadLDLEx extends ProcessNSFromTupleLDLEX {
 			threadNumber++;
 			t.setName("MakingLinksets:" + (threadNumber) + ":" + distribution.getUri());
 			mapOfThreads.put("MakingLinksets:" + (threadNumber) + ":" + distribution.getUri(), t);
-			
+
 //			while (numberThreadsWaiting.get() >= 50) {
 //
 //				try {
@@ -315,7 +317,7 @@ public class MakeLinksetsMasterThreadLDLEx extends ProcessNSFromTupleLDLEX {
 //				}
 //			}
 
-			t.start();
+			taskExecutor.execute(t);
 
 		} catch (
 

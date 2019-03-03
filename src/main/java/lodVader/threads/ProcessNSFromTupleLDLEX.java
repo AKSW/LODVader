@@ -29,7 +29,8 @@ import lodVader.mongodb.queries.DistributionQueries;
 import lodVader.utils.NSUtils;
 import lodVader.utils.Timer;
 
-public abstract class ProcessNSFromTupleLDLEX extends Thread {
+ public abstract class ProcessNSFromTupleLDLEX extends Thread { //CIRO CAN
+//	public abstract class ProcessNSFromTupleLDLEX {
 	
 	@Autowired
 	Config conf;

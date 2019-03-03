@@ -25,9 +25,9 @@ import org.openrdf.rio.rdfxml.RDFXMLParser;
 import org.openrdf.rio.turtle.TurtleParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import com.github.jsonldjava.impl.NQuadRDFParser;
-
+import lodVader.configuration.Config;
 import lodVader.configuration.LODVaderProperties;
 import lodVader.enumerators.TuplePart;
 import lodVader.exceptions.LODVaderFormatNotAcceptedException;
@@ -51,6 +51,9 @@ import lodVader.utils.FileUtils;
 import lodVader.utils.Formats;
 
 public class StreamAndProcess extends SuperStream {
+	
+	@Autowired
+	Config conf;
 
 	final static Logger logger = LoggerFactory.getLogger(StreamAndProcess.class);
 
