@@ -339,7 +339,8 @@ public abstract class ProcessNSFromTupleLDLEX extends Thread {
 			DistributionSubjectNSDB d = conf.getDistributionSubjectNSDB();
 			d.bulkSave(countTotalNS, distribution);
 		} else {
-			DistributionObjectNSDB d = new DistributionObjectNSDB();
+			
+			DistributionObjectNSDB d = conf.getDistributionObjectNSDB();
 			d.bulkSave(countTotalNS, distribution);
 		}
 		return true;

@@ -15,6 +15,7 @@ import java.util.TreeSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.code.externalsorting.ExternalSort;
 import com.mongodb.BasicDBList;
@@ -25,14 +26,17 @@ import com.mongodb.gridfs.GridFSInputFile;
 
 import lodVader.bloomfilters.BloomFilterI;
 import lodVader.bloomfilters.impl.BloomFilterFactory;
+import lodVader.configuration.Config;
 import lodVader.configuration.LODVaderProperties;
 import lodVader.exceptions.LODVaderLODGeneralException;
-import lodVader.linksets.DistributionBloomFilterContainer;
 import lodVader.mongodb.DBSuperClass2;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.queries.DatasetQueries;
 
 public class SuperBucket extends Thread {
+	
+	@Autowired
+	Config conf;
 
 	final static Logger logger = LoggerFactory.getLogger(SuperBucket.class);
 
@@ -146,9 +150,10 @@ public class SuperBucket extends Thread {
 						}
 					}
 					
-					DistributionDB distribution = new DistributionDB(this.distributionID);
+					DistributionDB distribution = conf.getDistributionDB();
+					distribution.init(this.distributionID);
 					distribution.setObjectCohesion(objectCohesion);
-					distribution.update(false);
+					distribution.db.update(false);
 					
 				}
 				f.close();
@@ -165,7 +170,7 @@ public class SuperBucket extends Thread {
 	}
 
 	private void removeBFs(int distributionID) {
-		GridFS gridFS = new GridFS(DBSuperClass2.getDBInstance(), COLLECTION_NAME);
+		GridFS gridFS = new GridFS(conf.getDBSuperClass2().getDBInstance(), COLLECTION_NAME);
 		gridFS.remove(new BasicDBObject(DISTRIBUTION_ID, distributionID));
 	}
 
@@ -196,7 +201,7 @@ public class SuperBucket extends Thread {
 			e1.printStackTrace();
 		}
 
-		GridFS gfs = new GridFS(DBSuperClass2.getDBInstance(), COLLECTION_NAME);
+		GridFS gfs = new GridFS(conf.getDBSuperClass2().getDBInstance(), COLLECTION_NAME);
 		GridFSInputFile gfsFile;
 		try {
 			gfsFile = gfs.createFile(new BufferedInputStream(new ByteArrayInputStream(out.toByteArray())));
@@ -219,7 +224,7 @@ public class SuperBucket extends Thread {
 	// public void query(){
 	public boolean query(int distributionID) {
 
-		GridFS gfsFile = new GridFS(DBSuperClass2.getDBInstance(), COLLECTION_NAME);
+		GridFS gfsFile = new GridFS(conf.getDBSuperClass2().getDBInstance(), COLLECTION_NAME);
 
 		boolean result = false;
 
@@ -253,7 +258,7 @@ public class SuperBucket extends Thread {
 
 	public BloomFilterI getFilter() {
 
-		GridFS gfs = new GridFS(DBSuperClass2.getDBInstance(), COLLECTION_NAME);
+		GridFS gfs = new GridFS(conf.getDBSuperClass2().getDBInstance(), COLLECTION_NAME);
 
 		BasicDBObject firstResource = new BasicDBObject(FIRST_RESOURCE, new BasicDBObject("$lte", resource));
 		BasicDBObject lastResource = new BasicDBObject(LAST_RESOURCE, new BasicDBObject("$gte", resource));
@@ -290,7 +295,7 @@ public class SuperBucket extends Thread {
 		ArrayList<SuperBucket> result = new ArrayList<SuperBucket>();
 
 		// get collection
-		GridFS gfs = new GridFS(DBSuperClass2.getDBInstance(), COLLECTION_NAME);
+		GridFS gfs = new GridFS(conf.getDBSuperClass2().getDBInstance(), COLLECTION_NAME);
 
 		// create query
 		BasicDBObject in = new BasicDBObject("$in", distributionsIDs);

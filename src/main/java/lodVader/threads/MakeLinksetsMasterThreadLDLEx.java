@@ -94,7 +94,7 @@ public class MakeLinksetsMasterThreadLDLEx extends ProcessNSFromTupleLDLEX {
 
 					// Update namespace - distribution map
 					if (nsToSearch.size() > 0)
-						new MapperService().updateMapping(nsToSearch, tuplePart, mapper);
+						conf.getMapperService().updateMapping(nsToSearch, tuplePart, mapper);
 
 					for (String resource : resourcesToBeProcessedQueueCopy.keySet()) {
 						String ns = resourcesToBeProcessedQueueCopy.get(resource);
@@ -118,7 +118,8 @@ public class MakeLinksetsMasterThreadLDLEx extends ProcessNSFromTupleLDLEX {
 
 								// if the distribution has not been loaded
 								if (distributionStatus.get(targetDistributionID) == null) {
-									DistributionDB targetDistribution = new DistributionDB(targetDistributionID);
+									DistributionDB targetDistribution = conf.getDistributionDB();
+									targetDistribution.init(targetDistributionID);
 									distributionStatus.put(targetDistributionID, 1);
 									mapOfWorkerThreads.put(targetDistributionID,
 											new LinksetDataThreadLDLEx(targetDistribution, tuplePart));

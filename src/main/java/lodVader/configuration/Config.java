@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.data.mongodb.MongoDbFactory;
 
+import ldlex.seeder.MapperService;
 import lodVader.mongodb.DBSuperClass2;
 import lodVader.mongodb.collections.DatasetDB;
 import lodVader.mongodb.collections.DistributionDB;
@@ -165,5 +166,10 @@ public class Config{
 		return new DistributionObjectNSDB(getDBSuperClass2());
 	}
 	
+	@Bean
+	@Scope(value = "prototype")	
+	public MapperService getMapperService() {
+		return new MapperService();
+	}
 	
 }
