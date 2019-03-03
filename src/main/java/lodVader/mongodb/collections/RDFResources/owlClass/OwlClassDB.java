@@ -3,23 +3,30 @@ package lodVader.mongodb.collections.RDFResources.owlClass;
 import java.util.Iterator;
 import java.util.Set;
 
-import lodVader.exceptions.LODVaderLODGeneralException;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import lodVader.configuration.Config;
+import lodVader.mongodb.DBSuperClass2;
 import lodVader.mongodb.collections.RDFResources.GeneralRDFResourceDB;
 
 public class OwlClassDB extends GeneralRDFResourceDB{
+	
+	@Autowired
+	Config conf;
 
 	public static final String COLLECTION_NAME = "OWLClasses";
 
-	public OwlClassDB() {
-		super(COLLECTION_NAME); 
+	public OwlClassDB(DBSuperClass2 db) {
+		super(db); 
+		super.init(COLLECTION_NAME);
+	}	
+	
+	public  void init(int lodVaderId) {
+		super.init(COLLECTION_NAME, lodVaderId);
 	}
 	
-	public OwlClassDB(int lodVaderId) {
-		super(COLLECTION_NAME, lodVaderId);
-	}
-	
-	public OwlClassDB(String url) {
-		super(COLLECTION_NAME,url);
+	public  void init(String url) {
+		super.init(COLLECTION_NAME, url);
 	}
 
 
@@ -28,9 +35,10 @@ public class OwlClassDB extends GeneralRDFResourceDB{
 		Iterator<String> i = set.iterator();
 		OwlClassDB t = null;
 		while(i.hasNext()){ 
-			t=new OwlClassDB(i.next()); 
+			t= conf.getOwlClassDB();
+			t.init(i.next());
 			try {
-				t.update(true);
+				t.db.update(true);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

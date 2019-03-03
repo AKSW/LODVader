@@ -233,6 +233,7 @@ public class LOV extends SuperStream {
 				MakeLinksetsMasterThreadLDLEx makeLinksetsObjects = conf.getMakeLinksetsMasterThreadLDLEx();
 				makeLinksetsObjects.init(objectsQueue,
 						node.getNameSpace(), TuplePart.OBJECT);
+				
 //				makeLinksetsObjects.tuplePart = TuplePart.OBJECT;
 //				makeLinksetsSubjects.tuplePart = TuplePart.SUBJECT; 
 				makeLinksetsSubjects.start();
@@ -308,25 +309,32 @@ public class LOV extends SuperStream {
 
 		logger.info("Saving predicates...");
 
-		new AllPredicatesDB().insertSet(allPredicates.keySet());
-		new AllPredicatesRelationDB().insertSet(allPredicates, distribution.getLODVaderID(),
+		AllPredicatesDB a = conf.getAllPredicatesDB();
+		a.insertSet(allPredicates.keySet());
+		AllPredicatesRelationDB apr = conf.getAllPredicatesRelationDB();
+		apr.insertSet(allPredicates, distribution.getLODVaderID(),
 				distribution.getTopDatasetID());
 
 		logger.info("Saving RDF type objects...");
-		new RDFTypeObjectDB().insertSet(rdfTypeObjects.keySet());
-		new RDFTypeObjectRelationDB().insertSet(rdfTypeObjects, distribution.getLODVaderID(),
+		RDFTypeObjectDB rto = conf.getRDFTypeObjectDB();
+		rto.insertSet(rdfTypeObjects.keySet());
+		
+		
+		conf.getRDFTypeObjectRelationDB().insertSet(rdfTypeObjects, distribution.getLODVaderID(),
 				distribution.getTopDatasetID());
 
 		logger.info("Saving subClassOf...");
-		new RDFSubClassOfDB().insertSet(rdfSubClassOf.keySet());
-		new RDFSubClassOfRelationDB().insertSet(rdfSubClassOf, distribution.getLODVaderID(),
+		
+		conf.getRDFSubClassOfDB().insertSet(rdfSubClassOf.keySet());
+		
+		conf.getRDFSubClassOfRelationDB().insertSet(rdfSubClassOf, distribution.getLODVaderID(),
 				distribution.getTopDatasetID());
 		// new RDFTypeSubjectRelationDB().insertSet(rdfTypeSubjects,
 		// distribution.getDynLodID(), distribution.getTopDataset());
 
 		logger.info("Saving OWL classes...");
 		// Saving OWL classes
-		new OwlClassDB().insertSet(owlClasses.keySet());
+		conf.getOwlClassDB().insertSet(owlClasses.keySet());
 		new OwlClassRelationDB().insertSet(owlClasses, distribution.getLODVaderID(), distribution.getTopDatasetID());
 
 		// new OWLClassQueries().insertOWLClasses(owlClasses,

@@ -3,11 +3,14 @@ package lodVader.mongodb.collections.RDFResources.allPredicates;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
+import lodVader.configuration.Config;
 import lodVader.exceptions.LODVaderMissingPropertiesException;
 import lodVader.exceptions.mongodb.LODVaderNoPKFoundException;
 import lodVader.exceptions.mongodb.LODVaderObjectAlreadyExistsException;
@@ -16,19 +19,26 @@ import lodVader.mongodb.collections.RDFResources.GeneralRDFResourceRelationDB;
 
 public class AllPredicatesRelationDB extends GeneralRDFResourceRelationDB{
 	
+	@Autowired 
+	Config conf;
+	
 	public static final String COLLECTION_NAME = "allPredicatesResource";
-
-	public AllPredicatesRelationDB(String id) {
-		super(COLLECTION_NAME, id);
-	}
-
-	public AllPredicatesRelationDB() {
-		super(COLLECTION_NAME);
+	
+	public AllPredicatesRelationDB(DBSuperClass2 db) {
+		super(db);
 	}
 	
-	public AllPredicatesRelationDB(DBObject object) {
-		super(COLLECTION_NAME);
-		mongoDBObject = object;
+	public void init(String id) {
+		init(COLLECTION_NAME, id);
+	}
+
+	public void init() {
+		init(COLLECTION_NAME);
+	}
+	
+	public void init(DBObject object) {
+		init(COLLECTION_NAME);
+		super.db.mongoDBObject = object;
 	}
 	
 	
@@ -38,15 +48,17 @@ public class AllPredicatesRelationDB extends GeneralRDFResourceRelationDB{
 	 */
 	public void insertSet(HashMap<String, Integer> set, int distributionLODVaderID, int topDatasetLODVaderID){
 		for(String object : set.keySet()){
-			AllPredicatesDB p = new AllPredicatesDB(object);
+			AllPredicatesDB p = conf.getAllPredicatesDB();
+			p.init(object);
 			try {
-				p.update(true);
-				AllPredicatesRelationDB pr = new AllPredicatesRelationDB(p.getLodVaderID()+"-"+distributionLODVaderID+"-"+topDatasetLODVaderID);
+				p.db.update(true);
+				AllPredicatesRelationDB pr = conf.getAllPredicatesRelationDB();
+				pr.init(p.getLodVaderID()+"-"+distributionLODVaderID+"-"+topDatasetLODVaderID);
 				pr.setDatasetID(topDatasetLODVaderID);
 				pr.setDistributionID(distributionLODVaderID); 
 				pr.setPredicateID(p.getLodVaderID());
 				pr.setAmount(set.get(object));
-				pr.update(true);
+				pr.db.update(true);
 			} catch (LODVaderMissingPropertiesException | LODVaderObjectAlreadyExistsException | LODVaderNoPKFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -65,7 +77,7 @@ public class AllPredicatesRelationDB extends GeneralRDFResourceRelationDB{
 		
 		HashSet<String> result = new HashSet<String>();
 		try {
-			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(
+			DBCollection collection = db.getCollection(
 					AllPredicatesRelationDB.COLLECTION_NAME);
 
 			// get all objects domain of a distribution

@@ -9,7 +9,16 @@ import lodVader.mongodb.DBSuperClass2;
 import lodVader.mongodb.collections.DatasetDB;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.LODVaderCounterDB;
+import lodVader.mongodb.collections.LinksetDB;
 import lodVader.mongodb.collections.SystemPropertiesDB;
+import lodVader.mongodb.collections.RDFResources.GeneralRDFResourceRelationDB;
+import lodVader.mongodb.collections.RDFResources.allPredicates.AllPredicatesDB;
+import lodVader.mongodb.collections.RDFResources.allPredicates.AllPredicatesRelationDB;
+import lodVader.mongodb.collections.RDFResources.owlClass.OwlClassDB;
+import lodVader.mongodb.collections.RDFResources.rdfSubClassOf.RDFSubClassOfDB;
+import lodVader.mongodb.collections.RDFResources.rdfSubClassOf.RDFSubClassOfRelationDB;
+import lodVader.mongodb.collections.RDFResources.rdfType.RDFTypeObjectDB;
+import lodVader.mongodb.collections.RDFResources.rdfType.RDFTypeObjectRelationDB;
 import lodVader.threads.MakeLinksetsMasterThreadLDLEx;
 
 @Configuration
@@ -65,5 +74,60 @@ public class Config{
 	public MakeLinksetsMasterThreadLDLEx getMakeLinksetsMasterThreadLDLEx() {
 		return new MakeLinksetsMasterThreadLDLEx();
 	}	
+
+	@Bean
+	@Scope(value = "prototype")	
+	public AllPredicatesDB getAllPredicatesDB() {
+		return new AllPredicatesDB(getDBSuperClass2());
+	}	
+	
+	@Bean
+	@Scope(value = "prototype")	
+	public AllPredicatesRelationDB getAllPredicatesRelationDB() {
+		return new AllPredicatesRelationDB(getDBSuperClass2());
+	}	
+
+	@Bean
+	@Scope(value = "prototype")	
+	public GeneralRDFResourceRelationDB getGeneralRDFResourceRelationDB() {
+		return new GeneralRDFResourceRelationDB(getDBSuperClass2());
+	}	
+	
+	@Bean
+	@Scope(value = "prototype")	
+	public RDFTypeObjectDB getRDFTypeObjectDB() {
+		return new RDFTypeObjectDB(getDBSuperClass2());
+	}	
+		
+	@Bean
+	@Scope(value = "prototype")	
+	public RDFTypeObjectRelationDB getRDFTypeObjectRelationDB() {
+		return new RDFTypeObjectRelationDB(getDBSuperClass2());
+	}	
+		
+	@Bean
+	@Scope(value = "prototype")	
+	public RDFSubClassOfDB getRDFSubClassOfDB() {
+		return new RDFSubClassOfDB(getDBSuperClass2());
+	}		
+	
+	@Bean
+	@Scope(value = "prototype")	
+	public RDFSubClassOfRelationDB getRDFSubClassOfRelationDB() {
+		return new RDFSubClassOfRelationDB(getDBSuperClass2());
+	}	
+	
+	@Bean
+	@Scope(value = "prototype")	
+	public LinksetDB getLinksetDBB() {
+		return new LinksetDB(getDBSuperClass2());
+	}	
+	
+	@Bean
+	@Scope(value = "prototype")	
+	public OwlClassDB getOwlClassDB() {
+		return new OwlClassDB(getDBSuperClass2());
+	}	
+		
 	
 }

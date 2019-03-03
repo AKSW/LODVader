@@ -7,14 +7,15 @@ import com.mongodb.DBObject;
 import lodVader.mongodb.DBSuperClass2;
 import lodVader.mongodb.collections.toplinks.TopValidLinks;
 
-public class LinksetDB extends DBSuperClass2 {
+public class LinksetDB {
+	
+	DBSuperClass2 db;
 
-	public LinksetDB() {
-		super(COLLECTION_NAME);
-		initializeVariables();
-
+	public LinksetDB(DBSuperClass2 db) {
+		this.db = db;
+		this.db.COLLECTION_NAME = COLLECTION_NAME;
 	}
-
+	
 	// Collection name
 	public static final String COLLECTION_NAME = "Linkset";
 
@@ -47,27 +48,25 @@ public class LinksetDB extends DBSuperClass2 {
 
 	public static final String LINK_NUMBER_LINKS = "links";
 
-	public LinksetDB(DBObject object) {
-		super(COLLECTION_NAME);
+	public void init(DBObject object) {
 		initializeVariables();
-		mongoDBObject = object;
+		db.mongoDBObject = object;
 	}
 
-	public LinksetDB(String id) {
-		super(COLLECTION_NAME);
+	public void init(String id) {
 		initializeVariables();
 		setLinksetID(id);
-		find(true);
+		db.find(true);
 	}
 
 	private void initializeVariables() {
-		addPK(LINKSET_ID);
-		addMandatoryField(LINKSET_ID);
-		addMandatoryField(DISTRIBUTION_SOURCE);
-		addMandatoryField(DISTRIBUTION_TARGET);
-		addMandatoryField(DATASET_SOURCE);
-		addMandatoryField(DATASET_TARGET);
-		addMandatoryField(LINK_NUMBER_LINKS);
+		db.addPK(LINKSET_ID);
+		db.addMandatoryField(LINKSET_ID);
+		db.addMandatoryField(DISTRIBUTION_SOURCE);
+		db.addMandatoryField(DISTRIBUTION_TARGET);
+		db.addMandatoryField(DATASET_SOURCE);
+		db.addMandatoryField(DATASET_TARGET);
+		db.addMandatoryField(LINK_NUMBER_LINKS);
 		// addMandatoryField(LINK_STRENGHT);
 		// addMandatoryField(INVALID_LINKS);
 		// addMandatoryField(PREDICATE_SIMILARITY);
@@ -77,48 +76,48 @@ public class LinksetDB extends DBSuperClass2 {
 	}
 
 	public int getDistributionTarget() {
-		return Integer.parseInt(getField(DISTRIBUTION_TARGET).toString());
+		return Integer.parseInt(db.getField(DISTRIBUTION_TARGET).toString());
 	}
 
 	public void setDistributionTarget(int distributionTarget) {
-		addField(DISTRIBUTION_TARGET, distributionTarget);
+		db.addField(DISTRIBUTION_TARGET, distributionTarget);
 	}
 
 	public String getLinksetID() {
-		return getField(LINKSET_ID).toString();
+		return db.getField(LINKSET_ID).toString();
 	}
 
 	public void setLinksetID(String id) {
-		addField(LINKSET_ID, id);
+		db.addField(LINKSET_ID, id);
 	}
 
 	public int getDistributionSource() {
-		return Integer.parseInt(getField(DISTRIBUTION_SOURCE).toString());
+		return Integer.parseInt(db.getField(DISTRIBUTION_SOURCE).toString());
 	}
 
 	public void setDistributionSource(int distributionSource) {
-		addField(DISTRIBUTION_SOURCE, distributionSource);
+		db.addField(DISTRIBUTION_SOURCE, distributionSource);
 	}
 
 	public int getDatasetTarget() {
-		return Integer.parseInt(getField(DATASET_TARGET).toString());
+		return Integer.parseInt(db.getField(DATASET_TARGET).toString());
 	}
 
 	public void setDatasetTarget(int datasetTarget) {
-		addField(DATASET_TARGET, datasetTarget);
+		db.addField(DATASET_TARGET, datasetTarget);
 	}
 
 	public int getDatasetSource() {
-		return Integer.parseInt(getField(DATASET_SOURCE).toString());
+		return Integer.parseInt(db.getField(DATASET_SOURCE).toString());
 	}
 
 	public void setDatasetSource(int datasetSource) {
-		addField(DATASET_SOURCE, datasetSource);
+		db.addField(DATASET_SOURCE, datasetSource);
 	}
 
 	public int getLinks() {
 		try {
-			return Integer.parseInt(getField(LINK_NUMBER_LINKS).toString());
+			return Integer.parseInt(db.getField(LINK_NUMBER_LINKS).toString());
 		} catch (NullPointerException e) {
 			setLinks(0);
 			return 0;
@@ -126,88 +125,88 @@ public class LinksetDB extends DBSuperClass2 {
 	}
 
 	public String getLinksAsString() {
-		return String.valueOf(getField(LINK_NUMBER_LINKS));
+		return String.valueOf(db.getField(LINK_NUMBER_LINKS));
 	}
 
 	public void setLinks(int links) {
-		addField(LINK_NUMBER_LINKS, links);
+		db.addField(LINK_NUMBER_LINKS, links);
 	}
 
 	public void setDistributionTargetIsVocabulary(Boolean isVocabulary) {
-		addField(DISTRIBUTION_TARGET_IS_VOCABULARY, isVocabulary);
+		db.addField(DISTRIBUTION_TARGET_IS_VOCABULARY, isVocabulary);
 	}
 
 	public void setDistributionSourceIsVocabulary(Boolean isVocabulary) {
-		addField(DISTRIBUTION_SOURCE_IS_VOCABULARY, isVocabulary);
+		db.addField(DISTRIBUTION_SOURCE_IS_VOCABULARY, isVocabulary);
 	}
 
 	public Boolean getDistributionTargetIsVocabulary() {
-		return (Boolean) getField(DISTRIBUTION_TARGET_IS_VOCABULARY);
+		return (Boolean) db.getField(DISTRIBUTION_TARGET_IS_VOCABULARY);
 	}
 
 	public Boolean getDistributionSourceIsVocabulary() {
-		return (Boolean) getField(DISTRIBUTION_SOURCE_IS_VOCABULARY);
+		return (Boolean) db.getField(DISTRIBUTION_SOURCE_IS_VOCABULARY);
 	}
 
 	public int getInvalidLinks() {
 		try {
-			return Integer.parseInt(getField(INVALID_LINKS).toString());
+			return Integer.parseInt(db.getField(INVALID_LINKS).toString());
 		} catch (NullPointerException e) {
 			return 0;
 		}
 	}
 
 	public String getInvalidLinksAsString() {
-		return String.valueOf(getField(INVALID_LINKS));
+		return String.valueOf(db.getField(INVALID_LINKS));
 	}
 
 	public void setInvalidLinks(int invalidLinks) {
-		addField(INVALID_LINKS, invalidLinks);
+		db.addField(INVALID_LINKS, invalidLinks);
 	}
 
 	public double getPredicateSimilarity() {
 		try {
-			return Double.parseDouble(getField(PREDICATE_SIMILARITY).toString());
+			return Double.parseDouble(db.getField(PREDICATE_SIMILARITY).toString());
 		} catch (NullPointerException e) {
 			return 0;
 		}
 	}
 
 	public String getPredicatesSimilarityAsString() {
-		return String.valueOf(getField(PREDICATE_SIMILARITY));
+		return String.valueOf(db.getField(PREDICATE_SIMILARITY));
 	}
 
 	public void setPredicateSimilarity(double similarity) {
-		addField(PREDICATE_SIMILARITY, similarity);
+		db.addField(PREDICATE_SIMILARITY, similarity);
 	}
 
 	public double getOwlClassSimilarity() {
 		try {
-			return Double.parseDouble(getField(OWL_CLASS_SIMILARITY).toString());
+			return Double.parseDouble(db.getField(OWL_CLASS_SIMILARITY).toString());
 		} catch (NullPointerException e) {
 			return 0;
 		}
 	}
 
 	public void setOwlClassSimilarity(double owlClassSimilarity) {
-		addField(OWL_CLASS_SIMILARITY, owlClassSimilarity);
+		db.addField(OWL_CLASS_SIMILARITY, owlClassSimilarity);
 	}
 
 	public double getRdfTypeSimilarity() {
 		try {
-			return Double.parseDouble(getField(RDF_TYPE_SIMILARITY).toString());
+			return Double.parseDouble(db.getField(RDF_TYPE_SIMILARITY).toString());
 		} catch (NullPointerException e) {
 			return 0;
 		}
 	}
 
 	public void setRdfTypeSimilarity(double rdfTypeSimilarity) {
-		addField(RDF_TYPE_SIMILARITY, rdfTypeSimilarity);
+		db.addField(RDF_TYPE_SIMILARITY, rdfTypeSimilarity);
 	}
 
 	public double getRdfSubClassSimilarity() {
 		try {
-			return Double.parseDouble(getField(RDF_SUBCLASS_SIMILARITY).toString());
+			return Double.parseDouble(db.getField(RDF_SUBCLASS_SIMILARITY).toString());
 		} catch (NullPointerException e) {
 			setRdfSubClassSimilarity(0);
 			return 0;
@@ -216,23 +215,23 @@ public class LinksetDB extends DBSuperClass2 {
 	}
 
 	public void setRdfSubClassSimilarity(double rdfSubClassSimilarity) {
-		addField(RDF_SUBCLASS_SIMILARITY, rdfSubClassSimilarity);
+		db.addField(RDF_SUBCLASS_SIMILARITY, rdfSubClassSimilarity);
 	}
 
 	public double getStrength() {
 		try {
-			return Double.parseDouble(getField(LINK_STRENGHT).toString());
+			return Double.parseDouble(db.getField(LINK_STRENGHT).toString());
 		} catch (NullPointerException e) {
 			return 0;
 		}
 	}
 
 	public String getStrengthAsString() {
-		return String.valueOf(getField(LINK_STRENGHT));
+		return String.valueOf(db.getField(LINK_STRENGHT));
 	}
 
 	public void setStrength(double strength) {
-		addField(LINK_STRENGHT, strength);
+		db.addField(LINK_STRENGHT, strength);
 	}
 
 	public void removeAllLinks(int distributionID) {
@@ -241,7 +240,7 @@ public class LinksetDB extends DBSuperClass2 {
 		BasicDBList or = new BasicDBList();
 		or.add(query);
 		or.add(query2);
-		DBSuperClass2.getDBInstance().getCollection(LinksetDB.COLLECTION_NAME).remove(new BasicDBObject("$or", or));
+		db.getCollection(LinksetDB.COLLECTION_NAME).remove(new BasicDBObject("$or", or));
 
 		query = new BasicDBObject(TopValidLinks.SOURCE_DISTRIBUTION_ID, distributionID);
 		query2 = new BasicDBObject(TopValidLinks.TARGET_DISTRIBUTION_ID, distributionID);
@@ -249,7 +248,7 @@ public class LinksetDB extends DBSuperClass2 {
 		or.add(query);
 		or.add(query2);
 
-		DBSuperClass2.getDBInstance().getCollection(TopValidLinks.COLLECTION_NAME).remove(new BasicDBObject("$or", or));
+		db.getCollection(TopValidLinks.COLLECTION_NAME).remove(new BasicDBObject("$or", or));
 
 	}
 

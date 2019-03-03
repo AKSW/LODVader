@@ -6,15 +6,23 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
+import lodVader.configuration.Config;
 import lodVader.mongodb.DBSuperClass2;
 
-public class GeneralRDFResourceRelationDB extends DBSuperClass2{
+public class GeneralRDFResourceRelationDB{
+	
+	@Autowired
+	Config conf;
+	
+	public DBSuperClass2 db;
 	
 	public static final String PREDICATE_ID = "predicateID";
 
@@ -29,73 +37,75 @@ public class GeneralRDFResourceRelationDB extends DBSuperClass2{
 	public static String COLLECTION_NAME;
 
 	
-	public GeneralRDFResourceRelationDB(String collection, DBObject obj) {
-		super(collection,obj);
-		setParameters();
-		COLLECTION_NAME = collection;
+	public GeneralRDFResourceRelationDB(DBSuperClass2 db){
+		this.db = db;
 	}
 	
-	public GeneralRDFResourceRelationDB(String collection) { 
-		super(collection);
+	public void init(String collection, DBObject obj) {
+		db.COLLECTION_NAME = collection;
+		db.mongoDBObject = obj;
 		setParameters();
-		COLLECTION_NAME = collection;
+	}
+	
+	public void init(String collection) { 
+		db.COLLECTION_NAME = collection;
+		setParameters();
 	}
 	
 	
-	public GeneralRDFResourceRelationDB(String collection, String id) {
-		super(collection);
-		COLLECTION_NAME = collection;
+	public void init(String collection, String id) {
+		db.COLLECTION_NAME = collection;
 		setParameters();
 		setId(id);
-		find(true);
+		db.find(true);
 	}
 	
 	private void setParameters(){
-		addPK(ID);
-		addMandatoryField(DATASET_ID);
-		addMandatoryField(DISTRIBUTION_ID);
-		addMandatoryField(AMOUNT);
+		db.addPK(ID);
+		db.addMandatoryField(DATASET_ID);
+		db.addMandatoryField(DISTRIBUTION_ID);
+		db.addMandatoryField(AMOUNT);
 	}
 
 	public String getId() {
-		return getField(ID).toString();
+		return db.getField(ID).toString();
 	}
 	
 	public int getPredicateID() {
-		return Integer.parseInt(getField(PREDICATE_ID).toString());
+		return Integer.parseInt(db.getField(PREDICATE_ID).toString());
 	}
 
 	public void setPredicateID(int predicateID) { 
-		addField(PREDICATE_ID, predicateID);
+		db.addField(PREDICATE_ID, predicateID);
 	}
 	
 	public void setId(String id) {
-		addField(ID, id);
+		db.addField(ID, id);
 	}
 
 	public int getDatasetID() {
-		return Integer.parseInt(getField(DATASET_ID).toString());
+		return Integer.parseInt(db.getField(DATASET_ID).toString());
 }
 
 	public void setDatasetID(int datasetID) {
-		addField(DATASET_ID, datasetID);
+		db.addField(DATASET_ID, datasetID);
 	}
 
 	public int getDistributionID() {
-		return Integer.parseInt(getField(DISTRIBUTION_ID).toString());
+		return Integer.parseInt(db.getField(DISTRIBUTION_ID).toString());
 	}
 
 	public void setDistributionID(int distributionID) {
-		addField(DISTRIBUTION_ID, distributionID);
+		db.addField(DISTRIBUTION_ID, distributionID);
 	}
 	
 	
 	public int getAmount() {
-		return Integer.parseInt(getField(AMOUNT).toString());
+		return Integer.parseInt(db.getField(AMOUNT).toString());
 	}
 
 	public void setAmount(int amount) {
-		addField(AMOUNT, amount);
+		db.addField(AMOUNT, amount);
 	}
 
 	/**
@@ -111,7 +121,7 @@ public class GeneralRDFResourceRelationDB extends DBSuperClass2{
 		
 		try {
 
-			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(
+			DBCollection collection = db.getCollection(
 					COLLECTION_NAME);
 
 			// query all fqdn
@@ -125,7 +135,7 @@ public class GeneralRDFResourceRelationDB extends DBSuperClass2{
 			// save a list with distribution and fqdn
 			while (cursor.hasNext()) {
 				DBObject instance = cursor.next();
-				GeneralRDFResourceRelationDB r = new GeneralRDFResourceRelationDB(COLLECTION_NAME, instance);
+				GeneralRDFResourceRelationDB r = conf.getGeneralRDFResourceRelationDB();
 				result.add(r);
 			}
 
@@ -165,7 +175,7 @@ public class GeneralRDFResourceRelationDB extends DBSuperClass2{
 			BasicDBObject query = new BasicDBObject("$and", and);
 			
 			
-			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(
+			DBCollection collection = db.getCollection(
 					COLLECTION_NAME);
 
 			DBCursor cursor = collection.find(query);
@@ -173,7 +183,9 @@ public class GeneralRDFResourceRelationDB extends DBSuperClass2{
 			// save a list with distribution and fqdn 
 			while (cursor.hasNext()) {
 				DBObject instance = cursor.next();
-				GeneralRDFResourceRelationDB r = new GeneralRDFResourceRelationDB(COLLECTION_NAME, instance);
+				
+				GeneralRDFResourceRelationDB r = conf.getGeneralRDFResourceRelationDB();
+				r.init(COLLECTION_NAME, instance);
 				result.add(r);
 			} 
 

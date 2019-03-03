@@ -2,59 +2,71 @@ package lodVader.mongodb.collections.RDFResources;
 
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import lodVader.mongodb.DBSuperClass2;
 import lodVader.mongodb.collections.LODVaderCounterDB;
 
-public abstract class GeneralRDFResourceDB extends DBSuperClass2  {
+public abstract class GeneralRDFResourceDB {
+	
+	@Autowired
+	LODVaderCounterDB lodVaderCounterDB;
+	
+	@Autowired
+	public DBSuperClass2 db;
 
 	public static final String LOD_VADER_ID = "lodVaderID";
 
 	public static final String URI = "uri";
 	
 	
-	public GeneralRDFResourceDB(String collection, int lodVaderID) {
-		super(collection);
+	public GeneralRDFResourceDB(DBSuperClass2 db) {
+		this.db = db;
+	}
+	
+	public void init(String collection, int lodVaderID) {
+		db.COLLECTION_NAME = collection;
 		setVariables();
 		setLODVaderID(lodVaderID);
-		find(true);
+		db.find(true);
 	}
 	
-	public GeneralRDFResourceDB(String collection) {
-		super(collection);
+	public void init(String collection) {
+		db.COLLECTION_NAME = collection;
 		setVariables();
 	}
 	
-	public GeneralRDFResourceDB(String collection, String uri) {
-		super(collection);
+	public void init(String collection, String uri) {
+		db.COLLECTION_NAME = collection;
 		setVariables();
 		setUri(uri);
-		if(!find(true))
-			setLODVaderID(new LODVaderCounterDB().incrementAndGetID());
+		if(!db.find(true))
+			setLODVaderID(lodVaderCounterDB.incrementAndGetID());
 		
 	}
 	
 	public void setVariables(){
-		addPK(LOD_VADER_ID);
-		addPK(URI);
-		addMandatoryField(LOD_VADER_ID);
-		addMandatoryField(URI);
+		db.addPK(LOD_VADER_ID);
+		db.addPK(URI);
+		db.addMandatoryField(LOD_VADER_ID);
+		db.addMandatoryField(URI);
 	}
 
 
 	public int getLodVaderID() {
-		return Integer.parseInt(getField(LOD_VADER_ID).toString()); 
+		return Integer.parseInt(db.getField(LOD_VADER_ID).toString()); 
 	}
 	
 	public String getUri() {
-		return getField(URI).toString();
+		return db.getField(URI).toString();
 	}
 
 	public void setUri(String uri) {
-		addField(URI, uri);
+		db.addField(URI, uri);
 	}	
 	
 	public void setLODVaderID(int lodVaderID) {
-		addField(LOD_VADER_ID, lodVaderID);
+		db.addField(LOD_VADER_ID, lodVaderID);
 	}
 
 	
