@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import lodVader.LODVaderProperties;
+import lodVader.configuration.LODVaderProperties;
 import lodVader.enumerators.TuplePart;
 import lodVader.linksets.DatasetBloomFilterContainer;
 import lodVader.linksets.DistributionBloomFilterContainer;

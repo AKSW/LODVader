@@ -10,6 +10,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.mongodb.AggregationOptions;
 import com.mongodb.AggregationOutput;
@@ -20,10 +22,10 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
-import lodVader.LODVaderProperties;
 import lodVader.bloomfilters.BloomFilterI;
 import lodVader.bloomfilters.impl.BloomFilterFactory;
 import lodVader.bloomfilters.models.LoadedBloomFiltersCache;
+import lodVader.configuration.LODVaderProperties;
 import lodVader.enumerators.TuplePart;
 import lodVader.linksets.DistributionBloomFilterContainer;
 import lodVader.mongodb.DBSuperClass2;
@@ -37,7 +39,11 @@ import lodVader.mongodb.collections.namespaces.DistributionSubjectNS0DB;
 import lodVader.mongodb.collections.namespaces.DistributionSubjectNSDB;
 import lodVader.utils.NSUtils;
 
+@Component
 public class DistributionQueries {
+	
+	@Autowired
+	DBSuperClass2 db;
 
 	final static Logger logger = LoggerFactory.getLogger(DistributionQueries.class);
 	public int distributionQuerySize;
@@ -50,7 +56,7 @@ public class DistributionQueries {
 
 		BasicDBObject query = new BasicDBObject(DistributionSubjectNS0DB.NS, nsToSearch);
 
-		DBCollection collection = DBSuperClass2.getDBInstance().getCollection(DistributionSubjectNS0DB.COLLECTION_NAME);
+		DBCollection collection = db.getDBInstance().getCollection(DistributionSubjectNS0DB.COLLECTION_NAME);
 
 		HashSet<Integer> hash = new HashSet<Integer>();
 
@@ -72,7 +78,7 @@ public class DistributionQueries {
 	public HashSet<Integer> getDistributionsByObjectNS(String nsToSearch) {
 
 		BasicDBObject query = new BasicDBObject(DistributionObjectNS0DB.NS, nsToSearch);
-		DBCollection collection = DBSuperClass2.getDBInstance().getCollection(DistributionObjectNS0DB.COLLECTION_NAME);
+		DBCollection collection = db.getDBInstance().getCollection(DistributionObjectNS0DB.COLLECTION_NAME);
 
 		HashSet<Integer> hash = new HashSet<Integer>();
 
@@ -99,7 +105,7 @@ public class DistributionQueries {
 			// query all NS
 			BasicDBObject query = new BasicDBObject(DistributionSubjectNS0DB.NS, new BasicDBObject("$in", nsToSearch));
 
-			DBCollection collection = DBSuperClass2.getDBInstance()
+			DBCollection collection = db.getDBInstance()
 					.getCollection(DistributionSubjectNS0DB.COLLECTION_NAME);
 
 			// group by
@@ -138,11 +144,11 @@ public class DistributionQueries {
 	public BloomFilterI getDescribedNS0(String resourceType) {
 		List<String> cursor;
 		if (resourceType.equals(TuplePart.SUBJECT)) {
-			DBCollection collection = DBSuperClass2.getDBInstance()
+			DBCollection collection = db.getDBInstance()
 					.getCollection(DistributionSubjectNS0DB.COLLECTION_NAME);
 			cursor = collection.distinct(DistributionSubjectNS0DB.NS);
 		} else {
-			DBCollection collection = DBSuperClass2.getDBInstance()
+			DBCollection collection = db.getDBInstance()
 					.getCollection(DistributionObjectNS0DB.COLLECTION_NAME);
 			cursor = collection.distinct(DistributionObjectNS0DB.NS);
 		}
@@ -191,7 +197,7 @@ public class DistributionQueries {
 
 		if (resourceType.equals(TuplePart.OBJECT)) {
 
-			DBCollection collection = DBSuperClass2.getDBInstance()
+			DBCollection collection = db.getDBInstance()
 					.getCollection(DistributionObjectNSDB.COLLECTION_NAME);
 
 			g = BloomFilterFactory.newBloomFilter();
@@ -209,7 +215,7 @@ public class DistributionQueries {
 
 		} else if (resourceType.equals(TuplePart.SUBJECT)) {
 
-			DBCollection collection = DBSuperClass2.getDBInstance()
+			DBCollection collection = db.getDBInstance()
 					.getCollection(DistributionSubjectNSDB.COLLECTION_NAME);
 
 			g = BloomFilterFactory.newBloomFilter();
@@ -237,7 +243,7 @@ public class DistributionQueries {
 
 			BasicDBObject query = new BasicDBObject(DistributionObjectNS0DB.NS, new BasicDBObject("$in", fqdnToSearch));
 
-			DBCollection collection = DBSuperClass2.getDBInstance()
+			DBCollection collection = db.getDBInstance()
 					.getCollection(DistributionObjectNS0DB.COLLECTION_NAME);
 
 			// fileds to be projected
@@ -283,7 +289,7 @@ public class DistributionQueries {
 	public Double getNumberOfTriples() {
 		Double numberOfTriples = 0.0;
 		try {
-			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(DistributionDB.COLLECTION_NAME);
+			DBCollection collection = db.getDBInstance().getCollection(DistributionDB.COLLECTION_NAME);
 
 			BasicDBObject select = new BasicDBObject("$match",
 					new BasicDBObject(DistributionDB.SUCCESSFULLY_DOWNLOADED, true));
@@ -316,7 +322,7 @@ public class DistributionQueries {
 		long totalTriples = 0;
 
 		try {
-			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(DistributionDB.COLLECTION_NAME);
+			DBCollection collection = db.getDBInstance().getCollection(DistributionDB.COLLECTION_NAME);
 
 			BasicDBObject query;
 
@@ -355,7 +361,7 @@ public class DistributionQueries {
 		DBCursor instances;
 
 		try {
-			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(DistributionDB.COLLECTION_NAME);
+			DBCollection collection = db.getDBInstance().getCollection(DistributionDB.COLLECTION_NAME);
 
 			BasicDBList and = new BasicDBList();
 
@@ -409,7 +415,7 @@ public class DistributionQueries {
 		ArrayList<DistributionDB> list = new ArrayList<DistributionDB>();
 
 		try {
-			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(DistributionDB.COLLECTION_NAME);
+			DBCollection collection = db.getDBInstance().getCollection(DistributionDB.COLLECTION_NAME);
 
 			DBObject query = null;
 
@@ -475,7 +481,7 @@ public class DistributionQueries {
 		DBCollection collection;
 
 		try {
-			collection = DBSuperClass2.getDBInstance().getCollection(DistributionDB.COLLECTION_NAME);
+			collection = db.getDBInstance().getCollection(DistributionDB.COLLECTION_NAME);
 			DBCursor instances = collection
 					.find(new BasicDBObject(DistributionDB.DEFAULT_DATASETS, topDataset.getLODVaderID()));
 
@@ -497,7 +503,7 @@ public class DistributionQueries {
 		DBCollection collection;
 
 		try {
-			collection = DBSuperClass2.getDBInstance().getCollection(DistributionDB.COLLECTION_NAME);
+			collection = db.getDBInstance().getCollection(DistributionDB.COLLECTION_NAME);
 			DBCursor instances = collection.find().sort(new BasicDBObject(DistributionDB.OBJECTS_COHESION, 1));
 
 			for (DBObject instance : instances) {
@@ -515,10 +521,10 @@ public class DistributionQueries {
 
 		ArrayList<DistributionDB> distributionList = new ArrayList<DistributionDB>();
 
-		DBCollection collection = DBSuperClass2.getDBInstance().getCollection(DatasetDB.COLLECTION_NAME);
+		DBCollection collection = db.getDBInstance().getCollection(DatasetDB.COLLECTION_NAME);
 
 		try {
-			collection = DBSuperClass2.getDBInstance().getCollection(DistributionDB.COLLECTION_NAME);
+			collection = db.getDBInstance().getCollection(DistributionDB.COLLECTION_NAME);
 			DBCursor instances = collection
 					.find(new BasicDBObject(DistributionDB.LOD_VADER_ID, new BasicDBObject("$in", set)));
 
@@ -544,7 +550,7 @@ public class DistributionQueries {
 		String ns = nsUtils.getNSFromString(resource);
 
 		if (type.equals(TuplePart.SUBJECT)) {
-			DBCollection collection = DBSuperClass2.getCollection(DistributionSubjectNSDB.COLLECTION_NAME);
+			DBCollection collection = db.getCollection(DistributionSubjectNSDB.COLLECTION_NAME);
 
 			DBObject query;
 			query = new BasicDBObject(DistributionSubjectNSDB.NS, ns);
@@ -578,7 +584,7 @@ public class DistributionQueries {
 		}
 
 		else if (type.equals(TuplePart.OBJECT)) {
-			DBCollection collection = DBSuperClass2.getDBInstance()
+			DBCollection collection = db.getDBInstance()
 					.getCollection(DistributionObjectNSDB.COLLECTION_NAME);
 
 			DBObject query;
@@ -611,7 +617,7 @@ public class DistributionQueries {
 		}
 
 		else if (type.equals(TuplePart.PROPERTY)) {
-			DBCollection collection = DBSuperClass2.getDBInstance().getCollection(AllPredicatesDB.COLLECTION_NAME);
+			DBCollection collection = db.getDBInstance().getCollection(AllPredicatesDB.COLLECTION_NAME);
 
 			DBObject query;
 			query = new BasicDBObject(AllPredicatesDB.URI, resource);
@@ -626,7 +632,7 @@ public class DistributionQueries {
 			else
 				return setOfDistributionNS;
 
-			collection = DBSuperClass2.getDBInstance().getCollection(AllPredicatesRelationDB.COLLECTION_NAME);
+			collection = db.getDBInstance().getCollection(AllPredicatesRelationDB.COLLECTION_NAME);
 			query = new BasicDBObject(AllPredicatesRelationDB.PREDICATE_ID, predicateID);
 
 			instances = collection.find(query);

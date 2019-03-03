@@ -1,4 +1,4 @@
-package lodvader.spring.measures;
+package lodVader.spring.measures;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -10,9 +10,9 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import lodVader.LODVaderProperties;
 import lodVader.bloomfilters.BloomFilterI;
 import lodVader.bloomfilters.impl.BloomFilterFactory;
+import lodVader.configuration.LODVaderProperties;
 import lodVader.enumerators.DatasetStatus;
 import lodVader.enumerators.TuplePart;
 import lodVader.mongodb.collections.DatasetCoesionValues;

@@ -5,9 +5,11 @@ import lodVader.exceptions.mongodb.LODVaderNoPKFoundException;
 import lodVader.exceptions.mongodb.LODVaderObjectAlreadyExistsException;
 import lodVader.mongodb.DBSuperClass2;
 
-public class LODVaderCounterDB {
+
+public class LODVaderCounterDBBackup {
 	
-	public DBSuperClass2 db;
+	
+	DBSuperClass2 db;
 
 	// Collection name
 	public static final String COLLECTION_NAME = "LODVaderCounter";
@@ -16,12 +18,11 @@ public class LODVaderCounterDB {
 
 	public static final String COUNTER_NAME = "counterName";
 
-	public LODVaderCounterDB(DBSuperClass2 db) {
+	public LODVaderCounterDBBackup(DBSuperClass2 db) {
 		this.db = db;
-		db.COLLECTION_NAME = COLLECTION_NAME;
-		db.addPK(COUNTER_NAME);
+		this.db.addPK(COUNTER_NAME);
 		setCounterName("LodVaderCounter");
-		db.find(true);
+		this.db.find(true);
 	}
 	
 	public int getCounterValue() { 
@@ -51,5 +52,6 @@ public class LODVaderCounterDB {
 		}
 		return getCounterValue();
 	}
+	
 
 }

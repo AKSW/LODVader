@@ -8,7 +8,7 @@ import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 
-import lodVader.LODVaderProperties;
+import lodVader.configuration.LODVaderProperties;
 import lodVader.mongodb.DBSuperClass2;
 
 public class SuperTop extends DBSuperClass2 {

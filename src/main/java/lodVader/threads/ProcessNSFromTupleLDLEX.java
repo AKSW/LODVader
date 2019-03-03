@@ -14,9 +14,9 @@ import org.slf4j.LoggerFactory;
 
 import ldlex.seeder.NSDistributionMapperHashImpl;
 import ldlex.seeder.NSDistributionMapperInterface;
-import lodVader.LODVaderProperties;
 import lodVader.bloomfilters.BloomFilterI;
 import lodVader.bloomfilters.models.LoadedBloomFiltersCache;
+import lodVader.configuration.LODVaderProperties;
 import lodVader.enumerators.TuplePart;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.LinksetDB;

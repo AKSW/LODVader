@@ -26,7 +26,7 @@ import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.sparql.core.DatasetGraph;
 
-import lodVader.LODVaderProperties;
+import lodVader.configuration.LODVaderProperties;
 import lodVader.exceptions.LODVaderFormatNotAcceptedException;
 import lodVader.exceptions.LODVaderLODGeneralException;
 import lodVader.mongodb.collections.DatasetCoesionValues;

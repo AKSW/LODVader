@@ -1,4 +1,4 @@
-package lodVader.spring.REST;
+package lodVader;
 
 	public class ServiceAPIOptions{
 

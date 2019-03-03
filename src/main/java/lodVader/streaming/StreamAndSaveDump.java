@@ -29,7 +29,7 @@ import org.openrdf.rio.turtle.TurtleParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import lodVader.LODVaderProperties;
+import lodVader.configuration.LODVaderProperties;
 import lodVader.exceptions.LODVaderFormatNotAcceptedException;
 import lodVader.exceptions.LODVaderLODGeneralException;
 import lodVader.mongodb.collections.DistributionDB;

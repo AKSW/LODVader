@@ -11,7 +11,7 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
 
-import lodVader.LODVaderProperties;
+import lodVader.configuration.LODVaderProperties;
 import lodVader.exceptions.LODVaderNoDatasetFoundException;
 import lodVader.exceptions.api.DynamicLODAPINoLinksFoundException;
 import lodVader.mongodb.collections.DatasetDB;

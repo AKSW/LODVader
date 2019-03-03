@@ -3,16 +3,22 @@ package lodVader;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import javax.servlet.http.HttpServlet;
-
-import org.slf4j.Logger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.data.mongodb.MongoDbFactory;
+import org.springframework.stereotype.Component;
 
 import lodVader.bloomfilters.models.LoadedBloomFiltersCache;
+import lodVader.configuration.Config;
+import lodVader.configuration.LODVaderProperties;
 import lodVader.enumerators.DistributionStatus;
 import lodVader.enumerators.TuplePart;
+import lodVader.mongodb.DBSuperClass2;
 import lodVader.mongodb.IndexesCreator;
 import lodVader.mongodb.collections.DatasetDB;
 import lodVader.mongodb.collections.DistributionDB;
@@ -29,12 +35,32 @@ import lodVader.utils.FileUtils;
  * @author Ciro Baron Neto
  *
  */
-public class StartLODVader {
-
-	private static final long serialVersionUID = 9131804335500741880L;
+@Component
+public class StartLODVader implements InitializingBean{
+	
 	final static Logger logger = LoggerFactory.getLogger(StartLODVader.class);
+	
+	@Autowired
+	public Config conf;
+	
+	@Autowired 
+	LODVaderProperties properties;
+	
+	@Autowired
+	MongoDbFactory mongoClient;
+	
+	@Autowired
+	DistributionQueries distributionQueries;
+	
+	@Autowired
+	LODVaderCounterDB c;
+	
+	@Autowired
+	IndexesCreator indexCreator;
 
-	public StartLODVader() {
+    @Override
+    public void afterPropertiesSet() throws Exception {
+
 
 		try {
 
@@ -49,7 +75,6 @@ public class StartLODVader {
 
 			logger.info("Reading properties file.");
 
-			LODVaderProperties properties = new LODVaderProperties();
 
 			if (LODVaderProperties.SUBJECT_FILE_DISTRIBUTION_PATH == null) {
 				properties.loadProperties();
@@ -61,16 +86,16 @@ public class StartLODVader {
 			// creating indexes
 			logger.info("Creating MongoDB indexes...");
 
+			
 			// checking counter
 			try {
-				new LODVaderCounterDB().incrementAndGetID();
+				c.incrementAndGetID();
 			} catch (Exception e) {
-				LODVaderCounterDB c = new LODVaderCounterDB();
 				c.setCounterValue(1);
-				c.insert(false);
+				c.db.insert(false); 
 			}
 
-			new IndexesCreator().createIndexes();
+			indexCreator.createIndexes();
 
 			HashMap<Integer, DatasetDB> datasets = new HashMap<Integer, DatasetDB>();
 
@@ -123,12 +148,12 @@ public class StartLODVader {
 
 			if (LoadedBloomFiltersCache.describedSubjectsNSCurrentSize > LODVaderProperties.BF_BUFFER_RANGE
 					|| LoadedBloomFiltersCache.describedSubjectsNS == null)
-				LoadedBloomFiltersCache.describedSubjectsNS = new DistributionQueries()
+				LoadedBloomFiltersCache.describedSubjectsNS = distributionQueries
 						.getDescribedNS(TuplePart.SUBJECT);
 
 			if (LoadedBloomFiltersCache.describedObjectsNSCurrentSize > LODVaderProperties.BF_BUFFER_RANGE
 					|| LoadedBloomFiltersCache.describedObjectsNS == null)
-				LoadedBloomFiltersCache.describedObjectsNS = new DistributionQueries()
+				LoadedBloomFiltersCache.describedObjectsNS = distributionQueries
 						.getDescribedNS(TuplePart.OBJECT);
 
 			logger.info("We will resume: " + datasets.size() + " dataset(s).");

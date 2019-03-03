@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
+import lodVader.ServiceAPIOptions;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.RDFResources.GeneralRDFResourceRelationDB;
 import lodVader.mongodb.collections.RDFResources.allPredicates.AllPredicatesDB;
@@ -14,7 +15,6 @@ import lodVader.mongodb.collections.RDFResources.rdfSubClassOf.RDFSubClassOfDB;
 import lodVader.mongodb.collections.RDFResources.rdfSubClassOf.RDFSubClassOfRelationDB;
 import lodVader.mongodb.collections.RDFResources.rdfType.RDFTypeObjectDB;
 import lodVader.mongodb.collections.RDFResources.rdfType.RDFTypeObjectRelationDB;
-import lodVader.spring.REST.ServiceAPIOptions;
 
 public class CompareSimilarityListModel {
 

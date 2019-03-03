@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import com.github.jsonldjava.impl.NQuadRDFParser;
 
-import lodVader.LODVaderProperties;
+import lodVader.configuration.LODVaderProperties;
 import lodVader.enumerators.TuplePart;
 import lodVader.exceptions.LODVaderFormatNotAcceptedException;
 import lodVader.exceptions.LODVaderLODGeneralException;

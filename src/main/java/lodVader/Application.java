@@ -1,10 +1,7 @@
-package lodVader.spring.REST;
+package lodVader;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
-import lodVader.LODVaderProperties;
-import lodVader.StartLODVader;
 
 @SpringBootApplication
 public class Application {
@@ -29,7 +26,7 @@ public class Application {
 //		
 //		else {
 			SpringApplication.run(Application.class, args);
-			StartLODVader s = new StartLODVader(); 
+
 //		}
 	}
 }

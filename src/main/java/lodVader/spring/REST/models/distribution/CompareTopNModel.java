@@ -3,11 +3,11 @@ package lodVader.spring.REST.models.distribution;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
+import lodVader.ServiceAPIOptions;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.toplinks.TopInvalidLinks;
 import lodVader.mongodb.collections.toplinks.TopValidLinks;
 import lodVader.mongodb.queries.TopNLinksQueries;
-import lodVader.spring.REST.ServiceAPIOptions;
 
 public class CompareTopNModel {
 

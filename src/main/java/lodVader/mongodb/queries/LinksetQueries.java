@@ -14,11 +14,11 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
+import lodVader.ServiceAPIOptions;
 import lodVader.API.diagram.DiagramData;
 import lodVader.mongodb.DBSuperClass2;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.LinksetDB;
-import lodVader.spring.REST.ServiceAPIOptions;
 
 public class LinksetQueries {
 

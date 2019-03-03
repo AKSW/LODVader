@@ -4,10 +4,10 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 
+import lodVader.ServiceAPIOptions;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.LinksetDB;
 import lodVader.mongodb.queries.LinksetQueries;
-import lodVader.spring.REST.ServiceAPIOptions;
 
 public class CompareListModel {
 

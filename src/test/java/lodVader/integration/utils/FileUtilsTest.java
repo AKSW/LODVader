@@ -5,7 +5,7 @@ import java.io.File;
 import org.junit.Test;
 
 import junit.framework.Assert;
-import lodVader.LODVaderProperties;
+import lodVader.configuration.LODVaderProperties;
 
 public class FileUtilsTest {
 	

@@ -1,5 +1,8 @@
 package lodVader.mongodb;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
@@ -25,7 +28,11 @@ import lodVader.mongodb.collections.namespaces.DistributionSubjectNSDB;
 import lodVader.mongodb.collections.toplinks.TopInvalidLinks;
 import lodVader.mongodb.collections.toplinks.TopValidLinks;
 
+@Component
 public class IndexesCreator {
+	
+	@Autowired
+	DBSuperClass2 db;
 	
 	public void createIndexes(){
 		
@@ -152,7 +159,7 @@ public class IndexesCreator {
 	public void addIndex(String collection, String field, int value){
 		DBObject indexOptions = new BasicDBObject();
 		indexOptions.put(field, value);
-		DBSuperClass2.getCollection(collection).createIndex(indexOptions ); 			
+		db.getCollection(collection).createIndex(indexOptions );		
 		
 	}
 

@@ -8,7 +8,7 @@ import org.openrdf.model.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import lodVader.LODVaderProperties;
+import lodVader.configuration.LODVaderProperties;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.utils.Timer;
 

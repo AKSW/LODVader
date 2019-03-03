@@ -1,8 +1,12 @@
 package lodVader.mongodb;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.data.mongodb.MongoDbFactory;
+import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mongodb.BasicDBList;
@@ -14,21 +18,22 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
-import com.mongodb.MongoCredential;
-import com.mongodb.ServerAddress;
 
-import lodVader.LODVaderProperties;
 import lodVader.exceptions.LODVaderMissingPropertiesException;
 import lodVader.exceptions.mongodb.LODVaderNoPKFoundException;
 import lodVader.exceptions.mongodb.LODVaderObjectAlreadyExistsException;
 
+
 public class DBSuperClass2 {
+	
+	@Autowired
+	MongoDbFactory mongoClient;
 
 	// defining mongodb connection
-	protected static MongoClient mongo = null;
+//	protected static MongoClient mongo = null;
 
 	// defining mongodb database
-	private static DB db;
+	private DB db;
 
 	// defining collection name
 	@JsonIgnore
@@ -55,6 +60,10 @@ public class DBSuperClass2 {
 		mandatoryFields.add(field);
 	}
 
+
+	public DBSuperClass2() {
+	}
+	
 	public DBSuperClass2(String collectionName) {
 		this.COLLECTION_NAME = collectionName;
 	}
@@ -68,7 +77,7 @@ public class DBSuperClass2 {
 	// }
 
 	// add pair key/value to the persistence object
-	protected void addField(String key, String val) {
+	public void addField(String key, String val) {
 		mongoDBObject.put(key, val);
 	}
 
@@ -77,17 +86,17 @@ public class DBSuperClass2 {
 	}
 
 	// add pair key/value to the persistence object
-	protected void addField(String key, int val) {
+	public void addField(String key, int val) {
 		mongoDBObject.put(key, val);
 	}
 
 	// add pair key/value to the persistence object
-	protected void addField(String key, boolean val) {
+	public void addField(String key, boolean val) {
 		mongoDBObject.put(key, val);
 	}
 
 	// get a value given a key
-	protected Object getField(String key) {
+	public Object getField(String key) {
 		// if (mongoDBObject.get(key) != null)
 		return mongoDBObject.get(key);
 		// else
@@ -104,38 +113,20 @@ public class DBSuperClass2 {
 		mongoDBObject.put(key, val);
 	}
 
-	static public DBCollection getCollection(String collection) {
+    public DBCollection getCollection(String collection) {
 		return getDBInstance().getCollection(collection);
 	}
 
-	// get mongobd db instance
-	public static DB getDBInstance() {
-		try {
-			if (mongo == null) {
-				if (LODVaderProperties.MONGODB_DB == null)
-					new LODVaderProperties().loadProperties();
-				if (LODVaderProperties.MONGODB_SECURE_MODE) {
-					MongoCredential credential = MongoCredential.createMongoCRCredential(
-							LODVaderProperties.MONGODB_USERNAME, LODVaderProperties.MONGODB_DB,
-							LODVaderProperties.MONGODB_PASSWORD.toCharArray());
-					mongo = new MongoClient(new ServerAddress(LODVaderProperties.MONGODB_HOST),
-							Arrays.asList(credential));
-				} else {
-					mongo = new MongoClient(LODVaderProperties.MONGODB_HOST, LODVaderProperties.MONGODB_PORT);
-				}
-				db = mongo.getDB(LODVaderProperties.MONGODB_DB);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return db;
+	
+	public DB getDBInstance() {
+	    return mongoClient.getDb();
 	}
 
 	/**
 	 * Insert a new object in MongoDB database
 	 * 
-	 * @param checkBeforeInsert
-	 *            query database and only insert if object is not there.
+	 * @param checkBeforeInsert query database and only insert if object is not
+	 *                          there.
 	 * @throws LODVaderObjectAlreadyExistsException
 	 * @throws LODVaderNoPKFoundException
 	 */
@@ -154,8 +145,7 @@ public class DBSuperClass2 {
 	/**
 	 * Query a object based on the list of PKs.
 	 * 
-	 * @param update
-	 *            update object case found.
+	 * @param update update object case found.
 	 * @return true case the object is found.
 	 */
 	public boolean find(boolean update) {
@@ -193,8 +183,7 @@ public class DBSuperClass2 {
 	/**
 	 * Query a object based on the a key
 	 * 
-	 * @param update
-	 *            update object case found.
+	 * @param update update object case found.
 	 * @return true case the object is found.
 	 */
 	public boolean find(Boolean update, String key, Object value) {
@@ -213,8 +202,7 @@ public class DBSuperClass2 {
 	/**
 	 * Update a object based on the a key
 	 * 
-	 * @param create
-	 *            create object case not found.
+	 * @param create create object case not found.
 	 * @return true case the object is found.
 	 */
 	public void update(Boolean create, String key, Object value) {
@@ -223,16 +211,16 @@ public class DBSuperClass2 {
 			checkMandatoryFields();
 			if (create)
 				getCollection().update(new BasicDBObject(key, value), mongoDBObject, true, false);
-//			else 
-//				DBCursor cursor = getCollection().find(new BasicDBObject(key, value)); 
+//				else 
+//					DBCursor cursor = getCollection().find(new BasicDBObject(key, value)); 
 
-//			if (cursor.size() > 0) {
-//				// mongoDBObject = cursor.next();
-//			} else {
-//				if (create) {
-//					getCollection().insert(mongoDBObject);
+//				if (cursor.size() > 0) {
+//					// mongoDBObject = cursor.next();
+//				} else {
+//					if (create) {
+//						getCollection().insert(mongoDBObject);
+//					}
 //				}
-//			}
 
 		} catch (LODVaderMissingPropertiesException e) {
 			// TODO Auto-generated catch block
@@ -244,8 +232,7 @@ public class DBSuperClass2 {
 	/**
 	 * Update an object.
 	 * 
-	 * @param create
-	 *            set whether the object should be created case doesn't exist.
+	 * @param create set whether the object should be created case doesn't exist.
 	 * @return true case successfully updated
 	 * @throws LODVaderMissingPropertiesException
 	 * @throws LODVaderNoPKFoundException
@@ -365,7 +352,7 @@ public class DBSuperClass2 {
 		return primaryKey;
 	}
 
-	protected void addPK(String pK) {
+	public void addPK(String pK) {
 		primaryKey.add(pK);
 	}
 

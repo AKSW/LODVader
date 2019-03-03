@@ -23,9 +23,9 @@ import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSInputFile;
 
-import lodVader.LODVaderProperties;
 import lodVader.bloomfilters.BloomFilterI;
 import lodVader.bloomfilters.impl.BloomFilterFactory;
+import lodVader.configuration.LODVaderProperties;
 import lodVader.exceptions.LODVaderLODGeneralException;
 import lodVader.linksets.DistributionBloomFilterContainer;
 import lodVader.mongodb.DBSuperClass2;

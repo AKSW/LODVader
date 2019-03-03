@@ -5,7 +5,9 @@ import lodVader.exceptions.mongodb.LODVaderNoPKFoundException;
 import lodVader.exceptions.mongodb.LODVaderObjectAlreadyExistsException;
 import lodVader.mongodb.DBSuperClass2;
 
-public class SystemPropertiesDB extends DBSuperClass2 {
+public class SystemPropertiesDB {
+	
+	DBSuperClass2 db;
 
 	// Collection name
 	public static final String COLLECTION_NAME = "SystemProperties";
@@ -14,32 +16,33 @@ public class SystemPropertiesDB extends DBSuperClass2 {
 
 	public static final String VALUE = "value";
 
-	public SystemPropertiesDB() {
-		super(COLLECTION_NAME);
-		addPK(KEY);
+	public SystemPropertiesDB(DBSuperClass2 db) {
+		this.db = db;
+		this.db.COLLECTION_NAME = COLLECTION_NAME;
+		this.db.addPK(KEY);
 	}
 
 	private void setKey(String key) {
-		addField(KEY, key);
+		this.db.addField(KEY, key);
 	}
 
 	private void setValue(Boolean value) {
-		addField(VALUE, value);
+		this.db.addField(VALUE, value);
 	}
 
 	public Boolean getDownloadedLOV() {
 		setKey("DownloadedLOV");
-		find(true);
-		if (getField("value") == null)
+		this.db.find(true);
+		if (this.db.getField("value") == null)
 			return false;
-		return Boolean.parseBoolean(getField("value").toString());
+		return Boolean.parseBoolean(db.getField("value").toString());
 	}
 
 	public void setDownloadedLOV(Boolean downloadedLOV) {
 		setKey("DownloadedLOV");
 		setValue(downloadedLOV);
 		try {
-			update(true);
+			db.update(true);
 		} catch (LODVaderMissingPropertiesException | LODVaderObjectAlreadyExistsException
 				| LODVaderNoPKFoundException e) {
 			e.printStackTrace();

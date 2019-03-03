@@ -3,11 +3,11 @@ package lodVader.spring.REST.models.links;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import lodVader.LODVaderProperties;
 import lodVader.API.diagram.Diagram;
 import lodVader.API.diagram.DiagramData;
 import lodVader.API.diagram.Link;
 import lodVader.API.diagram.Node;
+import lodVader.configuration.LODVaderProperties;
 import lodVader.mongodb.collections.DatasetDB;
 import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.LinksetDB;

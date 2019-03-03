@@ -1,9 +1,7 @@
-package lodVader;
+package lodVader.configuration;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * General properties of the application. Most of them are 
@@ -11,43 +9,40 @@ import java.util.Properties;
  * @author ciro
  *
  */
+
+@Component
 public class LODVaderProperties {
+	
+	@Autowired
+	Config conf;
 
 	/**
 	 * Load properties from file
 	 */
 	public void loadProperties() {
-		Properties prop = new Properties();
-		InputStream inputStream = null;
-		try {
-			String propFileName = "resources/config.properties";
-
-			inputStream = new FileInputStream(propFileName);
-
-			prop.load(inputStream);
-
+		
 			// get the property value and print it out
-			BASE_PATH = prop.getProperty("BASE_PATH");
-			MONGODB_HOST = prop.getProperty("MONGODB_HOST");
-			MONGODB_PORT = Integer.valueOf(prop.getProperty("MONGODB_PORT"));
-			MONGODB_DB = prop.getProperty("MONGODB_DB");
-			REMOVE_DATASET_PASS = prop.getProperty("REMOVE_DATASET_PASS");
-			MONGODB_SECURE_MODE = Boolean.valueOf(prop.getProperty("MONGODB_SECURE_MODE"));
-			MONGODB_USERNAME = prop.getProperty("MONGODB_USERNAME");
-			MONGODB_PASSWORD = prop.getProperty("MONGODB_PASSWORD");
-			NR_THREADS = Integer.valueOf(prop.getProperty("NR_THREADS"));
-			LOV_URL = prop.getProperty("LOV_URL");
-			RESUME = Boolean.valueOf(prop.getProperty("RESUME"));
-			RESUME_ERRORS = Boolean.valueOf(prop.getProperty("RESUME_ERRORS"));
+		BASE_PATH = conf.getProperties().getPathProperties().getBasePath();
+//			MONGODB_HOST = prop.getProperty("MONGODB_HOST");
+//			MONGODB_PORT = Integer.valueOf(prop.getProperty("MONGODB_PORT"));
+//			MONGODB_DB = prop.getProperty("MONGODB_DB");
+//			MONGODB_SECURE_MODE = Boolean.valueOf(prop.getProperty("MONGODB_SECURE_MODE"));
+//			MONGODB_USERNAME = prop.getProperty("MONGODB_USERNAME");
+//			MONGODB_PASSWORD = prop.getProperty("MONGODB_PASSWORD");
+			NR_THREADS = conf.getProperties().getPathProperties().getNrThreads();
+			LOV_URL = conf.getProperties().getPathProperties().getLovUrl();
+			RESUME = conf.getProperties().getPathProperties().getResume();
+			RESUME_ERRORS = conf.getProperties().getPathProperties().getResumeErrors();
+			REMOVE_DATASET_PASS = conf.getProperties().getPathProperties().getRemoveDatasetPass();
 			
 			try{
-				FPP_EQUATION = prop.getProperty("CUSTOMIZED_FPP_EQUATION");
+				FPP_EQUATION = null;
 			}
 			catch(Exception e){
 				e.printStackTrace();
 			}
 			
-			USE_MULTITHREAD = prop.getProperty("USE_MULTITHREAD");
+			USE_MULTITHREAD = conf.getProperties().getPathProperties().getMultithread();
 			FILTER_PATH = BASE_PATH + "filters/";
 			SUBJECT_PATH = BASE_PATH + "subjects/";
 			OBJECT_PATH = BASE_PATH + "objects/";
@@ -67,16 +62,6 @@ public class LODVaderProperties {
 			FILTER_FILE_LOV_PATH = FILTER_PATH + "lov_filter";
 			
 
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		finally{
-			try {
-				inputStream.close();
-			} catch (Exception e2) {
-				e2.printStackTrace();
-			}
-		}
 	}
 
 	// defining what path should be used to store files
@@ -133,19 +118,19 @@ public class LODVaderProperties {
 	public static final String MESSAGE_ERROR = "error";
 
 	// mongodb properties
-	public static String MONGODB_HOST;
-	public static int MONGODB_PORT;
-	public static String MONGODB_DB;
-	public static Boolean MONGODB_SECURE_MODE;
-	public static String MONGODB_USERNAME;
-	public static String MONGODB_PASSWORD;
+//	public static String MONGODB_HOST;
+//	public static int MONGODB_PORT;
+//	public static String MONGODB_DB;
+//	public static Boolean MONGODB_SECURE_MODE;
+//	public static String MONGODB_USERNAME;
+//	public static String MONGODB_PASSWORD;
 
 	// fpp equation
 	public static String FPP_EQUATION = null;
 	
 	
 	// other properties
-	public static String USE_MULTITHREAD;
+	public static Boolean USE_MULTITHREAD;
 	public static String LOV_URL;
 	public static String REMOVE_DATASET_PASS;
 	

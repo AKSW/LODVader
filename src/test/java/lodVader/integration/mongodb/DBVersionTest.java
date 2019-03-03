@@ -3,7 +3,7 @@ package lodVader.integration.mongodb;
 import org.junit.Test;
 
 import junit.framework.Assert;
-import lodVader.LODVaderProperties;
+import lodVader.configuration.LODVaderProperties;
 import lodVader.mongodb.DBSuperClass2;
 
 public class DBVersionTest {

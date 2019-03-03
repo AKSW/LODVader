@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import lodVader.bloomfilters.models.DatasetLinksContainer;
+import lodVader.configuration.LODVaderProperties;
 import lodVader.enumerators.DistributionStatus;
 import lodVader.lov.LOV;
 import lodVader.mongodb.collections.DatasetDB;

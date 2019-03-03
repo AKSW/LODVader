@@ -1,4 +1,4 @@
-package lodvader.spring.measures;
+package lodVader.spring.measures;
 
 import java.util.HashMap;
 

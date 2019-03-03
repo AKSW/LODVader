@@ -7,16 +7,15 @@ import java.security.NoSuchAlgorithmException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import lodVader.LODVaderProperties;
-import lodVader.Manager;
+import lodVader.configuration.LODVaderProperties;
 import lodVader.exceptions.LODVaderFormatNotAcceptedException;
 
 public class FileUtils {
 
 	final static Logger logger = LoggerFactory.getLogger(FileUtils.class);
-
+	
 	public static void checkIfFolderExists() {
-
+		
 		// check if folders needed exists
 		File f = new File(LODVaderProperties.BASE_PATH);
 		if (!f.exists())
