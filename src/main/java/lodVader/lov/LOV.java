@@ -335,7 +335,7 @@ public class LOV extends SuperStream {
 		logger.info("Saving OWL classes...");
 		// Saving OWL classes
 		conf.getOwlClassDB().insertSet(owlClasses.keySet());
-		new OwlClassRelationDB().insertSet(owlClasses, distribution.getLODVaderID(), distribution.getTopDatasetID());
+		conf.getOwlClassRelationDB().insertSet(owlClasses, distribution.getLODVaderID(), distribution.getTopDatasetID());
 
 		// new OWLClassQueries().insertOWLClasses(owlClasses,
 		// distribution.getDynLodID(), distribution.getTopDataset());

@@ -9,7 +9,7 @@ import lodVader.mongodb.collections.toplinks.TopValidLinks;
 
 public class LinksetDB {
 	
-	DBSuperClass2 db;
+	public DBSuperClass2 db;
 
 	public LinksetDB(DBSuperClass2 db) {
 		this.db = db;

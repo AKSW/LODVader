@@ -15,10 +15,15 @@ import lodVader.mongodb.collections.RDFResources.GeneralRDFResourceRelationDB;
 import lodVader.mongodb.collections.RDFResources.allPredicates.AllPredicatesDB;
 import lodVader.mongodb.collections.RDFResources.allPredicates.AllPredicatesRelationDB;
 import lodVader.mongodb.collections.RDFResources.owlClass.OwlClassDB;
+import lodVader.mongodb.collections.RDFResources.owlClass.OwlClassRelationDB;
 import lodVader.mongodb.collections.RDFResources.rdfSubClassOf.RDFSubClassOfDB;
 import lodVader.mongodb.collections.RDFResources.rdfSubClassOf.RDFSubClassOfRelationDB;
 import lodVader.mongodb.collections.RDFResources.rdfType.RDFTypeObjectDB;
 import lodVader.mongodb.collections.RDFResources.rdfType.RDFTypeObjectRelationDB;
+import lodVader.mongodb.collections.namespaces.DistributionObjectNS0DB;
+import lodVader.mongodb.collections.namespaces.DistributionObjectNSDB;
+import lodVader.mongodb.collections.namespaces.DistributionSubjectNS0DB;
+import lodVader.mongodb.collections.namespaces.DistributionSubjectNSDB;
 import lodVader.threads.MakeLinksetsMasterThreadLDLEx;
 
 @Configuration
@@ -119,7 +124,7 @@ public class Config{
 	
 	@Bean
 	@Scope(value = "prototype")	
-	public LinksetDB getLinksetDBB() {
+	public LinksetDB getLinksetDB() {
 		return new LinksetDB(getDBSuperClass2());
 	}	
 	
@@ -129,5 +134,36 @@ public class Config{
 		return new OwlClassDB(getDBSuperClass2());
 	}	
 		
+	@Bean
+	@Scope(value = "prototype")	
+	public OwlClassRelationDB getOwlClassRelationDB() {
+		return new OwlClassRelationDB(getDBSuperClass2());
+	}	
+	
+	@Bean
+	@Scope(value = "prototype")	
+	public DistributionObjectNS0DB getDistributionObjectNS0DB() {
+		return new DistributionObjectNS0DB(getDBSuperClass2());
+	}	
+	
+	@Bean
+	@Scope(value = "prototype")	
+	public DistributionSubjectNS0DB getDistributionSubjectNS0DB() {
+		return new DistributionSubjectNS0DB(getDBSuperClass2());
+	}
+
+	
+	@Bean
+	@Scope(value = "prototype")	
+	public DistributionSubjectNSDB getDistributionSubjectNSDB() {
+		return new DistributionSubjectNSDB(getDBSuperClass2());
+	}
+	
+	@Bean
+	@Scope(value = "prototype")	
+	public DistributionObjectNSDB getDistributionObjectNSDB() {
+		return new DistributionObjectNSDB(getDBSuperClass2());
+	}
+	
 	
 }

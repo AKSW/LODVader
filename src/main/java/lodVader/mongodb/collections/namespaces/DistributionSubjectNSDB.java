@@ -5,36 +5,41 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
 import lodVader.bloomfilters.models.LoadedBloomFiltersCache;
-import lodVader.exceptions.LODVaderMissingPropertiesException;
-import lodVader.exceptions.mongodb.LODVaderNoPKFoundException;
-import lodVader.exceptions.mongodb.LODVaderObjectAlreadyExistsException;
+import lodVader.configuration.Config;
+import lodVader.mongodb.DBSuperClass2;
 import lodVader.mongodb.collections.DistributionDB;
 
 public class DistributionSubjectNSDB extends SuperNS {
+	
+	@Autowired
+	Config conf;
 
 	public static final String NUMBER_OF_RESOURCES = "numberOfResources";
 
 	public static String COLLECTION_NAME = "DistributionSubjectNS";
 
-	public DistributionSubjectNSDB() {
-		super(COLLECTION_NAME);
+	
+	public DistributionSubjectNSDB(DBSuperClass2 db) {
+		super(db);
+		super.init(COLLECTION_NAME);
 	}
 	
-	public DistributionSubjectNSDB(DBObject object) {
-		super(COLLECTION_NAME);
-		mongoDBObject = object; 
+	public void init(DBObject object) {
+		super.db.mongoDBObject = object; 
 	}
 
 	public int getNumberOfResources() {
-		return ((Number) getField(NUMBER_OF_RESOURCES)).intValue();
+		return ((Number) db.getField(NUMBER_OF_RESOURCES)).intValue();
 	}
 
 	public void setNumberOfResources(int numberOfResources) {
-		addField(NUMBER_OF_RESOURCES, numberOfResources);
+		db.addField(NUMBER_OF_RESOURCES, numberOfResources);
 	}
 
 	public void bulkSave(ConcurrentHashMap<String, Integer> map, DistributionDB distribution) {
@@ -53,7 +58,7 @@ public class DistributionSubjectNSDB extends SuperNS {
 		
 		
 		Iterator it = map.entrySet().iterator();
-		getCollection().remove(new BasicDBObject(DISTRIBUTION_ID, distribution.getLODVaderID()));
+		db.getCollection().remove(new BasicDBObject(DISTRIBUTION_ID, distribution.getLODVaderID()));
 
 		DistributionSubjectNSDB d2 ;
 		int distributionLODVaderID = distribution.getLODVaderID();
@@ -65,7 +70,7 @@ public class DistributionSubjectNSDB extends SuperNS {
 			Map.Entry pair = (Map.Entry) it.next();
 			String d = (String) pair.getKey();
 			int count = (Integer) pair.getValue();
-			d2 = new DistributionSubjectNSDB();
+			d2 = conf.getDistributionSubjectNSDB();
 			d2.setNS(d);
 			d2.setNumberOfResources(count);
 			d2.setDatasetID(topDatasetLODVaderID);
@@ -78,7 +83,7 @@ public class DistributionSubjectNSDB extends SuperNS {
 			}
 
 //			try {
-				bulkObjects.add(d2.mongoDBObject);
+				bulkObjects.add(d2.db.mongoDBObject);
 //				d2.insert(true);
 //			} catch (LODVaderObjectAlreadyExistsException | LODVaderNoPKFoundException e) {
 //				e.printStackTrace();
@@ -86,10 +91,7 @@ public class DistributionSubjectNSDB extends SuperNS {
 				
 				
 		}
-		bulkSave2(bulkObjects);
-		
-		
-		
+		db.bulkSave2(bulkObjects);
 		
 	}
 }

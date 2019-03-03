@@ -256,7 +256,7 @@ public abstract class ProcessNSFromTupleLDLEX extends Thread {
 	private void saveLinks() {
 		int nrLinkedDatasets = 0;
 		// remove all links previously created for this distribution
-		new LinksetDB().removeAllLinks(distribution.getLODVaderID());
+		conf.getLinksetDB().removeAllLinks(distribution.getLODVaderID());
 
 		for (LinksetDataThreadLDLEx dataThread : mapOfWorkerThreads.values()) {
 			LinksetDB linkset;
@@ -275,7 +275,7 @@ public abstract class ProcessNSFromTupleLDLEX extends Thread {
 
 				if (tuplePart.equals(TuplePart.SUBJECT)) {
 					linksetID = dataThread.distributionID + "-" + distribution.getLODVaderID();
-					linkset = new LinksetDB();
+					linkset = conf.getLinksetDB();
 					linkset.setLinksetID(linksetID);
 					linkset.setDistributionSource(dataThread.distributionID);
 					linkset.setDistributionTarget(distribution.getLODVaderID());
@@ -294,7 +294,7 @@ public abstract class ProcessNSFromTupleLDLEX extends Thread {
 				} else {
 					// calculate linksets
 					linksetID = distribution.getLODVaderID() + "-" + dataThread.distributionID;
-					linkset = new LinksetDB();
+					linkset = conf.getLinksetDB();
 					linkset.setLinksetID(linksetID);
 
 					linkset.setDistributionSource(distribution.getLODVaderID());
@@ -314,7 +314,7 @@ public abstract class ProcessNSFromTupleLDLEX extends Thread {
 				}
 
 				if (linkset.getLinks() > 0)
-					linkset.update(true, LinksetDB.LINKSET_ID, linksetID);
+					linkset.db.update(true, LinksetDB.LINKSET_ID, linksetID);
 
 				logger.debug("Saved links: " + linkset.getLinks() + " (good) " + linkset.getInvalidLinks()
 						+ " (bad) in " + t.stopTimer() + "s");
@@ -328,14 +328,15 @@ public abstract class ProcessNSFromTupleLDLEX extends Thread {
 	private boolean saveNamespaces() {
 		logger.info("Saving NS0...");
 		if (tuplePart.equals(TuplePart.SUBJECT)) {
-			new DistributionSubjectNS0DB().bulkSave(countTotalNS0.keySet(), distribution);
+			conf.getDistributionSubjectNS0DB().bulkSave(countTotalNS0.keySet(), distribution);
 		} else {
-			new DistributionObjectNS0DB().bulkSave(countTotalNS0.keySet(), distribution);
+			conf.getDistributionObjectNS0DB().bulkSave(countTotalNS0.keySet(), distribution);
 		}
 
 		logger.info("Saving NS...");
 		if (tuplePart.equals(TuplePart.SUBJECT)) {
-			DistributionSubjectNSDB d = new DistributionSubjectNSDB();
+			
+			DistributionSubjectNSDB d = conf.getDistributionSubjectNSDB();
 			d.bulkSave(countTotalNS, distribution);
 		} else {
 			DistributionObjectNSDB d = new DistributionObjectNSDB();

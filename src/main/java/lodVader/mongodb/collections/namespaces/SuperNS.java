@@ -15,17 +15,23 @@ import lodVader.exceptions.mongodb.LODVaderObjectAlreadyExistsException;
 import lodVader.mongodb.DBSuperClass2;
 import lodVader.mongodb.collections.DistributionDB;
 
-public class SuperNS extends DBSuperClass2{
+public class SuperNS{
+	
+	DBSuperClass2 db;
+	
+	public SuperNS(DBSuperClass2 db) {
+		this.db = db;
+	}
 
-	public SuperNS(String collectionName) {
-		super(collectionName);
+	public void init(String collectionName) {
+		this.db.COLLECTION_NAME = collectionName;
 		setParameters();
 	}
 	
 	private void setParameters(){
-		addMandatoryField(DATASET_ID);
-		addMandatoryField(DISTRIBUTION_ID);
-		addMandatoryField(NS);
+		db.addMandatoryField(DATASET_ID);
+		db.addMandatoryField(DISTRIBUTION_ID);
+		db.addMandatoryField(NS);
 	}
 	
 	// class properties
@@ -36,44 +42,44 @@ public class SuperNS extends DBSuperClass2{
 	public static final String NS = "ns";
 
 	public int getDistributionID() {
-		return ((Number) mongoDBObject.get(DISTRIBUTION_ID)).intValue();
+		return ((Number) db.mongoDBObject.get(DISTRIBUTION_ID)).intValue();
 	}
 
 	public void setDistributionID(int distributionID) {
-		mongoDBObject.put(DISTRIBUTION_ID, distributionID);
+		db.mongoDBObject.put(DISTRIBUTION_ID, distributionID);
 	}
 
 	public int getDatasetID() {
-		return ((Number) mongoDBObject.get(DATASET_ID)).intValue();
+		return ((Number) db.mongoDBObject.get(DATASET_ID)).intValue();
 	}
 
 	public void setDatasetID(int datasetID) {
-		mongoDBObject.put(DATASET_ID, datasetID);
+		db.mongoDBObject.put(DATASET_ID, datasetID);
 	}
 
 	public String getNS() {
-		return getField(NS).toString();
+		return db.getField(NS).toString();
 	}
 
 	public void setNS(String ns) {
-		addField(NS, ns);
+		db.addField(NS, ns);
 	}
 	
 	public void bulkSave(Set<String> nsSet, DistributionDB distribution){
-		getCollection().remove(new BasicDBObject(DISTRIBUTION_ID, distribution.getLODVaderID()));
+		db.getCollection().remove(new BasicDBObject(DISTRIBUTION_ID, distribution.getLODVaderID()));
 		int distributionLodVaderID = distribution.getLODVaderID();
 		int topDatasetID = distribution.getTopDatasetID();
 		ArrayList<DBObject> bulkList = new ArrayList<DBObject>();
 		
 		for (String s : nsSet) {
-			mongoDBObject = new BasicDBObject();
+			db.mongoDBObject = new BasicDBObject();
 			setDistributionID(distributionLodVaderID);
 			setNS(s);
 			setDatasetID(topDatasetID);
-			bulkList.add(mongoDBObject);
+			bulkList.add(db.mongoDBObject);
 		}
 		
-		bulkSave2(bulkList);
+		db.bulkSave2(bulkList);
 		
 	}
 

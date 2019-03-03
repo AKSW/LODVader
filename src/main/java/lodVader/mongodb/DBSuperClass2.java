@@ -321,7 +321,7 @@ public class DBSuperClass2 {
 	 * @return
 	 */
 
-	protected boolean bulkSave2(List<DBObject> objects) {
+	public boolean bulkSave2(List<DBObject> objects) {
 		if (objects.size() == 0)
 			return false;
 		BulkWriteOperation builder = getCollection().initializeUnorderedBulkOperation();
@@ -333,7 +333,7 @@ public class DBSuperClass2 {
 	}
 
 	@JsonIgnore
-	protected DBCollection getCollection() {
+	public DBCollection getCollection() {
 		if (collection == null) {
 			collection = getDBInstance().getCollection(COLLECTION_NAME);
 		}
