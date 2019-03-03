@@ -2,7 +2,9 @@ package lodVader.mongodb.collections;
 
 import lodVader.mongodb.DBSuperClass2;
 
-public abstract class ResourceDB extends DBSuperClass2 {
+public class ResourceDB {
+	
+	public DBSuperClass2 db;
 
 	public static final String URI = "uri";
 
@@ -14,59 +16,60 @@ public abstract class ResourceDB extends DBSuperClass2 {
 
 	public static final String LABEL = "label";
 
-	public ResourceDB(String collectionName) {
-		super(collectionName);
+	public ResourceDB( DBSuperClass2 db, String collectionName) {
+		this.db = db;
+		this.db.COLLECTION_NAME = collectionName;
 		setIsVocabulary(false);
 	}
 
 	public void setLodVaderID(int id) {
-		addField(LOD_VADER_ID, id);
+		db.addField(LOD_VADER_ID, id);
 	}
 
 	public void setIsVocabulary(boolean isVocabulary) {
-		addField(IS_VOCABULARY, isVocabulary);
+		db.addField(IS_VOCABULARY, isVocabulary);
 	}
 
 	public String getTitle() {
 		try {
-			return getField(TITLE).toString();
+			return db.getField(TITLE).toString();
 		} catch (NullPointerException e) {
 			return "";
 		}
 	}
 
 	public boolean getIsVocabulary() {
-		return Boolean.getBoolean(getField(IS_VOCABULARY).toString());
+		return Boolean.getBoolean(db.getField(IS_VOCABULARY).toString());
 	}
 
 	public void setTitle(String title) {
-		addField(TITLE, title);
+		db.addField(TITLE, title);
 	}
 
 	public void setLabel(String label) {
-		addField(LABEL, label);
+		db.addField(LABEL, label);
 	}
 
 	public String getLabel() {
 		try {
-			return getField(LABEL).toString();
+			return db.getField(LABEL).toString();
 		} catch (NullPointerException e) {
 			return "";
 		}
 	}
 
 	public Integer getLODVaderID() {
-		if (getField(LOD_VADER_ID) != null)
-			return ((Number) getField(LOD_VADER_ID)).intValue();
+		if (db.getField(LOD_VADER_ID) != null)
+			return ((Number) db.getField(LOD_VADER_ID)).intValue();
 		else
 			return null;
 	}
 
 	public String getUri() {
-		return getField(URI).toString();
+		return db.getField(URI).toString();
 	}
 
 	public void setUri(String uri) {
-		addField(URI, uri);
+		db.addField(URI, uri);
 	}
 }

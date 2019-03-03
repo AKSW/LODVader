@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -30,9 +29,13 @@ public class MakeLinksetsMasterThreadLDLEx extends ProcessNSFromTupleLDLEX {
 	 *            of the distribution (usually the distribution URL)
 	 * @throws MalformedURLException
 	 */
-	public MakeLinksetsMasterThreadLDLEx(BlockingQueue<String> resourceQueue, String uri, TuplePart tuplePart)
-			throws MalformedURLException {
-		super(resourceQueue, uri,tuplePart);
+//	public MakeLinksetsMasterThreadLDLEx(BlockingQueue<String> resourceQueue, String uri, TuplePart tuplePart)
+//			throws MalformedURLException {
+//	super(resourceQueue, uri,tuplePart);	
+//	}
+	
+	public void init(BlockingQueue<String> resourceQueue, String uri, TuplePart tuplePart) throws MalformedURLException {
+		super.init(resourceQueue, uri,tuplePart);
 	}
 
 	final static Logger logger = LoggerFactory.getLogger(MakeLinksetsMasterThreadLDLEx.class);

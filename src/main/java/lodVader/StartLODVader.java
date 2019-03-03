@@ -57,7 +57,13 @@ public class StartLODVader implements InitializingBean{
 	
 	@Autowired
 	IndexesCreator indexCreator;
+	
+	@Autowired
+	Manager manager;
 
+	@Autowired
+	DistributionDB distributionDB;
+	
     @Override
     public void afterPropertiesSet() throws Exception {
 
@@ -109,9 +115,10 @@ public class StartLODVader implements InitializingBean{
 				logger.info("re-download distributions with \"" + DistributionStatus.STREAMING + "\" status");
 
 				for (String s : q) {
-					DistributionDB dist = new DistributionDB(s);
+					DistributionDB dist = conf.getDistributionDB();
+					dist.init(s);
 					dist.setStatus(DistributionStatus.WAITING_TO_STREAM);
-						dist.update(true);
+						dist.db.update(true);
 				}
 
 				// download distributions with "STATUS_WAITING_TO_STREAM" status
@@ -120,10 +127,13 @@ public class StartLODVader implements InitializingBean{
 				logger.info("download distributions with \"" + DistributionStatus.WAITING_TO_STREAM + "\" status");
 
 				for (String s : q) {
-					DistributionDB dist = new DistributionDB(s);
-					dist.find(true);
+					DistributionDB dist = conf.getDistributionDB();
+					dist.init(s);
+					dist.db.find(true);
         				//if(!dist.getFormat().equals("rdf"))
-						datasets.put(dist.getTopDatasetID(), new DatasetDB(dist.getTopDatasetID()));
+					DatasetDB dataset = conf.getDatasetDB();
+					dataset.init(dist.getTopDatasetID());
+					datasets.put(dist.getTopDatasetID(), dataset);
 				}
 
 			}
@@ -136,10 +146,13 @@ public class StartLODVader implements InitializingBean{
 				logger.info("download distributions with \"" + DistributionStatus.WAITING_TO_STREAM + "\" status");
 
 				for (String s : q) {
-					DistributionDB dist = new DistributionDB(s);
+					DistributionDB dist = conf.getDistributionDB();
+					dist.init(s);
 					dist.setStatus(DistributionStatus.WAITING_TO_STREAM);
-					dist.update(true); 
-					datasets.put(dist.getTopDatasetID(),new DatasetDB(dist.getTopDatasetID()));
+					dist.db.update(true);
+					DatasetDB dataset = conf.getDatasetDB();
+					dataset.init(dist.getTopDatasetID());					
+					datasets.put(dist.getTopDatasetID(), dataset);
 				}
 			}
 
@@ -158,7 +171,7 @@ public class StartLODVader implements InitializingBean{
 
 			logger.info("We will resume: " + datasets.size() + " dataset(s).");
 
-			new Manager(datasets.values());
+			manager.setDatasets(datasets.values());
 
 		} catch (Exception e) {
 			e.printStackTrace();

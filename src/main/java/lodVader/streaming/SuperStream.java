@@ -104,7 +104,7 @@ public abstract class SuperStream {
 		// check HTTP response code
 		if (responseCode != HttpURLConnection.HTTP_OK) {
 			httpConn.disconnect();
-			throw new LODVaderLODGeneralException("No file to download. Server replied HTTP code: " + responseCode);
+			throw new LODVaderLODGeneralException("No file to download. Server replied HTTP code: " + responseCode +". URL: " + downloadUrl.toString());
 		}
 
 		logger.debug("Successfuly connected with HTTP OK status.");

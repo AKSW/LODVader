@@ -22,13 +22,7 @@ public class LODVaderProperties {
 	public void loadProperties() {
 		
 			// get the property value and print it out
-		BASE_PATH = conf.getProperties().getPathProperties().getBasePath();
-//			MONGODB_HOST = prop.getProperty("MONGODB_HOST");
-//			MONGODB_PORT = Integer.valueOf(prop.getProperty("MONGODB_PORT"));
-//			MONGODB_DB = prop.getProperty("MONGODB_DB");
-//			MONGODB_SECURE_MODE = Boolean.valueOf(prop.getProperty("MONGODB_SECURE_MODE"));
-//			MONGODB_USERNAME = prop.getProperty("MONGODB_USERNAME");
-//			MONGODB_PASSWORD = prop.getProperty("MONGODB_PASSWORD");
+		    BASE_PATH = conf.getProperties().getPathProperties().getBasePath();
 			NR_THREADS = conf.getProperties().getPathProperties().getNrThreads();
 			LOV_URL = conf.getProperties().getPathProperties().getLovUrl();
 			RESUME = conf.getProperties().getPathProperties().getResume();

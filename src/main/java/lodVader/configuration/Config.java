@@ -6,8 +6,11 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.data.mongodb.MongoDbFactory;
 
 import lodVader.mongodb.DBSuperClass2;
+import lodVader.mongodb.collections.DatasetDB;
+import lodVader.mongodb.collections.DistributionDB;
 import lodVader.mongodb.collections.LODVaderCounterDB;
 import lodVader.mongodb.collections.SystemPropertiesDB;
+import lodVader.threads.MakeLinksetsMasterThreadLDLEx;
 
 @Configuration
 public class Config{
@@ -45,5 +48,22 @@ public class Config{
 		return new SystemPropertiesDB(getDBSuperClass2());
 	}
 	
+	@Bean
+	@Scope(value = "prototype")	
+	public DistributionDB getDistributionDB() {
+		return new DistributionDB(getDBSuperClass2());
+	}	
+
+	@Bean
+	@Scope(value = "prototype")	
+	public DatasetDB getDatasetDB() {
+		return new DatasetDB(getDBSuperClass2());
+	}	
+
+	@Bean
+	@Scope(value = "prototype")	
+	public MakeLinksetsMasterThreadLDLEx getMakeLinksetsMasterThreadLDLEx() {
+		return new MakeLinksetsMasterThreadLDLEx();
+	}	
 	
 }

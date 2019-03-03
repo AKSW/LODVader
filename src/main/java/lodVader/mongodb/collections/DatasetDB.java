@@ -1,16 +1,21 @@
 package lodVader.mongodb.collections;
 
 import java.util.ArrayList;
-import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
+import lodVader.mongodb.DBSuperClass2;
 import lodVader.mongodb.queries.DatasetQueries;
 
 public class DatasetDB extends ResourceDB {
+	
+	@Autowired
+	LODVaderCounterDB lodVaderCounterDB;
 
 	// Collection name
 	public static final String COLLECTION_NAME = "Dataset";
@@ -27,77 +32,78 @@ public class DatasetDB extends ResourceDB {
 
 	public static final String DESCRIPTION_FILE_URL = "descriptionFileURL";
 
-	public DatasetDB(String uri) { 
-		super(COLLECTION_NAME);
+	public DatasetDB(DBSuperClass2 db) {
+		super(db, COLLECTION_NAME);
+	}
+	
+	public void init(String uri) {
 		setKeys();
 		setUri(uri);
-		find(true);
+		db.find(true);
 		if (getLODVaderID() == null)
-			setLodVaderID(new LODVaderCounterDB().incrementAndGetID());
+			setLodVaderID(lodVaderCounterDB.incrementAndGetID());		
 	}
 
-	public DatasetDB(int id) {
-		super(COLLECTION_NAME);
+	public void init(int id) {
 		setKeys();
 		setLodVaderID(id);
-		find(true);
+		db.find(true);
 		if (getLODVaderID() == null)
-			setLodVaderID(new LODVaderCounterDB().incrementAndGetID());
+			setLodVaderID(lodVaderCounterDB.incrementAndGetID());
 	}
 
-	public DatasetDB(DBObject object) {
-		super(COLLECTION_NAME);
+	public void init(DBObject object) {
 		setKeys();
-		mongoDBObject = object;
+		db.mongoDBObject = object;
 	}
 
 	public void setKeys() {
-		addPK(URI);
-		addPK(LOD_VADER_ID);
-		addMandatoryField(URI);
-		addMandatoryField(DESCRIPTION_FILE_URL);
-//		addMandatoryField(SUBSET_IDS);
-//		addMandatoryField(DISTRIBUTIONS_IDS);
+		db.addPK(URI);
+		db.addPK(LOD_VADER_ID);
+		db.addMandatoryField(URI);
+		db.addMandatoryField(DESCRIPTION_FILE_URL);
+//		db.addMandatoryField(SUBSET_IDS);
+//		db.addMandatoryField(DISTRIBUTIONS_IDS);
 	}
 
 	public void setSubsetIds(ArrayList<Integer> ids) {
-		addField(SUBSET_IDS, ids);
+		db.addField(SUBSET_IDS, ids);
 	}
 
 	public void setDistributionsIds(ArrayList<Integer> ids) {
-		addField(DISTRIBUTIONS_IDS, ids);
+		db.addField(DISTRIBUTIONS_IDS, ids);
 	}
 
 	public void addSubsetID(int id) {
-		ArrayList<Integer> ids = (ArrayList<Integer>) getField(SUBSET_IDS);
+		ArrayList<Integer> ids = (ArrayList<Integer>) db.getField(SUBSET_IDS);
 		if (ids != null) {
 			if (!ids.contains(id)) {
 				ids.add(id);
-				addField(SUBSET_IDS, ids);
+				db.addField(SUBSET_IDS, ids);
 			}
 		} else {
 			ids = new ArrayList<Integer>();
 			ids.add(id);
-			addField(SUBSET_IDS, ids);
+			db.addField(SUBSET_IDS, ids);
 		}
 	}
 
 	public void addDistributionID(int id) {
-		ArrayList<Integer> ids = (ArrayList<Integer>) getField(DISTRIBUTIONS_IDS);
+		ArrayList<Integer> ids = (ArrayList<Integer>) db.getField(DISTRIBUTIONS_IDS);
 		if (ids != null) {
 			if (!ids.contains(id)) {
 				ids.add(id);
-				addField(DISTRIBUTIONS_IDS, ids);
+				db.addField(DISTRIBUTIONS_IDS, ids);
 			}
 		} else {
 			ids = new ArrayList<Integer>();
 			ids.add(id);
-			addField(DISTRIBUTIONS_IDS, ids);
+			db.addField(DISTRIBUTIONS_IDS, ids);
 		}
 	}
 
 	public ArrayList<Integer> getDistributionsIDs() {
-		return (ArrayList<Integer>) getField(DISTRIBUTIONS_IDS);
+		return (ArrayList<Integer>) db.getField(DISTRIBUTIONS_IDS);
 	}
 
 	@JsonIgnore
@@ -106,7 +112,7 @@ public class DatasetDB extends ResourceDB {
 	}
 
 	public ArrayList<Integer> getSubsetsIDs() {
-		return (ArrayList<Integer>) getField(SUBSET_IDS);
+		return (ArrayList<Integer>) db.getField(SUBSET_IDS);
 	}
 
 	@JsonIgnore
@@ -115,16 +121,16 @@ public class DatasetDB extends ResourceDB {
 	}
 
 	public void setDescriptionFileURL(String descriptionFileURL){
-		addField(DESCRIPTION_FILE_URL, descriptionFileURL);
+		db.addField(DESCRIPTION_FILE_URL, descriptionFileURL);
 	}
 
 	public String getDescriptionFileURL(){
-		return getField(DESCRIPTION_FILE_URL).toString();
+		return db.getField(DESCRIPTION_FILE_URL).toString();
 	}
 	
 	public ArrayList<Integer> getParentDatasetID() {
 		try{
-		ArrayList<Integer> parentDatasetsIDs = (ArrayList<Integer>) getField(PARENT_DATASETS);
+		ArrayList<Integer> parentDatasetsIDs = (ArrayList<Integer>) db.getField(PARENT_DATASETS);
 		if (parentDatasetsIDs.get(0) != 0 || parentDatasetsIDs.size() >= 1)
 			return parentDatasetsIDs;
 		else
@@ -136,22 +142,22 @@ public class DatasetDB extends ResourceDB {
 	}
 
 	public void addParentDatasetID(int id) {
-		ArrayList<Integer> ids = (ArrayList<Integer>) getField(PARENT_DATASETS);
+		ArrayList<Integer> ids = (ArrayList<Integer>) db.getField(PARENT_DATASETS);
 		if (ids != null) {
 			if (!ids.contains(id)) {
 				ids.add(id);
-				addField(PARENT_DATASETS, ids);
+				db.addField(PARENT_DATASETS, ids);
 			}
 		} else {
 			ids = new ArrayList<Integer>();
 			ids.add(id);
-			addField(PARENT_DATASETS, ids);
+			db.addField(PARENT_DATASETS, ids);
 		}
 	}
 
 	public int getDatasetTriples() {
 		BasicDBObject query = new BasicDBObject(DistributionDB.TOP_DATASET, getLODVaderID());
-		DBCursor list = getCollection(DistributionDB.COLLECTION_NAME).find(query);
+		DBCursor list = db.getCollection(DistributionDB.COLLECTION_NAME).find(query);
 		int triples = 0;
 		for (DBObject d : list) {
 			if (d.get(DistributionDB.TRIPLES) != null)

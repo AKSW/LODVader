@@ -1,9 +1,9 @@
 path-properties:
-  base-path: /tmp
+  base-path: /tmp/
   resume: false
   multithread: false
   compare-way-around: false
-  lov-url: http://lov.okfn.org/lov.nq.gz
+  lov-url: https://lov.linkeddata.es/lov.nq.gz
   resume-errors: false
   nr-threads: 2
   remove-dataset-pass: 12345

@@ -4,56 +4,63 @@ import java.net.MalformedURLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.mongodb.DBObject;
 
 import lodVader.enumerators.DistributionStatus;
+import lodVader.mongodb.DBSuperClass2;
 import lodVader.mongodb.queries.DatasetQueries;
 import lodVader.utils.URLUtils;
 
 public class DistributionDB extends ResourceDB {
+	
+	@Autowired
+	LODVaderCounterDB lovVaderCounterDB;
 
 	// Collection name
 	public static final String COLLECTION_NAME = "Distribution";
 
-	public DistributionDB() {
-		super(COLLECTION_NAME);
+	public DistributionDB(DBSuperClass2 db) {
+		super(db, COLLECTION_NAME);
+		super.db=db;
+	}
+	
+	public void init() {
 		setKeys();
-		setLodVaderID(new LODVaderCounterDB().incrementAndGetID());
+		setLodVaderID(lovVaderCounterDB.incrementAndGetID());
 	}
 
-	public DistributionDB(DBObject object) {
-		super(COLLECTION_NAME);
-		mongoDBObject = object;
+	public void init(DBObject object) {
+		db.mongoDBObject = object;
 		setKeys();
 	}
 
-	public DistributionDB(int id) {
-		super(COLLECTION_NAME);
+	public void init(int id) {
 		setKeys();
 		setLodVaderID(id);
-		find(true, LOD_VADER_ID, id);
+		db.find(true, LOD_VADER_ID, id);
 		if (getLODVaderID() == null)
-			setLodVaderID(new LODVaderCounterDB().incrementAndGetID());
+			setLodVaderID(lovVaderCounterDB.incrementAndGetID());
 	}
 
-	public DistributionDB(String uri) throws MalformedURLException {
-		super(COLLECTION_NAME);
+	public void init(String uri) throws MalformedURLException {
 		setKeys();
 		setUri(uri);
 		setDownloadUrl(uri);
-		find(true);
+		db.find(true);
 		if (getLODVaderID() == null)
-			setLodVaderID(new LODVaderCounterDB().incrementAndGetID());
+			setLodVaderID(lovVaderCounterDB.incrementAndGetID());
 	}
 
 	private void setKeys() {
-		addPK(URI);
-		addPK(DOWNLOAD_URL);
-		addPK(LOD_VADER_ID);
-		addMandatoryField(DOWNLOAD_URL);
-		addMandatoryField(URI);
-		addMandatoryField(LOD_VADER_ID);
-		addMandatoryField(STATUS);
+		db.addPK(URI);
+		db.addPK(DOWNLOAD_URL);
+		db.addPK(LOD_VADER_ID);
+		db.addMandatoryField(DOWNLOAD_URL);
+		db.addMandatoryField(URI);
+		db.addMandatoryField(LOD_VADER_ID);
+		db.addMandatoryField(STATUS);
 	}
 
 	// collection properties
@@ -98,240 +105,240 @@ public class DistributionDB extends ResourceDB {
 	public static final String SUBJECT_FILE = "subjectFile";
 
 	public String getDownloadUrl() {
-		return getField(DOWNLOAD_URL).toString();
+		return db.getField(DOWNLOAD_URL).toString();
 	}
 
 	public void setDownloadUrl(String downloadUrl) throws MalformedURLException {
 		URLUtils utils = new URLUtils();
 		utils.validateURL(downloadUrl);
-		addField(DOWNLOAD_URL, downloadUrl);
+		db.addField(DOWNLOAD_URL, downloadUrl);
 	}
 
 	public String getHttpByteSize() {
 		try {
-			return getField(HTTP_BYTE_SIZE).toString();
+			return db.getField(HTTP_BYTE_SIZE).toString();
 		} catch (NullPointerException e) {
 			return "";
 		}
 	}
 
 	public void setHttpByteSize(String httpByteSize) {
-		addField(HTTP_BYTE_SIZE, httpByteSize);
+		db.addField(HTTP_BYTE_SIZE, httpByteSize);
 	}
 
 	public void setObjectCohesion(int objectCohesion) {
-		addField(OBJECTS_COHESION, objectCohesion);
+		db.addField(OBJECTS_COHESION, objectCohesion);
 	}
 
 	public int getObjectCohesion() {
 		try {
-			return ((Number) getField(OBJECTS_COHESION)).intValue();
+			return ((Number) db.getField(OBJECTS_COHESION)).intValue();
 		} catch (NullPointerException e) {
 			return 0;
 		}
 	}
 
 	public Integer getTopDatasetID() {
-		return ((Number) getField(TOP_DATASET)).intValue();
+		return ((Number) db.getField(TOP_DATASET)).intValue();
 	}
 
 	public void setTopDataset(int topDataset) {
-		addField(TOP_DATASET, topDataset);
+		db.addField(TOP_DATASET, topDataset);
 	}
 
 	public int getNumberOfSubjectTriples() {
 		try {
-			return ((Number) getField(NUMBER_OF_SUBJECT_TRIPLES)).intValue();
+			return ((Number) db.getField(NUMBER_OF_SUBJECT_TRIPLES)).intValue();
 		} catch (NullPointerException e) {
 			return 0;
 		}
 	}
 
 	public void setNumberOfSubjectTriples(int numberOfSubjectTriples) {
-		addField(NUMBER_OF_SUBJECT_TRIPLES, numberOfSubjectTriples);
+		db.addField(NUMBER_OF_SUBJECT_TRIPLES, numberOfSubjectTriples);
 	}
 
 	public int getNumberOfObjectTriples() {
-		if (getField(NUMBER_OF_OBJECTS_TRIPLES) != null)
-			return ((Number) getField(NUMBER_OF_OBJECTS_TRIPLES)).intValue();
+		if (db.getField(NUMBER_OF_OBJECTS_TRIPLES) != null)
+			return ((Number) db.getField(NUMBER_OF_OBJECTS_TRIPLES)).intValue();
 		else
 			return 0;
 	}
 
 	public void setNumberOfObjectTriples(int numberOfObjectTriples) {
-		addField(NUMBER_OF_OBJECTS_TRIPLES, numberOfObjectTriples);
+		db.addField(NUMBER_OF_OBJECTS_TRIPLES, numberOfObjectTriples);
 	}
 
 	public String getHttpFormat() {
 		try {
-			return getField(HTTP_FORMAT).toString();
+			return db.getField(HTTP_FORMAT).toString();
 		} catch (NullPointerException e) {
 			return "";
 		}
 	}
 
 	public void setHttpFormat(String httpFormat) {
-		addField(HTTP_FORMAT, httpFormat);
+		db.addField(HTTP_FORMAT, httpFormat);
 	}
 
 	public String getHttpLastModified() {
 		try {
-			return getField(LAST_TIME_STREAMED).toString();
+			return db.getField(LAST_TIME_STREAMED).toString();
 		} catch (NullPointerException e) {
 			return "";
 		}
 	}
 
 	public void setHttpLastModified(String httpLastModified) {
-		addField(HTTP_LAST_MODIFIED, httpLastModified);
+		db.addField(HTTP_LAST_MODIFIED, httpLastModified);
 	}
 
 	public Integer getTriples() {
-		if (getField(TRIPLES) != null)
-			return ((Number) getField(TRIPLES)).intValue();
+		if (db.getField(TRIPLES) != null)
+			return ((Number) db.getField(TRIPLES)).intValue();
 		else
 			return 0;
 	}
 
 	public String getTriplesStringFormat() {
 		DecimalFormat formatter = new DecimalFormat("#,###,###,###,###");
-		return formatter.format(((Number) getField(TRIPLES)).intValue());
+		return formatter.format(((Number) db.getField(TRIPLES)).intValue());
 	}
 
 	public void setTriples(Integer triples) {
-		addField(TRIPLES, triples);
+		db.addField(TRIPLES, triples);
 	}
 
 	public String getFormat() {
-		return getField(FORMAT).toString();
+		return db.getField(FORMAT).toString();
 	}
 
 	public String getUndefinedLinks() {
 		try {
-			return getField(UNDEFINED_LINKS).toString();
+			return db.getField(UNDEFINED_LINKS).toString();
 		} catch (NullPointerException e) {
 			return "0";
 		}
 	}
 
 	public void setFormat(String format) {
-		addField(FORMAT, format);
+		db.addField(FORMAT, format);
 	}
 
 	public void setUndefinedLinks(Double undefinedLinks) {
-		addField(UNDEFINED_LINKS, undefinedLinks);
+		db.addField(UNDEFINED_LINKS, undefinedLinks);
 	}
 
 	public boolean getSuccessfullyDownloaded() {
-		return Boolean.getBoolean(getField(SUCCESSFULLY_DOWNLOADED).toString());
+		return Boolean.getBoolean(db.getField(SUCCESSFULLY_DOWNLOADED).toString());
 	}
 
 	public void setSuccessfullyDownloaded(boolean successfullyDownloaded) {
-		addField(SUCCESSFULLY_DOWNLOADED, successfullyDownloaded);
+		db.addField(SUCCESSFULLY_DOWNLOADED, successfullyDownloaded);
 	}
 
 	public String getLastMsg() {
 
-		if (getField(LAST_MSG) == null)
+		if (db.getField(LAST_MSG) == null)
 			return "";
-		return getField(LAST_MSG).toString();
+		return db.getField(LAST_MSG).toString();
 	}
 
 	public void setLastMsg(String lastMsg) {
-		addField(LAST_MSG, lastMsg);
+		db.addField(LAST_MSG, lastMsg);
 	}
 
 	public DistributionStatus getStatus() {
 		try {
-			getField(STATUS).toString();
+			db.getField(STATUS).toString();
 		} catch (NullPointerException e) {
 			return null;
 		}
-		return DistributionStatus.valueOf(getField(STATUS).toString());
+		return DistributionStatus.valueOf(db.getField(STATUS).toString());
 	}
 
 	public void setStatus(DistributionStatus status) {
-		addField(STATUS, status.name());
+		db.addField(STATUS, status.name());
 	}
 
 	public boolean getIsVocabulary() {
-		return Boolean.parseBoolean(getField(IS_VOCABULARY).toString());
+		return Boolean.parseBoolean(db.getField(IS_VOCABULARY).toString());
 	}
 
 	public String getResourceUri() {
 		try {
-			return getField(RESOURCE_URI).toString();
+			return db.getField(RESOURCE_URI).toString();
 		} catch (NullPointerException e) {
 			return "";
 		}
 	}
 
 	public void setResourceUri(String resourceUri) {
-		addField(RESOURCE_URI, resourceUri);
+		db.addField(RESOURCE_URI, resourceUri);
 	}
 
 	public String getLastTimeStreamed() {
-		return getField(LAST_TIME_STREAMED).toString();
+		return db.getField(LAST_TIME_STREAMED).toString();
 	}
 
 	public void setLastTimeStreamed(String lastTimeStreamed) {
-		addField(LAST_TIME_STREAMED, lastTimeStreamed);
+		db.addField(LAST_TIME_STREAMED, lastTimeStreamed);
 	}
 
 	public String getTopDatasetTitle() {
-		return getField(TOP_DATASET_TITLE).toString();
+		return db.getField(TOP_DATASET_TITLE).toString();
 	}
 
 	public void setTopDatasetTitle(String topDatasetTitle) {
-		addField(TOP_DATASET_TITLE, topDatasetTitle);
+		db.addField(TOP_DATASET_TITLE, topDatasetTitle);
 	}
 
 	public void setDefaultDatasets(ArrayList<Integer> defaultDatasets) {
-		addField(DEFAULT_DATASETS, defaultDatasets);
+		db.addField(DEFAULT_DATASETS, defaultDatasets);
 	}
 
 	public void setSubjectFile(String subjectFile) {
-		addField(SUBJECT_FILE, subjectFile);
+		db.addField(SUBJECT_FILE, subjectFile);
 	}
 
 	public void setObjectFile(String objectFile) {
-		addField(OBJECT_FILE, objectFile);
+		db.addField(OBJECT_FILE, objectFile);
 	}
 
 	public String getSubjectFile() {
-		if (getField(SUBJECT_FILE) != null)
-			return getField(SUBJECT_FILE).toString();
+		if (db.getField(SUBJECT_FILE) != null)
+			return db.getField(SUBJECT_FILE).toString();
 		else
 			return "";
 	}
 
 	public String getObjectFile() {
-		if (getField(OBJECT_FILE) != null)
-			return getField(OBJECT_FILE).toString();
+		if (db.getField(OBJECT_FILE) != null)
+			return db.getField(OBJECT_FILE).toString();
 		else
 			return "";
 	}
 
 	public void addDefaultDatasets(int datasetID) {
-		ArrayList<Integer> ids = (ArrayList<Integer>) getField(DEFAULT_DATASETS);
+		ArrayList<Integer> ids = (ArrayList<Integer>) db.getField(DEFAULT_DATASETS);
 		if (ids != null) {
 			if (!ids.contains(datasetID)) {
 				ids.add(datasetID);
-				addField(DEFAULT_DATASETS, ids);
+				db.addField(DEFAULT_DATASETS, ids);
 			}
 		} else {
 			ids = new ArrayList<Integer>();
 			ids.add(datasetID);
-			addField(DEFAULT_DATASETS, ids);
+			db.addField(DEFAULT_DATASETS, ids);
 		}
 	}
 
 	public ArrayList<Integer> getDefaultDatasets() {
-		return (ArrayList<Integer>) getField(DEFAULT_DATASETS);
+		return (ArrayList<Integer>) db.getField(DEFAULT_DATASETS);
 	}
 
 	public ArrayList<DatasetDB> getDefaultDatasetsAsResources() {
-		return new DatasetQueries().getDatasets((ArrayList<Integer>) getField(DEFAULT_DATASETS));
+		return new DatasetQueries().getDatasets((ArrayList<Integer>) db.getField(DEFAULT_DATASETS));
 	}
 
 }

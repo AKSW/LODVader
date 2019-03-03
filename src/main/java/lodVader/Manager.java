@@ -2,18 +2,16 @@ package lodVader;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import lodVader.bloomfilters.models.DatasetLinksContainer;
 import lodVader.configuration.LODVaderProperties;
 import lodVader.enumerators.DistributionStatus;
 import lodVader.lov.LOV;
@@ -25,7 +23,15 @@ import lodVader.streaming.StreamAndProcess;
 import lodVader.streaming.StreamAndSaveDump;
 import lodVader.streaming.SuperStream;
 
+@Component
 public class Manager {
+	
+	@Autowired
+	SystemPropertiesDB systemPropertiesDB;
+	
+	@Autowired 
+	LOV lov;
+	
 	final static Logger logger = LoggerFactory.getLogger(Manager.class);
 
 	// list of subset and their distributions
@@ -64,7 +70,7 @@ public class Manager {
 				if (!needDownload) {
 					logger.info("Distribution is already in the last version. No needs to stream again. ");
 					distribution.setLastMsg("Distribution is already in the last version. No needs to stream again.");
-					distribution.update(true);
+					distribution.db.update(true);
 				}
 
 				// if distribution have not already been handled
@@ -73,7 +79,7 @@ public class Manager {
 
 						// uptate status of distribution to streaming
 						distribution.setStatus(DistributionStatus.STREAMING);
-						distribution.update(true);
+						distribution.db.update(true);
 
 						// now we need to download the distribution
 						SuperStream streamFile;
@@ -87,9 +93,9 @@ public class Manager {
 						streamFile.streamDistribution();
 
 						// uptate status of distribution
-						distribution.find(true);
+						distribution.db.find(true);
 						distribution.setStatus(DistributionStatus.STREAMED);
-						distribution.update(true);
+						distribution.db.update(true);
 
 						logger.debug("Distribution streamed. ");
 
@@ -105,7 +111,7 @@ public class Manager {
 						distribution.setTriples(streamFile.totalTriples);
 
 						distribution.setSuccessfullyDownloaded(true);
-						distribution.update(true);
+						distribution.db.update(true);
 
 						// logger.debug("Checking Similarity among
 						// distributions...");
@@ -145,7 +151,7 @@ public class Manager {
 
 						distribution.setLastTimeStreamed(dateFormat.format(date).toString());
 
-						distribution.update(true);
+						distribution.db.update(true);
 
 						logger.info("Distribution " + distribution.getDownloadUrl() + " processed! ");
 
@@ -156,7 +162,7 @@ public class Manager {
 
 						e.printStackTrace();
 						distribution.setSuccessfullyDownloaded(false);
-						distribution.update(true);
+						distribution.db.update(true);
 
 					}
 			}			
@@ -172,7 +178,7 @@ public class Manager {
 	 * 
 	 * @param collection
 	 */
-	public Manager(Collection<DatasetDB> collection) {
+	public void setDatasets(Collection<DatasetDB> collection) {
 		if (LODVaderProperties.CHECK_LOV)
 			checkLOV();
 
@@ -194,17 +200,16 @@ public class Manager {
 	}
 
 	private void checkLOV() {
-		// check if LOV have already been downloaded
-		SystemPropertiesDB g = new SystemPropertiesDB();
-		if (g.getDownloadedLOV() == null || !g.getDownloadedLOV()) {
+
+		if (systemPropertiesDB.getDownloadedLOV() == null || !systemPropertiesDB.getDownloadedLOV()) {
 			logger.info("LOV vocabularies still not lodaded! Loading now...");
 			try {
-				new LOV().loadLOVVocabularies();
-				g.setDownloadedLOV(true);
+				lov.loadLOVVocabularies();
+				systemPropertiesDB.setDownloadedLOV(true);
 				logger.info("LOV vocabularies loaded!");
 			} catch (Exception e) {
 				e.printStackTrace();
-				g.setDownloadedLOV(false);
+				systemPropertiesDB.setDownloadedLOV(false);
 				logger.info("We got an error trying to load LOV vocabularies! " + e.getMessage());
 			}
 		}

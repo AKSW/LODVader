@@ -11,7 +11,6 @@ import java.util.Iterator;
 import java.util.TreeSet;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
@@ -19,6 +18,8 @@ import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
@@ -32,6 +33,7 @@ import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.sparql.core.DatasetGraph;
 
+import lodVader.configuration.Config;
 import lodVader.configuration.LODVaderProperties;
 import lodVader.enumerators.DistributionStatus;
 import lodVader.enumerators.TuplePart;
@@ -53,7 +55,15 @@ import lodVader.streaming.SuperStream;
 import lodVader.threads.MakeLinksetsMasterThreadLDLEx;
 import lodVader.utils.Timer;
 
+@Component
 public class LOV extends SuperStream {
+	
+	@Autowired
+	DatasetDB dataset;
+	
+	@Autowired
+	Config conf;
+	
 	final static Logger logger = LoggerFactory.getLogger(LOV.class);
 
 	DistributionDB distribution = null;
@@ -79,7 +89,7 @@ public class LOV extends SuperStream {
 		Model m = ModelFactory.createDefaultModel();
 		Model tmpModel = ModelFactory.createDefaultModel();
 
-		new LODVaderProperties().loadProperties();
+//		new LODVaderProperties().loadProperties(); CIRO
 
 		setUrl(new URL(LODVaderProperties.LOV_URL));
 		// setUrl(new
@@ -131,7 +141,7 @@ public class LOV extends SuperStream {
 			Resource r = ResourceFactory.createResource(node.getURI());
 
 			// new dataset at mongodb
-			DatasetDB dataset = new DatasetDB(node.getNameSpace());
+			dataset.init(node.getNameSpace());
 			StmtIterator stmt = tmpModel.listStatements(r, p, (RDFNode) null);
 
 			if (stmt.hasNext())
@@ -150,7 +160,7 @@ public class LOV extends SuperStream {
 			dataset.setDescriptionFileURL(LODVaderProperties.LOV_URL);
 			dataset.setSubsetIds(new ArrayList<Integer>());
 			dataset.setDistributionsIds(new ArrayList<Integer>());
-			dataset.update(true);
+			dataset.db.update(true);
 
 			StmtIterator triples = m.listStatements(null, null, (RDFNode) null);
 
@@ -202,7 +212,9 @@ public class LOV extends SuperStream {
 				}
 			}
 			if (node.getNameSpace().startsWith("http")) {
-				distribution = new DistributionDB(node.getNameSpace());
+				
+				distribution = conf.getDistributionDB();
+				distribution.init(node.getNameSpace());
 				distribution.setTopDataset(dataset.getLODVaderID());
 				distribution.setUri(node.getNameSpace());
 				distribution.setIsVocabulary(true);
@@ -212,11 +224,14 @@ public class LOV extends SuperStream {
 					distribution.setTitle(dataset.getLabel());
 				
 				distribution.setStatus(DistributionStatus.WAITING_TO_STREAM);
-				distribution.update(true);
+				distribution.db.update(true);
 
-				MakeLinksetsMasterThreadLDLEx makeLinksetsSubjects = new MakeLinksetsMasterThreadLDLEx(subjectsQueue,
-						node.getNameSpace(), TuplePart.SUBJECT); 
-				MakeLinksetsMasterThreadLDLEx makeLinksetsObjects = new MakeLinksetsMasterThreadLDLEx(objectsQueue,
+				MakeLinksetsMasterThreadLDLEx makeLinksetsSubjects = conf.getMakeLinksetsMasterThreadLDLEx();
+				makeLinksetsSubjects.init(subjectsQueue,
+						node.getNameSpace(), TuplePart.SUBJECT);
+
+				MakeLinksetsMasterThreadLDLEx makeLinksetsObjects = conf.getMakeLinksetsMasterThreadLDLEx();
+				makeLinksetsObjects.init(objectsQueue,
 						node.getNameSpace(), TuplePart.OBJECT);
 //				makeLinksetsObjects.tuplePart = TuplePart.OBJECT;
 //				makeLinksetsSubjects.tuplePart = TuplePart.SUBJECT; 
@@ -287,7 +302,7 @@ public class LOV extends SuperStream {
 
 		distribution.setLastTimeStreamed(dateFormat.format(date).toString());
 
-		distribution.update(true);
+		distribution.db.update(true);
 
 		numberOfTriples = 0;
 

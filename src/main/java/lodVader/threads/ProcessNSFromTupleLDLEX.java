@@ -1,21 +1,21 @@
 package lodVader.threads;
 
 import java.net.MalformedURLException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import ldlex.seeder.NSDistributionMapperHashImpl;
 import ldlex.seeder.NSDistributionMapperInterface;
 import lodVader.bloomfilters.BloomFilterI;
 import lodVader.bloomfilters.models.LoadedBloomFiltersCache;
+import lodVader.configuration.Config;
 import lodVader.configuration.LODVaderProperties;
 import lodVader.enumerators.TuplePart;
 import lodVader.mongodb.collections.DistributionDB;
@@ -30,6 +30,10 @@ import lodVader.utils.NSUtils;
 import lodVader.utils.Timer;
 
 public abstract class ProcessNSFromTupleLDLEX extends Thread {
+	
+	@Autowired
+	Config conf;
+	
 	final static Logger logger = LoggerFactory.getLogger(ProcessNSFromTupleLDLEX.class);
 
 	// tuple part identifies whether we are working with subject or object
@@ -94,13 +98,15 @@ public abstract class ProcessNSFromTupleLDLEX extends Thread {
 
 	int numberOfReadedResources = 0;
 
-	public ProcessNSFromTupleLDLEX(BlockingQueue<String> resourceQueue, String uri, TuplePart tuplePart)
+	public void init(BlockingQueue<String> resourceQueue, String uri, TuplePart tuplePart)
 			throws MalformedURLException {
 		this.resourceQueue = resourceQueue;
 		this.tuplePart = tuplePart;
 		this.countTotalNS = new ConcurrentHashMap<String, Integer>();
 		this.countTotalNS0 = new ConcurrentHashMap<String, Integer>();
-		this.distribution = new DistributionDB(uri);
+		DistributionDB d = conf.getDistributionDB();
+		d.init(uri);
+		this.distribution = d;
 
 		if (tuplePart.equals(TuplePart.OBJECT))
 			mapOfWorkerThreads = mapOfWorkerThreadsObject;
